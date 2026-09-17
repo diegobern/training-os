@@ -116,7 +116,7 @@ export default function RoutineEditor() {
             <Button
               variant="primary"
               onClick={() =>
-                persist({ ...routine, days: [...routine.days, makeRoutineDay(`DAY ${routine.days.length + 1}`, routine.days.length)] })
+                persist({ ...routine, days: [...routine.days, makeRoutineDay(t("routines.dayN", { n: routine.days.length + 1 }), routine.days.length)] })
               }
             >
               {t('routines.addDay')}
@@ -136,14 +136,14 @@ export default function RoutineEditor() {
                 )}
               >
                 <span className={cx('text-2xs font-bold tracking-wide', i === dayIndex ? 'text-accent' : 'text-faint')}>
-                  DAY {i + 1}
+                  {t('routines.dayN', { n: i + 1 })}
                 </span>
                 <span className="max-w-[9rem] truncate text-sm font-semibold">{d.name}</span>
               </button>
             ))}
             <button
               onClick={() =>
-                persist({ ...routine, days: [...routine.days, makeRoutineDay(`DAY ${routine.days.length + 1}`, routine.days.length)] })
+                persist({ ...routine, days: [...routine.days, makeRoutineDay(t("routines.dayN", { n: routine.days.length + 1 }), routine.days.length)] })
               }
               className="press flex shrink-0 items-center gap-1 rounded-xl border border-dashed border-line px-3 py-2 text-xs font-semibold text-faint"
             >
@@ -434,7 +434,7 @@ export default function RoutineEditor() {
           className="mt-3"
           icon={<IconPlus size={16} />}
           onClick={() =>
-            persist({ ...routine, days: [...routine.days, makeRoutineDay(`DAY ${routine.days.length + 1}`, routine.days.length)] })
+            persist({ ...routine, days: [...routine.days, makeRoutineDay(t("routines.dayN", { n: routine.days.length + 1 }), routine.days.length)] })
           }
         >
           {t('routines.addDay')}

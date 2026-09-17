@@ -321,3 +321,72 @@
   18% { transform: translateY(-103%); animation-timing-function: cubic-bezier(0.22,1,0.36,1); }
   100% { transform: translateY(0); }
 }
+
+/* ---------------------------------------------------- navigation logo
+   The 3D mark in the tab bar, played back from a baked sprite.
+
+   Deliberately NOT a live WebGL canvas. The tab bar is on every screen, so a
+   canvas there would mean a permanent GPU context and three.js — about 140KB
+   gzipped — on the critical path of every launch, which is exactly the cost
+   the boot work removed. The frames come from the same LogoTotem3D, rendered
+   once at build time, so it is the same object with the same materials and
+   lighting; only the runtime cost is gone.
+
+   The sprite is a vertical strip of 12 frames. Stepping it with a transform
+   rather than background-position keeps the animation on the compositor. */
+.nav-logo3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.nav-logo3d img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  /* Twelve frames stacked, so the strip is twelve times the frame height. */
+  height: 1200%;
+  image-rendering: auto;
+  animation: nav-logo-spin 7.2s steps(12) infinite;
+  will-change: transform;
+}
+
+@keyframes nav-logo-spin {
+  from { transform: translateY(0); }
+  /* A full strip height lands the twelfth step back on the first frame, so
+     the loop closes with no jump. */
+  to { transform: translateY(-100%); }
+}
+
+/* The global reduced-motion and animations-off rules collapse the duration,
+   which would leave it stopped on an arbitrary frame. Pinned to the first
+   frame instead — a considered still, not wherever it happened to be. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-logo3d img {
+    animation: none !important;
+    transform: translateY(0) !important;
+  }
+}
+
+[data-motion='off'] .nav-logo3d img {
+  animation: none !important;
+  transform: translateY(0) !important;
+}
+
+/* -----------------------------------------------------------------------
+   Exercise illustration plate
+
+   The 906 catalog illustrations are a single white silhouette each — that is
+   how Workout Guide published them, and they are copied unmodified, so the
+   share-alike clause of CC BY-SA 4.0 has nothing to reach. White line art on
+   a white card is invisible, which is precisely how it first rendered.
+
+   The fix belongs here rather than in the files: the plate is always dark, in
+   both themes, so the figure reads the same way a product photo does on a
+   dark card. Nothing about the asset changes; only what it is shown against.
+   ----------------------------------------------------------------------- */
+.demo-plate {
+  background:
+    radial-gradient(120% 100% at 50% 0%, rgb(41 45 54) 0%, rgb(22 24 29) 70%);
+}

@@ -48,6 +48,8 @@ import {
   ONBOARDING_VERSION,
 } from '../src/lib/training/profile'
 import { defaultSettings } from '../src/lib/db/schema'
+import { es } from '../src/lib/i18n/es'
+import { en } from '../src/lib/i18n/en'
 
 let pass = 0
 let fail = 0
@@ -305,7 +307,11 @@ eq(checkPassword('').score, 0, 'password: an empty password scores zero')
 eq(SYNCED_STORES.includes('sessions'), true, 'sync: workouts are synced')
 eq(SYNCED_STORES.includes('personalRecords'), true, 'sync: records are synced')
 eq(SYNCED_STORES.includes('photos'), true, 'sync: progress photos are synced')
-eq(SYNCED_STORES.length, 9, 'sync: nine collections belong to the account')
+// Ten, since exercise preferences became their own store. That store is what
+// lets the shared catalog stay read-only: a favourite is a tiny preference
+// row, not a private copy of the exercise.
+eq(SYNCED_STORES.length, 10, 'sync: ten collections belong to the account')
+eq(SYNCED_STORES.includes('exercisePrefs'), true, 'sync: exercise preferences follow the account')
 eq(userCollection('u1', 'sessions'), 'users/u1/sessions', 'sync: every collection hangs off the owner uid')
 eq(photoStoragePath('u1', 'p1'), 'users/u1/photos/p1.jpg', 'sync: photos are stored under the owner uid')
 eq(usernameDoc('diego'), 'usernames/diego', 'sync: the username index is keyed by the normalised name')
@@ -567,6 +573,30 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   eq(patch.defaultRestSeconds, 180, 'settings: strength gets a longer default rest')
   eq('theme' in patch, false, 'settings: finishing onboarding never touches the theme')
   eq('haptics' in patch, false, 'settings: nor anything else the questionnaire did not ask about')
+}
+
+/* ------------------------------------------------------------------ i18n */
+
+/**
+ * The two dictionaries must hold exactly the same keys.
+ *
+ * A key present in one and missing in the other shows up as a raw
+ * `auth.something` in the interface of whichever language lost it — and only
+ * on the screen nobody opened that day. Cheap to assert, expensive to find by
+ * hand.
+ */
+{
+  const esKeys = new Set(Object.keys(es))
+  const enKeys = new Set(Object.keys(en))
+  const onlyEs = [...esKeys].filter((k) => !enKeys.has(k))
+  const onlyEn = [...enKeys].filter((k) => !esKeys.has(k))
+  eq(onlyEs.join(',') || 'none', 'none', 'i18n: no Spanish key is missing from English')
+  eq(onlyEn.join(',') || 'none', 'none', 'i18n: no English key is missing from Spanish')
+
+  // An empty string renders as nothing at all, which looks like a broken
+  // screen rather than a missing translation.
+  const blank = [...esKeys].filter((k) => !String((es as Record<string, string>)[k]).trim())
+  eq(blank.join(',') || 'none', 'none', 'i18n: no translation is empty')
 }
 
 /* --------------------------------------------------------------- report */

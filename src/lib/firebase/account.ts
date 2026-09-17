@@ -1,5 +1,5 @@
 import type { User } from 'firebase/auth'
-import { getFirebase } from './app'
+import { getFirebase, getFirebaseAuth } from './app'
 import { log } from '../db/database'
 import {
   SCHEMA_VERSION,
@@ -23,6 +23,19 @@ export class AccountError extends Error {
 
 async function services() {
   const promise = getFirebase()
+  if (!promise) throw new AccountError('not-configured', 'Firebase is not configured')
+  return promise
+}
+
+/**
+ * Auth without Firestore.
+ *
+ * Signing in, signing out, resending a verification email — none of these
+ * touch a document, and none of them should wait for the database SDK to
+ * download. Anything that reads or writes a document still calls `services()`.
+ */
+async function authOnly() {
+  const promise = getFirebaseAuth()
   if (!promise) throw new AccountError('not-configured', 'Firebase is not configured')
   return promise
 }
@@ -105,33 +118,28 @@ export interface SignUpInput {
   password: string
 }
 
+/*
+ * Email verification is not part of this product.
+ *
+ * The address is required to sign up — it is the login and the only way back
+ * in after a forgotten password — but nothing is withheld until it is proven.
+ * No verification email is sent and no screen asks for one.
+ *
+ * `/auth/verificado` stays routed on purpose: links sent before this change
+ * are still sitting in inboxes, and clicking one should land somewhere that
+ * makes sense rather than on a 404.
+ */
+
 /**
- * Sign-up order matters and follows the spec:
- *   create auth user → reserve username → create profile → send verification.
+ * Sign-up order matters: create auth user → reserve username → create profile.
  * If the username turns out to be taken, the account already exists and the
  * user stays signed in; the UI asks for another name and calls
  * `finishUsernameSetup`. Nothing is orphaned and nothing is rolled back behind
  * the user's back.
  */
-/**
- * Where the verification link lands.
- *
- * Firebase's own handler applies the code and then bounces the browser to this
- * URL, so the last thing the person sees is our confirmation page rather than
- * a bare Google-hosted string. If the project is later pointed at a custom
- * action URL in the console, the same page receives `mode` and `oobCode`
- * directly and applies the code itself — it handles both arrivals.
- */
-function verifyLanding() {
-  return {
-    url: `${window.location.origin}/auth/verificado`,
-    handleCodeInApp: false,
-  }
-}
-
 export async function signUp(input: SignUpInput): Promise<{ user: User; usernameTaken: boolean }> {
-  const { auth } = await services()
-  const { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = await import('firebase/auth')
+  const { auth } = await authOnly()
+  const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
 
   const cred = await createUserWithEmailAndPassword(auth, input.email.trim(), input.password)
   const user = cred.user
@@ -170,11 +178,16 @@ export async function signUp(input: SignUpInput): Promise<{ user: User; username
     log('account', `profile creation deferred: ${String(err)}`, 'warn')
   }
 
-  try {
-    await sendEmailVerification(user, verifyLanding())
-  } catch (err) {
-    log('account', `verification email could not be sent: ${String(err)}`, 'warn')
-  }
+  /*
+   * No verification email is sent.
+   *
+   * The address is still required — it is how you sign in and how a password
+   * is recovered — but Training OS does not gate the app behind proving it.
+   * The account is usable the moment it exists.
+   *
+   * Password recovery still goes to that address, so a wrong one costs the
+   * person their way back in; nothing else in the app depends on it.
+   */
 
   log('account', `account created for ${input.email.trim()}`)
   return { user, usernameTaken }
@@ -190,7 +203,7 @@ export async function finishUsernameSetup(uid: string, rawUsername: string): Pro
   const normalized = await reserveUsername(uid, rawUsername)
   const existing = await readProfile(uid)
   if (!existing) {
-    const { auth } = await services()
+    const { auth } = await authOnly()
     const user = auth.currentUser
     await writeProfile(uid, {
       ...makeProfile({
@@ -216,7 +229,7 @@ export async function changeUsername(uid: string, rawUsername: string): Promise<
 }
 
 export async function signIn(email: string, password: string): Promise<User> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { signInWithEmailAndPassword } = await import('firebase/auth')
   const cred = await signInWithEmailAndPassword(auth, email.trim(), password)
   log('account', 'signed in')
@@ -224,37 +237,21 @@ export async function signIn(email: string, password: string): Promise<User> {
 }
 
 export async function signOutUser(): Promise<void> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { signOut } = await import('firebase/auth')
   await signOut(auth)
   log('account', 'signed out')
 }
 
 export async function sendPasswordReset(email: string): Promise<void> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { sendPasswordResetEmail } = await import('firebase/auth')
   await sendPasswordResetEmail(auth, email.trim())
   log('account', 'password reset email requested')
 }
 
-export async function resendVerification(): Promise<void> {
-  const { auth } = await services()
-  const { sendEmailVerification } = await import('firebase/auth')
-  if (!auth.currentUser) throw new AccountError('no-user', 'Not signed in')
-  await sendEmailVerification(auth.currentUser, verifyLanding())
-}
-
-/** Asks Firebase for the real state — never trust a locally cached flag. */
-export async function refreshVerification(): Promise<boolean> {
-  const { auth } = await services()
-  if (!auth.currentUser) return false
-  await auth.currentUser.reload()
-  await auth.currentUser.getIdToken(true)
-  return auth.currentUser.emailVerified
-}
-
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
   const user = auth.currentUser
   if (!user?.email) throw new AccountError('no-user', 'Not signed in')
@@ -286,13 +283,13 @@ export async function deleteAccount(currentPassword: string): Promise<void> {
 }
 
 export async function onAuth(cb: (user: User | null) => void): Promise<() => void> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { onAuthStateChanged } = await import('firebase/auth')
   return onAuthStateChanged(auth, cb)
 }
 
 export async function currentUser(): Promise<User | null> {
-  const promise = getFirebase()
+  const promise = getFirebaseAuth()
   if (!promise) return null
   const { auth } = await promise
   return auth.currentUser
@@ -336,7 +333,7 @@ export function authErrorKey(err: unknown): string {
  * success rather than an error, because for the person it is one.
  */
 export async function applyVerificationCode(oobCode: string): Promise<void> {
-  const { auth } = await services()
+  const { auth } = await authOnly()
   const { applyActionCode } = await import('firebase/auth')
   await applyActionCode(auth, oobCode)
   if (auth.currentUser) await auth.currentUser.reload()

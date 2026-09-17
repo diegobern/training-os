@@ -11,6 +11,7 @@ import {
   Switch,
   TextField,
 } from '../components/ui/primitives'
+import { useNavigate } from 'react-router-dom'
 import { IconAlert, IconDots, IconDownload, IconUpload } from '../components/ui/Icon'
 import { SettingsMenu } from '../components/settings/SettingsMenu'
 import { AccountSection } from '../components/settings/AccountSection'
@@ -51,6 +52,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 export default function Settings() {
   const t = useT()
+  const navigate = useNavigate()
   const { settings, update } = useApp()
   const authUser = useAuth((s) => s.user)
   const install = useInstallPrompt()
@@ -435,6 +437,12 @@ export default function Settings() {
           ) : null}
           <Button full variant="ghost" onClick={() => setLogsOpen(true)}>
             {t('settings.diagnostics')}
+          </Button>
+          {/* Required by CC BY-SA 4.0, which covers the exercise illustrations.
+              It is an obligation, so it lives in the app and not only in a
+              markdown file in the repository. */}
+          <Button full variant="ghost" onClick={() => navigate('/attributions')}>
+            {t('attrib.title')}
           </Button>
           <p className="text-center text-caption text-faint">
             {t('settings.version')} {__APP_VERSION__}

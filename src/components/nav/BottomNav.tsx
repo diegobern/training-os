@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { IconBolt, IconChart, IconGrid, IconHome, IconRoutines } from '../ui/Icon'
 import { cx } from '../ui/primitives'
@@ -11,6 +12,34 @@ const ITEMS = [
   { to: '/progress', key: 'nav.progress', Icon: IconChart, end: false },
   { to: '/more', key: 'nav.more', Icon: IconGrid, end: false },
 ] as const
+
+
+/**
+ * The 3D mark in the middle of the tab bar, played from a baked sprite rather
+ * than a live canvas — see `.nav-logo3d` in index.css for why.
+ *
+ * The flat icon is the fallback and is rendered only if the sprite fails to
+ * load. Drawing both and stacking them looked fine in a still and wrong in
+ * motion: the green bolt showed through the tile's transparent corners as a
+ * ghost that turned with it.
+ */
+function CenterMark({ Icon }: { Icon: (p: { size?: number; strokeWidth?: number }) => JSX.Element }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) return <Icon size={24} strokeWidth={2} />
+  return (
+    <span className="nav-logo3d">
+      <img
+        src="/brand/nav-logo.webp"
+        alt=""
+        aria-hidden="true"
+        width={104}
+        height={1248}
+        decoding="async"
+        onError={() => setFailed(true)}
+      />
+    </span>
+  )
+}
 
 export function BottomNav({ hasActiveSession }: { hasActiveSession: boolean }) {
   const t = useT()
@@ -47,13 +76,13 @@ export function BottomNav({ hasActiveSession }: { hasActiveSession: boolean }) {
                     {center ? (
                       <span
                         className={cx(
-                          'relative -mt-5 flex h-13 w-13 items-center justify-center rounded-2xl bg-brand text-brand-ink transition-all duration-200',
+                          'relative -mt-5 flex h-13 w-13 items-center justify-center overflow-hidden rounded-2xl bg-brand text-brand-ink transition-all duration-200',
                           isActive || hasActiveSession ? 'shadow-glow' : 'shadow-card',
                         )}
                       >
-                        <Icon size={24} strokeWidth={2} />
+                        <CenterMark Icon={Icon} />
                         {hasActiveSession && (
-                          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-bg bg-pr" />
+                          <span className="absolute -right-0.5 -top-0.5 z-10 h-2.5 w-2.5 rounded-full border-2 border-bg bg-pr" />
                         )}
                       </span>
                     ) : (

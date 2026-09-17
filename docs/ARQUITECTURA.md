@@ -221,3 +221,85 @@ desarrollo local** para no bloquear el trabajo. Ver `docs/ROLLBACK.md`.
 
 `docs/OPEN-SOURCE-FITNESS-RESEARCH.md` con la matriz comparativa completa.
 **No se incorpora ningún asset hasta terminarla.**
+
+## D24. La ficha de un ejercicio del catálogo es de solo lectura
+
+Una entrada del catálogo es un asset compartido. Guardar una edición sobre ella
+crearía una copia privada de una fila global dentro de `users/{uid}/exercises`
+—exactamente la duplicación que D1 evita— y además `listExercises()` ignora esa
+copia, así que la edición desaparecería sin decir nada.
+
+La pantalla de ficha, por tanto, se bifurca:
+
+| | Ejercicio del catálogo | Ejercicio propio |
+|---|---|---|
+| Nombre, músculo, material, tipo | solo lectura | editable |
+| Series, reps, descanso, RIR | editable → `exercisePrefs.defaults` | editable → `exercises` |
+| Nota | editable → `exercisePrefs.note` | editable → `exercises.instructions` |
+| Favorito | `exercisePrefs.favorite` | `exercisePrefs.favorite` |
+| Eliminar | **no** — se puede ocultar (`exercisePrefs.hidden`) | sí (borrado lógico) |
+
+Un ejercicio del catálogo no se puede borrar porque no es del usuario y porque
+otras rutinas —incluida su propia historia— referencian ese mismo id.
+
+## D25. El SDK de Firebase se carga en dos tramos
+
+`firebase/firestore` y `firebase/storage` suman unos 850 KB y **no** hacen falta
+para responder a «¿quién ha iniciado sesión?». Cargarlos junto a `firebase/auth`
+obligaba a cada arranque de una instalación con sesión iniciada a esperar por la
+base de datos antes de poder decidir qué pantalla mostrar.
+
+- `getFirebaseAuth()` → `firebase/app` + `firebase/auth`. Es lo que usa el
+  arranque, el login, el registro y el correo de verificación.
+- `getFirebase()` → lo anterior más Firestore y Storage. Lo usan la
+  sincronización y las pantallas que leen o escriben documentos.
+
+Ambos están memorizados y el segundo espera al primero, así que la app nunca se
+inicializa dos veces.
+
+## D26. El `pull` va por oleadas, en paralelo dentro de cada una
+
+Diez colecciones esperadas una tras otra eran diez viajes de ida y vuelta antes
+de que la app dijera «sincronizado», y la mayoría vuelven vacías. Son
+independientes —colecciones distintas, almacenes distintos, cursores
+distintos—, así que cada oleada sale junta. Las oleadas siguen en orden: la
+primera es lo que necesita la pantalla de inicio.
+
+El escaneo del outbox (`pendingIds()`) pasa a hacerse **una vez por `pull`** en
+lugar de una vez por colección.
+
+## D27. Las ilustraciones van sobre una placa oscura
+
+Los 906 SVG son una silueta blanca de un solo trazo: así los publicó Workout
+Guide y así se copian, sin tocar un byte, para que el *share-alike* de
+CC BY-SA 4.0 no tenga nada que alcanzar. Trazo blanco sobre tarjeta blanca es
+invisible, que es exactamente como se vio la primera vez.
+
+La corrección va en el CSS (`.demo-plate`), no en los ficheros: la placa es
+oscura en los dos temas. No cambia el asset; cambia el fondo sobre el que se
+mira.
+
+## D28. Sin verificación de email
+
+El correo se pide al registrarse y sigue siendo obligatorio: es con lo que se
+inicia sesión y lo único que permite recuperar la contraseña. Lo que se retira
+es la **puerta**: no se envía ningún correo de verificación, no existe la fase
+`needs-verification` y ninguna pantalla pregunta por ello. La cuenta sirve
+desde el instante en que existe.
+
+Qué desaparece: `VerifyEmail`, `skipVerification`, `recheckVerification`,
+`resendVerification`, `refreshVerification`, el aviso de Ajustes y sus doce
+cadenas de traducción.
+
+Qué se conserva a propósito:
+
+- **`/auth/verificado`** sigue enrutada. Hay enlaces enviados antes de este
+  cambio esperando en bandejas de entrada; al pulsarlos hay que llegar a algún
+  sitio con sentido, no a un 404.
+- **`firebase/email-verificacion.html`** y su README quedan en el repositorio,
+  marcados como retirados, por si algún día se vuelve atrás.
+
+Lo asegura una prueba, no una intención: `e2e/authgate.mjs` se registra contra
+el emulador de Auth y comprueba dos cosas —que ninguna pantalla pide verificar
+y que el emulador **no ha emitido ningún código `VERIFY_EMAIL`**—, así que un
+`sendEmailVerification` que volviera a colarse haría fallar la suite.

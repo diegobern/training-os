@@ -1,4 +1,20 @@
-# Email de verificación
+# Email de verificación — RETIRADO
+
+> **Training OS ya no verifica el correo.** El email se pide al registrarse
+> —es con lo que se inicia sesión y lo único que permite recuperar la
+> contraseña— pero la app no retiene nada hasta que se demuestre. No se envía
+> ningún correo de verificación y ninguna pantalla lo pide.
+>
+> Esta plantilla y estas instrucciones se conservan por si algún día se vuelve
+> atrás. **No hace falta configurarlas.** Si ya pegaste la plantilla en la
+> consola de Firebase, puedes dejarla donde está: no se usa.
+>
+> `/auth/verificado` sigue enrutada a propósito, porque hay enlaces enviados
+> antes de este cambio esperando en bandejas de entrada y al pulsarlos hay que
+> llegar a algún sitio con sentido, no a un 404.
+
+---
+
 
 ## Por qué esto es un archivo y no código
 

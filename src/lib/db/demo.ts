@@ -15,15 +15,23 @@ import { newId, type SessionExercise, type WorkoutSession } from './schema'
 import { ladderFor } from '../training/weights'
 import { addBodyweight } from './repo.body'
 import { dateKey } from '../dates'
+import { makeT } from '../i18n'
 
 interface Plan {
+  /**
+   * A translation key, not a label.
+   *
+   * The demo routine is the first thing many people see, and it used to arrive
+   * in English regardless of the language chosen — the same bug the starter
+   * templates had. Resolved at load time, in the language in use.
+   */
   day: string
   exercises: { slug: string; sets: number; repMin: number; repMax: number; startWeight: number }[]
 }
 
 const PLAN: Plan[] = [
   {
-    day: 'PUSH',
+    day: 'day.push',
     exercises: [
       { slug: 'incline-dumbbell-press', sets: 3, repMin: 6, repMax: 10, startWeight: 30 },
       { slug: 'chest-press-machine', sets: 3, repMin: 8, repMax: 12, startWeight: 55 },
@@ -33,7 +41,7 @@ const PLAN: Plan[] = [
     ],
   },
   {
-    day: 'PULL',
+    day: 'day.pull',
     exercises: [
       { slug: 'lat-pulldown', sets: 3, repMin: 8, repMax: 12, startWeight: 60 },
       { slug: 'barbell-row', sets: 4, repMin: 6, repMax: 10, startWeight: 60 },
@@ -43,7 +51,7 @@ const PLAN: Plan[] = [
     ],
   },
   {
-    day: 'LEGS',
+    day: 'day.legs',
     exercises: [
       { slug: 'back-squat', sets: 4, repMin: 5, repMax: 8, startWeight: 80 },
       { slug: 'romanian-deadlift', sets: 3, repMin: 8, repMax: 12, startWeight: 70 },
@@ -53,7 +61,7 @@ const PLAN: Plan[] = [
     ],
   },
   {
-    day: 'UPPER',
+    day: 'day.upper',
     exercises: [
       { slug: 'barbell-bench-press', sets: 4, repMin: 5, repMax: 8, startWeight: 60 },
       { slug: 'pull-up', sets: 4, repMin: 5, repMax: 10, startWeight: 5 },
@@ -63,7 +71,7 @@ const PLAN: Plan[] = [
     ],
   },
   {
-    day: 'LOWER',
+    day: 'day.lower',
     exercises: [
       { slug: 'hack-squat', sets: 3, repMin: 8, repMax: 12, startWeight: 80 },
       { slug: 'hip-thrust', sets: 3, repMin: 8, repMax: 12, startWeight: 70 },
@@ -83,14 +91,15 @@ export async function loadDemoData(): Promise<number> {
   const library = await getExercisesByIds(ids)
 
   // ---------------------------------------------------------------- routine
-  const routine = makeRoutine('DEMO · Hypertrophy 2026')
+  const t = makeT(settings.language)
+  const routine = makeRoutine(t('demo.routineName'))
   routine.demo = true
-  routine.description = 'Rutina de ejemplo generada por Training OS.'
+  routine.description = t('demo.routineDescription')
   const db0 = await getDB()
   const existing = await db0.getAll('routines')
   routine.isActive = !existing.some((r) => r.isActive && !r.deletedAt && !r.archivedAt)
   routine.days = PLAN.map((p, i) => {
-    const day = makeRoutineDay(p.day, i)
+    const day = makeRoutineDay(t(p.day), i)
     day.exercises = p.exercises
       .map((e, j) => {
         const ex = library.get(`lib-${e.slug}`)

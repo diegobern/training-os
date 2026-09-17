@@ -1,4 +1,4 @@
-import { getDB, invalidateSettingsCache, log, notify, readSettings } from './db/database'
+import { getDB, invalidateSettingsCache, log, notify, readSettings, type ExercisePrefRow } from './db/database'
 import type {
   BodyweightEntry,
   Exercise,
@@ -26,6 +26,8 @@ export interface BackupFile {
   data: {
     settings: Settings | null
     exercises: Exercise[]
+    /** Favourites, hidden flags and per-user overrides for catalog exercises. */
+    exercisePrefs?: ExercisePrefRow[]
     routines: Routine[]
     sessions: WorkoutSession[]
     exerciseLogs: ExerciseLog[]
@@ -225,6 +227,7 @@ export async function importBackup(json: unknown, mode: ImportMode): Promise<Imp
   const db = await getDB()
   const stores = [
     'exercises',
+    'exercisePrefs',
     'routines',
     'sessions',
     'exerciseLogs',
@@ -316,6 +319,7 @@ export async function wipeEverything(): Promise<void> {
   const db = await getDB()
   const stores = [
     'exercises',
+    'exercisePrefs',
     'routines',
     'sessions',
     'exerciseLogs',

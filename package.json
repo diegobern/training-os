@@ -20,7 +20,8 @@
     "catalog:build": "node scripts/catalog/import.mjs",
     "test:onboarding": "node e2e/onboarding.mjs",
     "test:boot": "node e2e/boot-matrix.mjs",
-    "test:sw": "node e2e/sw-offline.mjs"
+    "test:sw": "node e2e/sw-offline.mjs",
+    "test:catalog-ui": "node e2e/catalog-ui.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

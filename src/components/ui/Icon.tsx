@@ -263,6 +263,14 @@ export const IconInfo = (p: P) => (
   </S>
 )
 
+/** A question mark in a circle. Used for the HOW TO affordance. */
+export const IconHelp = (p: P) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.6 9.3a2.5 2.5 0 0 1 4.86.83c0 1.67-2.5 2.5-2.5 2.5M12 17h.01" />
+  </S>
+)
+
 export const IconAlert = (p: P) => (
   <S {...p}>
     <path d="M10.3 3.9 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />

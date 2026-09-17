@@ -7,6 +7,7 @@ import {
   IconChart,
   IconChevronRight,
   IconClock,
+  IconInfo,
   IconList,
   IconMedal,
   IconRoutines,
@@ -82,6 +83,7 @@ export default function More() {
       <Card className="divide-y divide-line">
         <Row icon={<IconSearch size={19} />} label={t('search.title')} onClick={() => navigate('/search')} />
         <Row icon={<IconSettings size={19} />} label={t('settings.title')} onClick={() => navigate('/settings')} />
+        <Row icon={<IconInfo size={19} />} label={t('attrib.title')} onClick={() => navigate('/attributions')} />
       </Card>
 
       <p className="mt-8 text-center text-caption text-faint">

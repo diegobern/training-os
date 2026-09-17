@@ -7,6 +7,7 @@ import {
   log,
 } from '../lib/db/database'
 import { seedLibraryIfEmpty } from '../lib/db/repo.exercises'
+import { migrateFavoritesOnce } from '../lib/db/repo.prefs'
 import { defaultSettings, type Settings, type ThemeMode } from '../lib/db/schema'
 import { LOCALES, makeT, type TFn } from '../lib/i18n'
 
@@ -74,6 +75,9 @@ export const useApp = create<AppState>((set, get) => ({
       })
       // Best-effort: keeps months of training data safe from eviction.
       void requestPersistentStorage()
+      // After 'ready', never before: an existing account's stars move into
+      // preferences without holding up a single frame of the first paint.
+      void migrateFavoritesOnce()
       log('app', 'ready')
     } catch (err) {
       const { lastError } = getDbStatus()

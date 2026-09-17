@@ -4,7 +4,6 @@ import { firebaseEnabled } from '../lib/firebase/app'
 import {
   onAuth,
   readProfile,
-  refreshVerification,
   signOutUser,
   writeProfile,
 } from '../lib/firebase/account'
@@ -39,7 +38,6 @@ export type AuthPhase =
   | 'signed-out'
   | 'migrating'
   | 'needs-username'
-  | 'needs-verification'
   | 'onboarding'
   | 'ready'
   /** Signed in, but the profile could not be reached. The session is kept. */
@@ -57,7 +55,6 @@ interface AuthState {
   user: AuthUser | null
   profile: UserProfile | null
   localDataCheck: OwnerCheck | null
-  verificationSkipped: boolean
   /**
    * Which questionnaire is being shown.
    *   initial      a new account. Mandatory.
@@ -72,8 +69,6 @@ interface AuthState {
   resolve: () => Promise<void>
   refreshProfile: () => Promise<void>
   setPhase: (phase: AuthPhase) => void
-  skipVerification: () => void
-  recheckVerification: () => Promise<boolean>
   adoptLocal: () => Promise<void>
   keepLocalSeparate: () => Promise<void>
   discardLocal: () => Promise<void>
@@ -113,7 +108,6 @@ export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
   localDataCheck: null,
-  verificationSkipped: false,
   onboardingMode: 'initial',
   busy: false,
   error: null,
@@ -173,10 +167,6 @@ export const useAuth = create<AuthState>((set, get) => ({
         set({ phase: 'needs-username', busy: false })
         return
       }
-      if (!user.emailVerified && !get().verificationSkipped) {
-        set({ phase: 'needs-verification', busy: false })
-        return
-      }
       if (!profile.onboardingCompleted && (useApp.getState().settings.onboardingVersion ?? 0) === 0) {
         set({ phase: 'onboarding', onboardingMode: 'initial', busy: false })
         return
@@ -216,19 +206,6 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   setPhase(phase) {
     set({ phase })
-  },
-
-  skipVerification() {
-    set({ verificationSkipped: true })
-    void get().resolve()
-  },
-
-  async recheckVerification() {
-    const verified = await refreshVerification()
-    const user = get().user
-    if (user) set({ user: { ...user, emailVerified: verified } })
-    if (verified) void get().resolve()
-    return verified
   },
 
   async adoptLocal() {
@@ -300,7 +277,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await signOutUser()
       // A shared device must not keep one person's training behind a logout.
       await resetLocalData(null)
-      set({ phase: 'signed-out', user: null, profile: null, localDataCheck: null, verificationSkipped: false })
+      set({ phase: 'signed-out', user: null, profile: null, localDataCheck: null })
     } finally {
       set({ busy: false })
     }

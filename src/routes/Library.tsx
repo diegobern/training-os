@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Page } from '../components/layout/Page'
 import { Button, Card, Chip, EmptyState, IconButton, Select, Sheet, TextField, cx } from '../components/ui/primitives'
 import { IconFilter, IconPlus, IconSearch, IconStar } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
+import { useIncremental } from '../hooks/useIncremental'
 import { listExercises, toggleFavoriteExercise } from '../lib/db/repo.exercises'
 import { exerciseUsageCounts, recentExerciseIds } from '../lib/db/repo.sessions'
 import {
@@ -18,7 +19,25 @@ import { useT } from '../store/useApp'
 import { CustomExerciseForm } from '../components/workout/CustomExerciseForm'
 
 type Tab = 'all' | 'favorites' | 'recent' | 'custom'
+type Kind = 'all' | 'strength' | 'cardio' | 'mobility'
+type Difficulty = 'all' | 'beginner' | 'intermediate' | 'advanced'
 
+const KINDS: Kind[] = ['all', 'strength', 'cardio', 'mobility']
+const DIFFICULTIES: Difficulty[] = ['beginner', 'intermediate', 'advanced']
+
+/**
+ * The library, now reading the shared catalog.
+ *
+ * Every filter that the catalog itself understands — kind, muscle, equipment,
+ * movement type, difficulty, favourites, custom-only, and the search — is
+ * handed to `listExercises` rather than applied to an array here. Two reasons:
+ * difficulty only exists on the catalog entry and never reaches the `Exercise`
+ * shape, and filtering 1096 entries once inside the resolver is cheaper than
+ * resolving 1096 into objects in order to throw most of them away.
+ *
+ * Only "recent" stays local: it is an ordering over the user's own history,
+ * which the catalog knows nothing about.
+ */
 export default function Library() {
   const t = useT()
   const navigate = useNavigate()
@@ -26,51 +45,64 @@ export default function Library() {
   const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all')
   const [equipment, setEquipment] = useState<Equipment | 'all'>('all')
   const [type, setType] = useState<ExerciseType | 'all'>('all')
+  const [difficulty, setDifficulty] = useState<Difficulty>('all')
+  const [kind, setKind] = useState<Kind>('all')
   const [tab, setTab] = useState<Tab>('all')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [creating, setCreating] = useState(false)
 
-  const { data } = useLiveQuery(
+  // Keeps typing smooth: the field updates on every keystroke, the 1096-entry
+  // query runs on the value React has caught up to.
+  const query = useDeferredValue(search)
+
+  const { data, loading } = useLiveQuery(
     async () => {
       const [exercises, recent, usage] = await Promise.all([
-        listExercises(),
+        listExercises({
+          search: query.trim() || undefined,
+          muscleGroup: muscle,
+          equipment,
+          type,
+          kind,
+          difficulty,
+          favoritesOnly: tab === 'favorites',
+          customOnly: tab === 'custom',
+        }),
         recentExerciseIds(40),
         exerciseUsageCounts(),
       ])
       return { exercises, recent, usage }
     },
-    ['exercises', 'exerciseLogs'],
+    ['exercises', 'exerciseLogs', 'exercisePrefs'],
+    [query, muscle, equipment, type, kind, difficulty, tab],
   )
 
   const list = useMemo(() => {
     const all = data?.exercises ?? []
-    const recentOrder = new Map((data?.recent ?? []).map((id, i) => [id, i]))
-    const q = search.trim().toLowerCase()
-    let out = all
-    if (muscle !== 'all') out = out.filter((e) => e.muscleGroup === muscle)
-    if (equipment !== 'all') out = out.filter((e) => e.equipment === equipment)
-    if (type !== 'all') out = out.filter((e) => e.type === type)
-    if (tab === 'favorites') out = out.filter((e) => e.isFavorite)
-    if (tab === 'custom') out = out.filter((e) => e.isCustom)
-    if (tab === 'recent') {
-      out = out.filter((e) => recentOrder.has(e.id))
-      out = [...out].sort((a, b) => (recentOrder.get(a.id) ?? 0) - (recentOrder.get(b.id) ?? 0))
-    }
-    if (q) out = out.filter((e) => e.name.toLowerCase().includes(q) || e.primaryMuscle.toLowerCase().includes(q))
-    return out
-  }, [data, search, muscle, equipment, type, tab])
+    if (tab !== 'recent') return all
+    const order = new Map((data?.recent ?? []).map((id, i) => [id, i]))
+    return all.filter((e) => order.has(e.id)).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
+  }, [data, tab])
 
-  const activeFilters = (muscle !== 'all' ? 1 : 0) + (equipment !== 'all' ? 1 : 0) + (type !== 'all' ? 1 : 0)
+  // Grouped by muscle the list is already broken into digestible sections, but
+  // "all" is still 1096 rows of DOM. It grows as the user reaches the bottom.
+  const { visible, sentinel, hasMore } = useIncremental(list, [query, muscle, equipment, type, kind, difficulty, tab], 60)
+
+  const activeFilters =
+    (muscle !== 'all' ? 1 : 0) +
+    (equipment !== 'all' ? 1 : 0) +
+    (type !== 'all' ? 1 : 0) +
+    (difficulty !== 'all' ? 1 : 0)
 
   const grouped = useMemo(() => {
     if (tab === 'recent') return null
     const map = new Map<MuscleGroup, typeof list>()
-    for (const e of list) {
+    for (const e of visible) {
       if (!map.has(e.muscleGroup)) map.set(e.muscleGroup, [])
       map.get(e.muscleGroup)!.push(e)
     }
     return [...map.entries()].sort((a, b) => MUSCLE_GROUPS.indexOf(a[0]) - MUSCLE_GROUPS.indexOf(b[0]))
-  }, [list, tab])
+  }, [visible, tab])
 
   return (
     <Page
@@ -100,7 +132,16 @@ export default function Library() {
         autoComplete="off"
       />
 
+      {/* What it is — the axis cardio and mobility needed to become visible. */}
       <div className="scroll-x mt-3">
+        {KINDS.map((k) => (
+          <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
+            {k === 'all' ? t('common.all') : t(`kind.${k}`)}
+          </Chip>
+        ))}
+      </div>
+
+      <div className="scroll-x mt-2">
         {(['all', 'favorites', 'recent', 'custom'] as Tab[]).map((k) => (
           <Chip key={k} active={tab === k} onClick={() => setTab(k)}>
             {k === 'all' ? t('common.all') : k === 'favorites' ? t('common.favorites') : k === 'recent' ? t('common.recent') : t('common.custom')}
@@ -108,7 +149,11 @@ export default function Library() {
         ))}
       </div>
 
-      <div className="mt-4">
+      <p className="mt-3 text-caption text-faint">
+        {loading && !data ? t('library.loading') : t('library.count', { n: list.length })}
+      </p>
+
+      <div className="mt-3">
         {list.length === 0 ? (
           <EmptyState
             icon={<IconSearch size={26} />}
@@ -150,7 +195,7 @@ export default function Library() {
           ))
         ) : (
           <div className="flex flex-col gap-1.5">
-            {list.map((ex) => (
+            {visible.map((ex) => (
               <Card key={ex.id} className="flex items-center gap-2 px-3 py-2.5">
                 <button className="press min-w-0 flex-1 text-left" onClick={() => navigate(`/library/${ex.id}`)}>
                   <p className="truncate text-card-sm">{ex.name}</p>
@@ -169,6 +214,7 @@ export default function Library() {
             ))}
           </div>
         )}
+        {hasMore && <div ref={sentinel} className="h-10" aria-hidden="true" />}
       </div>
 
       <Sheet
@@ -184,6 +230,7 @@ export default function Library() {
                 setMuscle('all')
                 setEquipment('all')
                 setType('all')
+                setDifficulty('all')
               }}
             >
               {t('common.reset')}
@@ -205,6 +252,19 @@ export default function Library() {
             </Chip>
           ))}
         </div>
+
+        <p className="label-xs mb-2 mt-5">{t('library.difficulty')}</p>
+        <div className="flex flex-wrap gap-2">
+          <Chip active={difficulty === 'all'} onClick={() => setDifficulty('all')}>
+            {t('common.all')}
+          </Chip>
+          {DIFFICULTIES.map((d) => (
+            <Chip key={d} active={difficulty === d} onClick={() => setDifficulty(d)}>
+              {t(`difficulty.${d}`)}
+            </Chip>
+          ))}
+        </div>
+
         <div className="mt-5 grid grid-cols-2 gap-3">
           <Select
             label={t('common.equipment')}

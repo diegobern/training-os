@@ -43,7 +43,7 @@ export default function SignUp({ onBack, onLogIn }: { onBack: () => void; onLogI
     setError(null)
     try {
       await signUp({ displayName, username, email, password })
-      // The auth listener takes it from here: verification, then onboarding.
+      // The auth listener takes it from here: username, then onboarding.
     } catch (err) {
       setError(t(authErrorKey(err)))
       setBusy(false)

@@ -68,12 +68,9 @@ async function signUp(page, who) {
   await f.nth(4).fill(who.pw)
   await page.getByRole('button', { name: /^Crear cuenta$/ }).click()
   await page.waitForTimeout(6000)
-  // verification screen -> continue, then onboarding -> start
-  const skip = page.getByRole('button', { name: /Continuar sin verificar/i })
-  if (await skip.count()) {
-    await skip.click()
-    await page.waitForTimeout(2500)
-  }
+  // Straight into onboarding: there is no verification step to get past.
+  const stillAsking = await page.getByRole('button', { name: /Continuar sin verificar|Ya lo he verificado/i }).count()
+  if (stillAsking) throw new Error('la app todavía pide verificar el email')
   const start = page.getByRole('button', { name: /^EMPEZAR$/ })
   if (await start.count()) {
     await start.click()

@@ -34,6 +34,7 @@ const Milestones = lazy(() => import("./routes/Milestones"));
 const Settings = lazy(() => import("./routes/Settings"));
 const SearchPage = lazy(() => import("./routes/SearchPage"));
 const More = lazy(() => import("./routes/More"));
+const Attributions = lazy(() => import("./routes/Attributions"));
 const Profile = lazy(() => import("./routes/Profile"));
 const EmailVerified = lazy(() => import("./routes/auth/EmailVerified"));
 
@@ -241,6 +242,7 @@ export function App() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/more" element={<More />} />
+            <Route path="/attributions" element={<Attributions />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>

@@ -6,7 +6,7 @@ import { useApp, useT } from '../../store/useApp'
 import { useAuth } from '../../store/useAuth'
 import { useSyncStatus } from '../../store/useSync'
 import { missingFirebaseKeys } from '../../lib/firebase/config'
-import { authErrorKey, changePassword, deleteAccount, resendVerification } from '../../lib/firebase/account'
+import { authErrorKey, changePassword, deleteAccount } from '../../lib/firebase/account'
 import { syncNow, wipeRemoteData } from '../../lib/sync/engine'
 import { checkPassword } from '../../lib/firebase/paths'
 import { fmtDate } from '../../lib/dates'
@@ -32,7 +32,7 @@ export function AccountSection() {
   const t = useT()
   const locale = useApp((s) => s.locale)
   const navigate = useNavigate()
-  const { phase, user, profile, logout, recheckVerification } = useAuth()
+  const { phase, user, profile, logout } = useAuth()
   const sync = useSyncStatus()
   const [confirmLogout, setConfirmLogout] = useState(false)
   const [pwOpen, setPwOpen] = useState(false)
@@ -84,11 +84,6 @@ export function AccountSection() {
     <>
       <Card className="divide-y divide-line px-4 py-1">
         <Row label={t('auth.email')} value={user?.email ?? '—'} />
-        <Row
-          label={t('account.title')}
-          value={user?.emailVerified ? t('account.verified') : t('account.notVerified')}
-          tone={user?.emailVerified ? 'ok' : 'warn'}
-        />
         <Row label={t('auth.username')} value={profile?.username ? `@${profile.username}` : '—'} />
         <Row
           label={t('profile.memberSince')}
@@ -109,30 +104,6 @@ export function AccountSection() {
         <Button full variant="secondary" icon={<IconRefresh size={16} />} onClick={() => void syncNow()}>
           {t('sync.syncNow')}
         </Button>
-
-        {!user?.emailVerified && (
-          <div className="flex gap-2">
-            <Button
-              full
-              variant="secondary"
-              onClick={async () => {
-                const ok = await recheckVerification()
-                toast(ok ? t('auth.verifiedOk') : t('auth.notVerifiedYet'), ok ? 'success' : 'error')
-              }}
-            >
-              {t('auth.iVerified')}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={async () => {
-                await resendVerification()
-                toast(t('auth.resent'), 'success')
-              }}
-            >
-              {t('auth.resend')}
-            </Button>
-          </div>
-        )}
 
         <button
           onClick={() => navigate('/profile')}

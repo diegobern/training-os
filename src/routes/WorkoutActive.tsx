@@ -20,6 +20,7 @@ import {
   IconPlus,
   IconTrash,
   IconX,
+  IconHelp,
 } from '../components/ui/Icon'
 import { SetRow } from '../components/workout/SetRow'
 import { RestTimerBar } from '../components/workout/RestTimerBar'
@@ -30,6 +31,7 @@ import { isLogged } from '../lib/training/metrics'
 import { ExercisePicker } from '../components/workout/ExercisePicker'
 import { getExercise, saveExercise } from '../lib/db/repo.exercises'
 import { toast } from '../store/useToast'
+import { HowToSheet } from '../components/exercise/HowToSheet'
 
 function useElapsed(startedAt: number | undefined, pausedMs: number) {
   const [now, setNow] = useState(Date.now())
@@ -71,6 +73,7 @@ export default function WorkoutActive() {
   const [confirmFinish, setConfirmFinish] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
   const [libraryExercise, setLibraryExercise] = useState<Exercise | null>(null)
+  const [howTo, setHowTo] = useState(false)
 
   const elapsed = useElapsed(session?.startedAt, session?.pausedMs ?? 0)
 
@@ -276,6 +279,17 @@ export default function WorkoutActive() {
               </button>
             </Card>
 
+            {/* A discreet way in, right under the sets. It opens a sheet — the
+                session screen stays mounted, so closing it returns to the very
+                set that was being typed. */}
+            <button
+              onClick={() => setHowTo(true)}
+              className="press mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-secondary font-semibold text-muted hover:text-ink"
+            >
+              <IconHelp size={16} />
+              {t('howto.button')}
+            </button>
+
             {libraryExercise?.instructions && (
               <Card className="mt-3 px-3.5 py-3">
                 <p className="label-xs mb-1.5">{t('workout.exerciseNotes')}</p>
@@ -472,6 +486,11 @@ export default function WorkoutActive() {
           navigate('/', { replace: true })
         }}
       />
+
+      {/* Mounted at the root of the screen, not inside the exercise card: the
+          session stays exactly as it was underneath, so closing the sheet
+          returns to the set that was being typed. */}
+      <HowToSheet open={howTo} onClose={() => setHowTo(false)} exercise={libraryExercise} />
     </div>
   )
 }

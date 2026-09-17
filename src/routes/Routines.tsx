@@ -26,12 +26,24 @@ import { useT } from '../store/useApp'
 import type { Routine } from '../lib/db/schema'
 import { toast } from '../store/useToast'
 
-const TEMPLATES: { key: string; name: string; days: string[] }[] = [
-  { key: 'blank', name: '', days: [] },
-  { key: 'ppl', name: 'Push / Pull / Legs', days: ['PUSH', 'PULL', 'LEGS'] },
-  { key: 'ul', name: 'Upper / Lower', days: ['UPPER A', 'LOWER A', 'UPPER B', 'LOWER B'] },
-  { key: 'ppl5', name: 'PPL + Upper/Lower', days: ['PUSH', 'PULL', 'LEGS', 'UPPER', 'LOWER'] },
-  { key: 'fullbody', name: 'Full Body', days: ['FULL BODY A', 'FULL BODY B', 'FULL BODY C'] },
+/**
+ * The starter templates.
+ *
+ * They carry translation KEYS, not names. The previous version stored "Push /
+ * Pull / Legs" and "PUSH" directly into the user's routine, so a Spanish user
+ * got an English routine — and it stayed English forever, because by then it
+ * was their data rather than our label.
+ *
+ * The name is resolved at creation time, in the language the person is
+ * actually using. What they type themselves is still stored verbatim: that is
+ * theirs and must never be translated.
+ */
+const TEMPLATES: { key: string; nameKey: string | null; dayKeys: string[] }[] = [
+  { key: 'blank', nameKey: null, dayKeys: [] },
+  { key: 'ppl', nameKey: 'template.ppl', dayKeys: ['day.push', 'day.pull', 'day.legs'] },
+  { key: 'ul', nameKey: 'template.upperLower', dayKeys: ['day.upperA', 'day.lowerA', 'day.upperB', 'day.lowerB'] },
+  { key: 'ppl5', nameKey: 'template.pplUL', dayKeys: ['day.push', 'day.pull', 'day.legs', 'day.upper', 'day.lower'] },
+  { key: 'fullbody', nameKey: 'template.fullbody', dayKeys: ['day.fullBodyA', 'day.fullBodyB', 'day.fullBodyC'] },
 ]
 
 export default function Routines() {
@@ -51,8 +63,8 @@ export default function Routines() {
 
   async function create() {
     const tpl = TEMPLATES.find((x) => x.key === template)!
-    const finalName = name.trim() || tpl.name || t('routines.new')
-    const routine = await createRoutine(finalName, tpl.days)
+    const finalName = name.trim() || (tpl.nameKey ? t(tpl.nameKey) : '') || t('routines.new')
+    const routine = await createRoutine(finalName, tpl.dayKeys.map((k) => t(k)))
     setCreating(false)
     setName('')
     navigate(`/routines/${routine.id}`)
@@ -198,9 +210,9 @@ export default function Routines() {
                 template === tpl.key ? 'border-accent/60 bg-accent/[0.07]' : 'border-line bg-elevated',
               )}
             >
-              <p className="text-sm font-semibold">{tpl.name || t('routines.blank')}</p>
-              {tpl.days.length > 0 && (
-                <p className="mt-0.5 text-xs text-faint">{tpl.days.join(' · ')}</p>
+              <p className="text-sm font-semibold">{tpl.nameKey ? t(tpl.nameKey) : t('routines.blank')}</p>
+              {tpl.dayKeys.length > 0 && (
+                <p className="mt-0.5 text-xs text-faint">{tpl.dayKeys.map((k) => t(k)).join(' · ')}</p>
               )}
             </button>
           ))}

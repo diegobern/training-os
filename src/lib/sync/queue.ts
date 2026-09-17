@@ -15,6 +15,29 @@ export function isSyncedStore(store: string): store is SyncedStore {
  * five times while offline uploads once, and the same stable document id means
  * a retry can never create a duplicate.
  */
+/**
+ * Told whenever something lands in the outbox.
+ *
+ * The engine registers here rather than the queue importing the engine, which
+ * would be a cycle. Before this existed the only thing that pushed was a
+ * 60-second interval, so saving a routine could sit locally for most of a
+ * minute before it reached the account — which is what "it takes ages to
+ * save" actually was. The write was always instant; the upload was not.
+ */
+let onQueued: (() => void) | null = null
+
+export function setQueueListener(fn: (() => void) | null): void {
+  onQueued = fn
+}
+
+function queued(): void {
+  try {
+    onQueued?.()
+  } catch {
+    /* a listener must never be able to break a local write */
+  }
+}
+
 export async function enqueue(store: SyncedStore, docId: string, op: 'put' | 'delete'): Promise<void> {
   const db = await getDB()
   const id = `${store}:${docId}`
@@ -30,6 +53,7 @@ export async function enqueue(store: SyncedStore, docId: string, op: 'put' | 'de
   }
   await db.put('syncQueue', row)
   notify('syncQueue')
+  queued()
 }
 
 export async function enqueueMany(entries: { store: SyncedStore; docId: string; op: 'put' | 'delete' }[]) {
@@ -51,6 +75,7 @@ export async function enqueueMany(entries: { store: SyncedStore; docId: string; 
   }
   await tx.done
   notify('syncQueue')
+  queued()
 }
 
 export async function pendingCount(): Promise<number> {

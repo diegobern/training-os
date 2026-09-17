@@ -95,6 +95,19 @@ const blank = after.trim().length < 20
 steps.push('INFO  after sign-up the app shows: ' + after.slice(0, 160).replace(/\s+/g, ' '))
 await page.screenshot({ path: `${SHOTS}/43-after-signup.png` })
 
+// Email verification was removed: the address is asked for, never proven.
+;!/Verifica tu email|Continuar sin verificar|Ya lo he verificado|email de verificaci/i.test(after)
+  ? ok('sign-up never asks to verify the email')
+  : fail('sign-up never asks to verify the email — ' + after.slice(0, 160).replace(/\s+/g, ' '))
+
+// And nothing was sent behind the scenes either.
+const oob = await fetch(
+  'http://127.0.0.1:9099/emulator/v1/projects/demo-training-os/oobCodes',
+).then((r) => r.json()).catch(() => ({ oobCodes: [] }))
+;!(oob.oobCodes ?? []).some((c) => c.requestType === 'VERIFY_EMAIL')
+  ? ok('sign-up sends no verification email')
+  : fail('sign-up sends no verification email — the emulator issued a VERIFY_EMAIL code')
+
 // The Auth user really was created: prove it by signing in against the
 // emulator's own REST endpoint, independently of the app.
 const signIn = await fetch(

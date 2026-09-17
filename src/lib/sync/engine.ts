@@ -49,6 +49,7 @@ import {
   putFromServer,
   setSyncState,
   takeBatch,
+  setQueueListener,
 } from './queue'
 import type { ProgressPhoto } from '../db/schema'
 
@@ -285,10 +286,14 @@ function decode(store: SyncedStore, snap: QueryDocumentSnapshot<DocumentData>): 
   return data
 }
 
-async function pullCollection(fs: Firestore, uid: string, store: SyncedStore): Promise<number> {
+async function pullCollection(
+  fs: Firestore,
+  uid: string,
+  store: SyncedStore,
+  pendingLocally: Set<string>,
+): Promise<number> {
   const { collection, query, where, orderBy, limit, getDocs, startAfter } = await import('firebase/firestore')
   const last = await getSyncState<number | null>(lastPullKey(store), null)
-  const pendingLocally = await pendingIds()
   const pageSize = store === 'sessions' || store === 'exerciseLogs' ? HEAVY_PAGE : PAGE
 
   let cursor: QueryDocumentSnapshot<DocumentData> | null = null
@@ -360,7 +365,7 @@ async function pullTombstones(fs: Firestore, uid: string): Promise<number> {
 }
 
 /** Fast first: what HOME needs. Then everything else, in the background. */
-const FIRST_WAVE: SyncedStore[] = ['exercises', 'routines']
+const FIRST_WAVE: SyncedStore[] = ['exercises', 'exercisePrefs', 'routines']
 const SECOND_WAVE: SyncedStore[] = [
   'sessions',
   'exerciseLogs',
@@ -382,12 +387,37 @@ export async function pull(uid: string, opts: { restoring?: boolean } = {}): Pro
     setStatus({ phase: 'restoring', restoreDone: 0, restoreTotal: waves.length, restoreLabel: null })
   }
 
-  let index = 0
-  for (const store of waves) {
-    if (opts.restoring) setStatus({ restoreLabel: store, restoreDone: index, restoreTotal: waves.length })
-    total += await pullCollection(fs, uid, store)
-    index++
+  // Read once for the whole pull. This used to be one full scan of the outbox
+  // per collection — ten reads of the same rows to answer the same question.
+  const pendingLocally = await pendingIds()
+  let done = 0
+
+  /**
+   * A wave goes out together.
+   *
+   * Every collection was being awaited in turn, so signing in cost ten round
+   * trips end to end before the app said it was synced — and most of those
+   * queries come back empty. They are independent: different collections,
+   * different object stores, different cursors. Running a wave in parallel
+   * turns ten latencies into two.
+   *
+   * The waves themselves stay ordered, because the point of the first one is
+   * that the home screen has what it needs before the heavy history arrives.
+   */
+  async function runWave(stores: SyncedStore[]) {
+    const counts = await Promise.all(
+      stores.map(async (store) => {
+        const n = await pullCollection(fs, uid, store, pendingLocally)
+        done++
+        if (opts.restoring) setStatus({ restoreLabel: store, restoreDone: done, restoreTotal: waves.length })
+        return n
+      }),
+    )
+    for (const n of counts) total += n
   }
+
+  await runWave(FIRST_WAVE)
+  await runWave(SECOND_WAVE)
   total += await pullTombstones(fs, uid)
 
   if (opts.restoring) setStatus({ restoreLabel: null, restoreDone: waves.length })
@@ -419,6 +449,8 @@ export async function ensurePhotoBlob(photo: ProgressPhoto): Promise<Blob | null
 
 let activeUid: string | null = null
 let timer: number | null = null
+/** Pending debounced push, so a burst of local writes becomes one upload. */
+let pushSoon: number | null = null
 let running = false
 
 export function syncingFor(): string | null {
@@ -458,11 +490,36 @@ export async function startSync(uid: string, opts: { restore?: boolean } = {}): 
   if (timer !== null) window.clearInterval(timer)
   timer = window.setInterval(() => void syncNow(), 60_000)
 
+  /**
+   * Push shortly after a local write, rather than waiting for the interval.
+   *
+   * The interval alone meant a routine saved at second 1 reached the account
+   * at second 60. The local write was always instant; what felt slow was the
+   * upload, and nothing was triggering it.
+   *
+   * Debounced because one user action can enqueue many documents — finishing
+   * a session writes the session, a log per exercise and any records — and
+   * that should be one push, not twenty. 1.2s is long enough to collect a
+   * burst and short enough to feel immediate.
+   */
+  setQueueListener(() => {
+    if (pushSoon) window.clearTimeout(pushSoon)
+    pushSoon = window.setTimeout(() => {
+      pushSoon = null
+      void syncNow()
+    }, 1200)
+  })
+
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisible)
 }
 
 export function stopSync(): void {
+  setQueueListener(null)
+  if (pushSoon) {
+    window.clearTimeout(pushSoon)
+    pushSoon = null
+  }
   activeUid = null
   if (timer !== null) window.clearInterval(timer)
   timer = null

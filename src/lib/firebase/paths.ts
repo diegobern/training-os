@@ -19,6 +19,10 @@ export const SYNCED_COLLECTIONS = {
   bodyweight: 'bodyweight',
   measurements: 'measurements',
   milestones: 'milestones',
+  // Favourites, hidden flags, notes and per-user overrides for catalog
+  // exercises. Tiny, and the reason the catalog itself never has to be
+  // copied into an account.
+  exercisePrefs: 'exercisePrefs',
   photos: 'photos',
 } as const
 
