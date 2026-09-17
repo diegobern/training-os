@@ -1,0 +1,6275 @@
+{
+ "licenses": [
+  {
+   "name": "free-exercise-db",
+   "path": "/tmp/claude-0/-home-claude/838cb47a-cff1-59a2-93c1-94bc17e6b5ce/scratchpad/fedb/LICENSE.md",
+   "expect": "free and unencumbered software released into the public domain",
+   "license": "Unlicense",
+   "note": "METADATA AND TEXT ONLY. Photographs are deliberately not imported.",
+   "verifiedAt": "2026-09-16"
+  },
+  {
+   "name": "workout-guide (assets)",
+   "path": "/tmp/claude-0/-home-claude/838cb47a-cff1-59a2-93c1-94bc17e6b5ce/scratchpad/wg/package/LICENSE-ASSETS",
+   "expect": "Attribution-ShareAlike 4.0 International",
+   "license": "CC BY-SA 4.0",
+   "note": "Images. Attribution and share-alike required.",
+   "verifiedAt": "2026-09-16"
+  }
+ ],
+ "imported": [
+  {
+   "name": "3/4 Sit-Up",
+   "id": "fx-3-4-sit-up"
+  },
+  {
+   "name": "90/90 Hamstring",
+   "id": "fx-90-90-hamstring"
+  },
+  {
+   "name": "Ab Crunch Machine",
+   "id": "fx-ab-crunch-machine"
+  },
+  {
+   "name": "Ab Roller",
+   "id": "fx-ab-roller"
+  },
+  {
+   "name": "Adductor",
+   "id": "fx-adductor"
+  },
+  {
+   "name": "Adductor/Groin",
+   "id": "fx-adductor-groin"
+  },
+  {
+   "name": "Advanced Kettlebell Windmill",
+   "id": "fx-advanced-kettlebell-windmill"
+  },
+  {
+   "name": "Air Bike",
+   "id": "fx-air-bike"
+  },
+  {
+   "name": "All Fours Quad Stretch",
+   "id": "fx-all-fours-quad-stretch"
+  },
+  {
+   "name": "Alternate Hammer Curl",
+   "id": "fx-alternate-hammer-curl"
+  },
+  {
+   "name": "Alternate Heel Touchers",
+   "id": "fx-alternate-heel-touchers"
+  },
+  {
+   "name": "Alternate Incline Dumbbell Curl",
+   "id": "fx-alternate-incline-dumbbell-curl"
+  },
+  {
+   "name": "Alternate Leg Diagonal Bound",
+   "id": "fx-alternate-leg-diagonal-bound"
+  },
+  {
+   "name": "Alternating Cable Shoulder Press",
+   "id": "fx-alternating-cable-shoulder-press"
+  },
+  {
+   "name": "Alternating Deltoid Raise",
+   "id": "fx-alternating-deltoid-raise"
+  },
+  {
+   "name": "Alternating Floor Press",
+   "id": "fx-alternating-floor-press"
+  },
+  {
+   "name": "Alternating Hang Clean",
+   "id": "fx-alternating-hang-clean"
+  },
+  {
+   "name": "Alternating Kettlebell Press",
+   "id": "fx-alternating-kettlebell-press"
+  },
+  {
+   "name": "Alternating Kettlebell Row",
+   "id": "fx-alternating-kettlebell-row"
+  },
+  {
+   "name": "Alternating Renegade Row",
+   "id": "fx-alternating-renegade-row"
+  },
+  {
+   "name": "Ankle Circles",
+   "id": "fx-ankle-circles"
+  },
+  {
+   "name": "Ankle On The Knee",
+   "id": "fx-ankle-on-the-knee"
+  },
+  {
+   "name": "Anterior Tibialis-SMR",
+   "id": "fx-anterior-tibialis-smr"
+  },
+  {
+   "name": "Anti-Gravity Press",
+   "id": "fx-anti-gravity-press"
+  },
+  {
+   "name": "Arm Circles",
+   "id": "fx-arm-circles"
+  },
+  {
+   "name": "Arnold Dumbbell Press",
+   "id": "fx-arnold-dumbbell-press"
+  },
+  {
+   "name": "Around The Worlds",
+   "id": "fx-around-the-worlds"
+  },
+  {
+   "name": "Atlas Stone Trainer",
+   "id": "fx-atlas-stone-trainer"
+  },
+  {
+   "name": "Atlas Stones",
+   "id": "fx-atlas-stones"
+  },
+  {
+   "name": "Axle Deadlift",
+   "id": "fx-axle-deadlift"
+  },
+  {
+   "name": "Back Flyes - With Bands",
+   "id": "fx-back-flyes-with-bands"
+  },
+  {
+   "name": "Backward Drag",
+   "id": "fx-backward-drag"
+  },
+  {
+   "name": "Backward Medicine Ball Throw",
+   "id": "fx-backward-medicine-ball-throw"
+  },
+  {
+   "name": "Balance Board",
+   "id": "fx-balance-board"
+  },
+  {
+   "name": "Ball Leg Curl",
+   "id": "fx-ball-leg-curl"
+  },
+  {
+   "name": "Band Assisted Pull-Up",
+   "id": "fx-band-assisted-pull-up"
+  },
+  {
+   "name": "Band Good Morning",
+   "id": "fx-band-good-morning"
+  },
+  {
+   "name": "Band Good Morning (Pull Through)",
+   "id": "fx-band-good-morning-pull-through"
+  },
+  {
+   "name": "Band Hip Adductions",
+   "id": "fx-band-hip-adductions"
+  },
+  {
+   "name": "Band Pull Apart",
+   "id": "fx-band-pull-apart"
+  },
+  {
+   "name": "Band Skull Crusher",
+   "id": "fx-band-skull-crusher"
+  },
+  {
+   "name": "Barbell Ab Rollout",
+   "id": "fx-barbell-ab-rollout"
+  },
+  {
+   "name": "Barbell Ab Rollout - On Knees",
+   "id": "fx-barbell-ab-rollout-on-knees"
+  },
+  {
+   "name": "Barbell Bench Press - Medium Grip",
+   "id": "fx-barbell-bench-press-medium-grip"
+  },
+  {
+   "name": "Barbell Curls Lying Against An Incline",
+   "id": "fx-barbell-curls-lying-against-an-incline"
+  },
+  {
+   "name": "Barbell Deadlift",
+   "id": "fx-barbell-deadlift"
+  },
+  {
+   "name": "Barbell Full Squat",
+   "id": "fx-barbell-full-squat"
+  },
+  {
+   "name": "Barbell Glute Bridge",
+   "id": "fx-barbell-glute-bridge"
+  },
+  {
+   "name": "Barbell Guillotine Bench Press",
+   "id": "fx-barbell-guillotine-bench-press"
+  },
+  {
+   "name": "Barbell Hack Squat",
+   "id": "fx-barbell-hack-squat"
+  },
+  {
+   "name": "Barbell Hip Thrust",
+   "id": "fx-barbell-hip-thrust"
+  },
+  {
+   "name": "Barbell Incline Bench Press - Medium Grip",
+   "id": "fx-barbell-incline-bench-press-medium-grip"
+  },
+  {
+   "name": "Barbell Incline Shoulder Raise",
+   "id": "fx-barbell-incline-shoulder-raise"
+  },
+  {
+   "name": "Barbell Lunge",
+   "id": "fx-barbell-lunge"
+  },
+  {
+   "name": "Barbell Rear Delt Row",
+   "id": "fx-barbell-rear-delt-row"
+  },
+  {
+   "name": "Barbell Rollout from Bench",
+   "id": "fx-barbell-rollout-from-bench"
+  },
+  {
+   "name": "Barbell Seated Calf Raise",
+   "id": "fx-barbell-seated-calf-raise"
+  },
+  {
+   "name": "Barbell Shoulder Press",
+   "id": "fx-barbell-shoulder-press"
+  },
+  {
+   "name": "Barbell Shrug",
+   "id": "fx-barbell-shrug"
+  },
+  {
+   "name": "Barbell Shrug Behind The Back",
+   "id": "fx-barbell-shrug-behind-the-back"
+  },
+  {
+   "name": "Barbell Side Bend",
+   "id": "fx-barbell-side-bend"
+  },
+  {
+   "name": "Barbell Side Split Squat",
+   "id": "fx-barbell-side-split-squat"
+  },
+  {
+   "name": "Barbell Squat",
+   "id": "fx-barbell-squat"
+  },
+  {
+   "name": "Barbell Squat To A Bench",
+   "id": "fx-barbell-squat-to-a-bench"
+  },
+  {
+   "name": "Barbell Step Ups",
+   "id": "fx-barbell-step-ups"
+  },
+  {
+   "name": "Barbell Walking Lunge",
+   "id": "fx-barbell-walking-lunge"
+  },
+  {
+   "name": "Battling Ropes",
+   "id": "fx-battling-ropes"
+  },
+  {
+   "name": "Bear Crawl Sled Drags",
+   "id": "fx-bear-crawl-sled-drags"
+  },
+  {
+   "name": "Behind Head Chest Stretch",
+   "id": "fx-behind-head-chest-stretch"
+  },
+  {
+   "name": "Bench Dips",
+   "id": "fx-bench-dips"
+  },
+  {
+   "name": "Bench Jump",
+   "id": "fx-bench-jump"
+  },
+  {
+   "name": "Bench Press - Powerlifting",
+   "id": "fx-bench-press-powerlifting"
+  },
+  {
+   "name": "Bench Press - With Bands",
+   "id": "fx-bench-press-with-bands"
+  },
+  {
+   "name": "Bench Press with Chains",
+   "id": "fx-bench-press-with-chains"
+  },
+  {
+   "name": "Bench Sprint",
+   "id": "fx-bench-sprint"
+  },
+  {
+   "name": "Bent-Arm Barbell Pullover",
+   "id": "fx-bent-arm-barbell-pullover"
+  },
+  {
+   "name": "Bent-Arm Dumbbell Pullover",
+   "id": "fx-bent-arm-dumbbell-pullover"
+  },
+  {
+   "name": "Bent-Knee Hip Raise",
+   "id": "fx-bent-knee-hip-raise"
+  },
+  {
+   "name": "Bent Over Barbell Row",
+   "id": "fx-bent-over-barbell-row"
+  },
+  {
+   "name": "Bent Over Dumbbell Rear Delt Raise With Head On Bench",
+   "id": "fx-bent-over-dumbbell-rear-delt-raise-with-head-on-bench"
+  },
+  {
+   "name": "Bent Over Low-Pulley Side Lateral",
+   "id": "fx-bent-over-low-pulley-side-lateral"
+  },
+  {
+   "name": "Bent Over One-Arm Long Bar Row",
+   "id": "fx-bent-over-one-arm-long-bar-row"
+  },
+  {
+   "name": "Bent Over Two-Arm Long Bar Row",
+   "id": "fx-bent-over-two-arm-long-bar-row"
+  },
+  {
+   "name": "Bent Over Two-Dumbbell Row",
+   "id": "fx-bent-over-two-dumbbell-row"
+  },
+  {
+   "name": "Bent Press",
+   "id": "fx-bent-press"
+  },
+  {
+   "name": "Bicycling",
+   "id": "fx-bicycling"
+  },
+  {
+   "name": "Bicycling, Stationary",
+   "id": "fx-bicycling-stationary"
+  },
+  {
+   "name": "Board Press",
+   "id": "fx-board-press"
+  },
+  {
+   "name": "Body-Up",
+   "id": "fx-body-up"
+  },
+  {
+   "name": "Body Tricep Press",
+   "id": "fx-body-tricep-press"
+  },
+  {
+   "name": "Bodyweight Flyes",
+   "id": "fx-bodyweight-flyes"
+  },
+  {
+   "name": "Bodyweight Mid Row",
+   "id": "fx-bodyweight-mid-row"
+  },
+  {
+   "name": "Bodyweight Squat",
+   "id": "fx-bodyweight-squat"
+  },
+  {
+   "name": "Bodyweight Walking Lunge",
+   "id": "fx-bodyweight-walking-lunge"
+  },
+  {
+   "name": "Bosu Ball Cable Crunch With Side Bends",
+   "id": "fx-bosu-ball-cable-crunch-with-side-bends"
+  },
+  {
+   "name": "Bottoms-Up Clean From The Hang Position",
+   "id": "fx-bottoms-up-clean-from-the-hang-position"
+  },
+  {
+   "name": "Bottoms Up",
+   "id": "fx-bottoms-up"
+  },
+  {
+   "name": "Box Jump (Multiple Response)",
+   "id": "fx-box-jump-multiple-response"
+  },
+  {
+   "name": "Box Skip",
+   "id": "fx-box-skip"
+  },
+  {
+   "name": "Box Squat",
+   "id": "fx-box-squat"
+  },
+  {
+   "name": "Box Squat with Bands",
+   "id": "fx-box-squat-with-bands"
+  },
+  {
+   "name": "Box Squat with Chains",
+   "id": "fx-box-squat-with-chains"
+  },
+  {
+   "name": "Brachialis-SMR",
+   "id": "fx-brachialis-smr"
+  },
+  {
+   "name": "Bradford/Rocky Presses",
+   "id": "fx-bradford-rocky-presses"
+  },
+  {
+   "name": "Butt-Ups",
+   "id": "fx-butt-ups"
+  },
+  {
+   "name": "Butt Lift (Bridge)",
+   "id": "fx-butt-lift-bridge"
+  },
+  {
+   "name": "Butterfly",
+   "id": "fx-butterfly"
+  },
+  {
+   "name": "Cable Chest Press",
+   "id": "fx-cable-chest-press"
+  },
+  {
+   "name": "Cable Crossover",
+   "id": "fx-cable-crossover"
+  },
+  {
+   "name": "Cable Deadlifts",
+   "id": "fx-cable-deadlifts"
+  },
+  {
+   "name": "Cable Hammer Curls - Rope Attachment",
+   "id": "fx-cable-hammer-curls-rope-attachment"
+  },
+  {
+   "name": "Cable Hip Adduction",
+   "id": "fx-cable-hip-adduction"
+  },
+  {
+   "name": "Cable Incline Pushdown",
+   "id": "fx-cable-incline-pushdown"
+  },
+  {
+   "name": "Cable Incline Triceps Extension",
+   "id": "fx-cable-incline-triceps-extension"
+  },
+  {
+   "name": "Cable Internal Rotation",
+   "id": "fx-cable-internal-rotation"
+  },
+  {
+   "name": "Cable Iron Cross",
+   "id": "fx-cable-iron-cross"
+  },
+  {
+   "name": "Cable Judo Flip",
+   "id": "fx-cable-judo-flip"
+  },
+  {
+   "name": "Cable Lying Triceps Extension",
+   "id": "fx-cable-lying-triceps-extension"
+  },
+  {
+   "name": "Cable One Arm Tricep Extension",
+   "id": "fx-cable-one-arm-tricep-extension"
+  },
+  {
+   "name": "Cable Preacher Curl",
+   "id": "fx-cable-preacher-curl"
+  },
+  {
+   "name": "Cable Rear Delt Fly",
+   "id": "fx-cable-rear-delt-fly"
+  },
+  {
+   "name": "Cable Reverse Crunch",
+   "id": "fx-cable-reverse-crunch"
+  },
+  {
+   "name": "Cable Rope Overhead Triceps Extension",
+   "id": "fx-cable-rope-overhead-triceps-extension"
+  },
+  {
+   "name": "Cable Rope Rear-Delt Rows",
+   "id": "fx-cable-rope-rear-delt-rows"
+  },
+  {
+   "name": "Cable Russian Twists",
+   "id": "fx-cable-russian-twists"
+  },
+  {
+   "name": "Cable Seated Crunch",
+   "id": "fx-cable-seated-crunch"
+  },
+  {
+   "name": "Cable Seated Lateral Raise",
+   "id": "fx-cable-seated-lateral-raise"
+  },
+  {
+   "name": "Cable Shoulder Press",
+   "id": "fx-cable-shoulder-press"
+  },
+  {
+   "name": "Cable Shrugs",
+   "id": "fx-cable-shrugs"
+  },
+  {
+   "name": "Cable Wrist Curl",
+   "id": "fx-cable-wrist-curl"
+  },
+  {
+   "name": "Calf-Machine Shoulder Shrug",
+   "id": "fx-calf-machine-shoulder-shrug"
+  },
+  {
+   "name": "Calf Press",
+   "id": "fx-calf-press"
+  },
+  {
+   "name": "Calf Press On The Leg Press Machine",
+   "id": "fx-calf-press-on-the-leg-press-machine"
+  },
+  {
+   "name": "Calf Raise On A Dumbbell",
+   "id": "fx-calf-raise-on-a-dumbbell"
+  },
+  {
+   "name": "Calf Raises - With Bands",
+   "id": "fx-calf-raises-with-bands"
+  },
+  {
+   "name": "Calf Stretch Elbows Against Wall",
+   "id": "fx-calf-stretch-elbows-against-wall"
+  },
+  {
+   "name": "Calf Stretch Hands Against Wall",
+   "id": "fx-calf-stretch-hands-against-wall"
+  },
+  {
+   "name": "Calves-SMR",
+   "id": "fx-calves-smr"
+  },
+  {
+   "name": "Car Deadlift",
+   "id": "fx-car-deadlift"
+  },
+  {
+   "name": "Car Drivers",
+   "id": "fx-car-drivers"
+  },
+  {
+   "name": "Carioca Quick Step",
+   "id": "fx-carioca-quick-step"
+  },
+  {
+   "name": "Cat Stretch",
+   "id": "fx-cat-stretch"
+  },
+  {
+   "name": "Catch and Overhead Throw",
+   "id": "fx-catch-and-overhead-throw"
+  },
+  {
+   "name": "Chain Handle Extension",
+   "id": "fx-chain-handle-extension"
+  },
+  {
+   "name": "Chain Press",
+   "id": "fx-chain-press"
+  },
+  {
+   "name": "Chair Leg Extended Stretch",
+   "id": "fx-chair-leg-extended-stretch"
+  },
+  {
+   "name": "Chair Lower Back Stretch",
+   "id": "fx-chair-lower-back-stretch"
+  },
+  {
+   "name": "Chair Squat",
+   "id": "fx-chair-squat"
+  },
+  {
+   "name": "Chair Upper Body Stretch",
+   "id": "fx-chair-upper-body-stretch"
+  },
+  {
+   "name": "Chest And Front Of Shoulder Stretch",
+   "id": "fx-chest-and-front-of-shoulder-stretch"
+  },
+  {
+   "name": "Chest Push from 3 point stance",
+   "id": "fx-chest-push-from-3-point-stance"
+  },
+  {
+   "name": "Chest Push (multiple response)",
+   "id": "fx-chest-push-multiple-response"
+  },
+  {
+   "name": "Chest Push (single response)",
+   "id": "fx-chest-push-single-response"
+  },
+  {
+   "name": "Chest Push with Run Release",
+   "id": "fx-chest-push-with-run-release"
+  },
+  {
+   "name": "Chest Stretch on Stability Ball",
+   "id": "fx-chest-stretch-on-stability-ball"
+  },
+  {
+   "name": "Child's Pose",
+   "id": "fx-child-s-pose"
+  },
+  {
+   "name": "Chin To Chest Stretch",
+   "id": "fx-chin-to-chest-stretch"
+  },
+  {
+   "name": "Circus Bell",
+   "id": "fx-circus-bell"
+  },
+  {
+   "name": "Clean",
+   "id": "fx-clean"
+  },
+  {
+   "name": "Clean Deadlift",
+   "id": "fx-clean-deadlift"
+  },
+  {
+   "name": "Clean Pull",
+   "id": "fx-clean-pull"
+  },
+  {
+   "name": "Clean Shrug",
+   "id": "fx-clean-shrug"
+  },
+  {
+   "name": "Clean and Jerk",
+   "id": "fx-clean-and-jerk"
+  },
+  {
+   "name": "Clean and Press",
+   "id": "fx-clean-and-press"
+  },
+  {
+   "name": "Clean from Blocks",
+   "id": "fx-clean-from-blocks"
+  },
+  {
+   "name": "Clock Push-Up",
+   "id": "fx-clock-push-up"
+  },
+  {
+   "name": "Close-Grip Barbell Bench Press",
+   "id": "fx-close-grip-barbell-bench-press"
+  },
+  {
+   "name": "Close-Grip Dumbbell Press",
+   "id": "fx-close-grip-dumbbell-press"
+  },
+  {
+   "name": "Close-Grip EZ-Bar Curl with Band",
+   "id": "fx-close-grip-ez-bar-curl-with-band"
+  },
+  {
+   "name": "Close-Grip EZ-Bar Press",
+   "id": "fx-close-grip-ez-bar-press"
+  },
+  {
+   "name": "Close-Grip Front Lat Pulldown",
+   "id": "fx-close-grip-front-lat-pulldown"
+  },
+  {
+   "name": "Close-Grip Push-Up off of a Dumbbell",
+   "id": "fx-close-grip-push-up-off-of-a-dumbbell"
+  },
+  {
+   "name": "Close-Grip Standing Barbell Curl",
+   "id": "fx-close-grip-standing-barbell-curl"
+  },
+  {
+   "name": "Cocoons",
+   "id": "fx-cocoons"
+  },
+  {
+   "name": "Conan's Wheel",
+   "id": "fx-conan-s-wheel"
+  },
+  {
+   "name": "Concentration Curls",
+   "id": "fx-concentration-curls"
+  },
+  {
+   "name": "Cross-Body Crunch",
+   "id": "fx-cross-body-crunch"
+  },
+  {
+   "name": "Cross Body Hammer Curl",
+   "id": "fx-cross-body-hammer-curl"
+  },
+  {
+   "name": "Cross Over - With Bands",
+   "id": "fx-cross-over-with-bands"
+  },
+  {
+   "name": "Crossover Reverse Lunge",
+   "id": "fx-crossover-reverse-lunge"
+  },
+  {
+   "name": "Crucifix",
+   "id": "fx-crucifix"
+  },
+  {
+   "name": "Crunch - Hands Overhead",
+   "id": "fx-crunch-hands-overhead"
+  },
+  {
+   "name": "Crunch - Legs On Exercise Ball",
+   "id": "fx-crunch-legs-on-exercise-ball"
+  },
+  {
+   "name": "Crunches",
+   "id": "fx-crunches"
+  },
+  {
+   "name": "Cuban Press",
+   "id": "fx-cuban-press"
+  },
+  {
+   "name": "Dancer's Stretch",
+   "id": "fx-dancer-s-stretch"
+  },
+  {
+   "name": "Dead Bug",
+   "id": "fx-dead-bug"
+  },
+  {
+   "name": "Deadlift with Bands",
+   "id": "fx-deadlift-with-bands"
+  },
+  {
+   "name": "Deadlift with Chains",
+   "id": "fx-deadlift-with-chains"
+  },
+  {
+   "name": "Decline Barbell Bench Press",
+   "id": "fx-decline-barbell-bench-press"
+  },
+  {
+   "name": "Decline Close-Grip Bench To Skull Crusher",
+   "id": "fx-decline-close-grip-bench-to-skull-crusher"
+  },
+  {
+   "name": "Decline Crunch",
+   "id": "fx-decline-crunch"
+  },
+  {
+   "name": "Decline Dumbbell Bench Press",
+   "id": "fx-decline-dumbbell-bench-press"
+  },
+  {
+   "name": "Decline Dumbbell Flyes",
+   "id": "fx-decline-dumbbell-flyes"
+  },
+  {
+   "name": "Decline Dumbbell Triceps Extension",
+   "id": "fx-decline-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Decline EZ Bar Triceps Extension",
+   "id": "fx-decline-ez-bar-triceps-extension"
+  },
+  {
+   "name": "Decline Oblique Crunch",
+   "id": "fx-decline-oblique-crunch"
+  },
+  {
+   "name": "Decline Push-Up",
+   "id": "fx-decline-push-up"
+  },
+  {
+   "name": "Decline Reverse Crunch",
+   "id": "fx-decline-reverse-crunch"
+  },
+  {
+   "name": "Decline Smith Press",
+   "id": "fx-decline-smith-press"
+  },
+  {
+   "name": "Deficit Deadlift",
+   "id": "fx-deficit-deadlift"
+  },
+  {
+   "name": "Depth Jump Leap",
+   "id": "fx-depth-jump-leap"
+  },
+  {
+   "name": "Dip Machine",
+   "id": "fx-dip-machine"
+  },
+  {
+   "name": "Donkey Calf Raises",
+   "id": "fx-donkey-calf-raises"
+  },
+  {
+   "name": "Double Kettlebell Alternating Hang Clean",
+   "id": "fx-double-kettlebell-alternating-hang-clean"
+  },
+  {
+   "name": "Double Kettlebell Jerk",
+   "id": "fx-double-kettlebell-jerk"
+  },
+  {
+   "name": "Double Kettlebell Push Press",
+   "id": "fx-double-kettlebell-push-press"
+  },
+  {
+   "name": "Double Kettlebell Snatch",
+   "id": "fx-double-kettlebell-snatch"
+  },
+  {
+   "name": "Double Kettlebell Windmill",
+   "id": "fx-double-kettlebell-windmill"
+  },
+  {
+   "name": "Double Leg Butt Kick",
+   "id": "fx-double-leg-butt-kick"
+  },
+  {
+   "name": "Downward Facing Balance",
+   "id": "fx-downward-facing-balance"
+  },
+  {
+   "name": "Drag Curl",
+   "id": "fx-drag-curl"
+  },
+  {
+   "name": "Drop Push",
+   "id": "fx-drop-push"
+  },
+  {
+   "name": "Dumbbell Alternate Bicep Curl",
+   "id": "fx-dumbbell-alternate-bicep-curl"
+  },
+  {
+   "name": "Dumbbell Bench Press",
+   "id": "fx-dumbbell-bench-press"
+  },
+  {
+   "name": "Dumbbell Bench Press with Neutral Grip",
+   "id": "fx-dumbbell-bench-press-with-neutral-grip"
+  },
+  {
+   "name": "Dumbbell Bicep Curl",
+   "id": "fx-dumbbell-bicep-curl"
+  },
+  {
+   "name": "Dumbbell Clean",
+   "id": "fx-dumbbell-clean"
+  },
+  {
+   "name": "Dumbbell Floor Press",
+   "id": "fx-dumbbell-floor-press"
+  },
+  {
+   "name": "Dumbbell Flyes",
+   "id": "fx-dumbbell-flyes"
+  },
+  {
+   "name": "Dumbbell Incline Row",
+   "id": "fx-dumbbell-incline-row"
+  },
+  {
+   "name": "Dumbbell Incline Shoulder Raise",
+   "id": "fx-dumbbell-incline-shoulder-raise"
+  },
+  {
+   "name": "Dumbbell Lunges",
+   "id": "fx-dumbbell-lunges"
+  },
+  {
+   "name": "Dumbbell Lying One-Arm Rear Lateral Raise",
+   "id": "fx-dumbbell-lying-one-arm-rear-lateral-raise"
+  },
+  {
+   "name": "Dumbbell Lying Pronation",
+   "id": "fx-dumbbell-lying-pronation"
+  },
+  {
+   "name": "Dumbbell Lying Rear Lateral Raise",
+   "id": "fx-dumbbell-lying-rear-lateral-raise"
+  },
+  {
+   "name": "Dumbbell Lying Supination",
+   "id": "fx-dumbbell-lying-supination"
+  },
+  {
+   "name": "Dumbbell One-Arm Shoulder Press",
+   "id": "fx-dumbbell-one-arm-shoulder-press"
+  },
+  {
+   "name": "Dumbbell One-Arm Triceps Extension",
+   "id": "fx-dumbbell-one-arm-triceps-extension"
+  },
+  {
+   "name": "Dumbbell One-Arm Upright Row",
+   "id": "fx-dumbbell-one-arm-upright-row"
+  },
+  {
+   "name": "Dumbbell Prone Incline Curl",
+   "id": "fx-dumbbell-prone-incline-curl"
+  },
+  {
+   "name": "Dumbbell Raise",
+   "id": "fx-dumbbell-raise"
+  },
+  {
+   "name": "Dumbbell Rear Lunge",
+   "id": "fx-dumbbell-rear-lunge"
+  },
+  {
+   "name": "Dumbbell Scaption",
+   "id": "fx-dumbbell-scaption"
+  },
+  {
+   "name": "Dumbbell Seated Box Jump",
+   "id": "fx-dumbbell-seated-box-jump"
+  },
+  {
+   "name": "Dumbbell Seated One-Leg Calf Raise",
+   "id": "fx-dumbbell-seated-one-leg-calf-raise"
+  },
+  {
+   "name": "Dumbbell Shrug",
+   "id": "fx-dumbbell-shrug"
+  },
+  {
+   "name": "Dumbbell Side Bend",
+   "id": "fx-dumbbell-side-bend"
+  },
+  {
+   "name": "Dumbbell Squat",
+   "id": "fx-dumbbell-squat"
+  },
+  {
+   "name": "Dumbbell Squat To A Bench",
+   "id": "fx-dumbbell-squat-to-a-bench"
+  },
+  {
+   "name": "Dumbbell Step Ups",
+   "id": "fx-dumbbell-step-ups"
+  },
+  {
+   "name": "Dumbbell Tricep Extension -Pronated Grip",
+   "id": "fx-dumbbell-tricep-extension-pronated-grip"
+  },
+  {
+   "name": "Dynamic Back Stretch",
+   "id": "fx-dynamic-back-stretch"
+  },
+  {
+   "name": "Dynamic Chest Stretch",
+   "id": "fx-dynamic-chest-stretch"
+  },
+  {
+   "name": "EZ-Bar Curl",
+   "id": "fx-ez-bar-curl"
+  },
+  {
+   "name": "EZ-Bar Skullcrusher",
+   "id": "fx-ez-bar-skullcrusher"
+  },
+  {
+   "name": "Elbow Circles",
+   "id": "fx-elbow-circles"
+  },
+  {
+   "name": "Elbow to Knee",
+   "id": "fx-elbow-to-knee"
+  },
+  {
+   "name": "Elbows Back",
+   "id": "fx-elbows-back"
+  },
+  {
+   "name": "Elevated Back Lunge",
+   "id": "fx-elevated-back-lunge"
+  },
+  {
+   "name": "Elevated Cable Rows",
+   "id": "fx-elevated-cable-rows"
+  },
+  {
+   "name": "Elliptical Trainer",
+   "id": "fx-elliptical-trainer"
+  },
+  {
+   "name": "Exercise Ball Crunch",
+   "id": "fx-exercise-ball-crunch"
+  },
+  {
+   "name": "Exercise Ball Pull-In",
+   "id": "fx-exercise-ball-pull-in"
+  },
+  {
+   "name": "Extended Range One-Arm Kettlebell Floor Press",
+   "id": "fx-extended-range-one-arm-kettlebell-floor-press"
+  },
+  {
+   "name": "External Rotation",
+   "id": "fx-external-rotation"
+  },
+  {
+   "name": "External Rotation with Band",
+   "id": "fx-external-rotation-with-band"
+  },
+  {
+   "name": "External Rotation with Cable",
+   "id": "fx-external-rotation-with-cable"
+  },
+  {
+   "name": "Fast Skipping",
+   "id": "fx-fast-skipping"
+  },
+  {
+   "name": "Finger Curls",
+   "id": "fx-finger-curls"
+  },
+  {
+   "name": "Flat Bench Cable Flyes",
+   "id": "fx-flat-bench-cable-flyes"
+  },
+  {
+   "name": "Flat Bench Leg Pull-In",
+   "id": "fx-flat-bench-leg-pull-in"
+  },
+  {
+   "name": "Flat Bench Lying Leg Raise",
+   "id": "fx-flat-bench-lying-leg-raise"
+  },
+  {
+   "name": "Flexor Incline Dumbbell Curls",
+   "id": "fx-flexor-incline-dumbbell-curls"
+  },
+  {
+   "name": "Floor Glute-Ham Raise",
+   "id": "fx-floor-glute-ham-raise"
+  },
+  {
+   "name": "Floor Press",
+   "id": "fx-floor-press"
+  },
+  {
+   "name": "Floor Press with Chains",
+   "id": "fx-floor-press-with-chains"
+  },
+  {
+   "name": "Flutter Kicks",
+   "id": "fx-flutter-kicks"
+  },
+  {
+   "name": "Foot-SMR",
+   "id": "fx-foot-smr"
+  },
+  {
+   "name": "Forward Drag with Press",
+   "id": "fx-forward-drag-with-press"
+  },
+  {
+   "name": "Frankenstein Squat",
+   "id": "fx-frankenstein-squat"
+  },
+  {
+   "name": "Freehand Jump Squat",
+   "id": "fx-freehand-jump-squat"
+  },
+  {
+   "name": "Frog Hops",
+   "id": "fx-frog-hops"
+  },
+  {
+   "name": "Frog Sit-Ups",
+   "id": "fx-frog-sit-ups"
+  },
+  {
+   "name": "Front Barbell Squat",
+   "id": "fx-front-barbell-squat"
+  },
+  {
+   "name": "Front Barbell Squat To A Bench",
+   "id": "fx-front-barbell-squat-to-a-bench"
+  },
+  {
+   "name": "Front Box Jump",
+   "id": "fx-front-box-jump"
+  },
+  {
+   "name": "Front Cable Raise",
+   "id": "fx-front-cable-raise"
+  },
+  {
+   "name": "Front Cone Hops (or hurdle hops)",
+   "id": "fx-front-cone-hops-or-hurdle-hops"
+  },
+  {
+   "name": "Front Dumbbell Raise",
+   "id": "fx-front-dumbbell-raise"
+  },
+  {
+   "name": "Front Incline Dumbbell Raise",
+   "id": "fx-front-incline-dumbbell-raise"
+  },
+  {
+   "name": "Front Leg Raises",
+   "id": "fx-front-leg-raises"
+  },
+  {
+   "name": "Front Plate Raise",
+   "id": "fx-front-plate-raise"
+  },
+  {
+   "name": "Front Raise And Pullover",
+   "id": "fx-front-raise-and-pullover"
+  },
+  {
+   "name": "Front Squat (Clean Grip)",
+   "id": "fx-front-squat-clean-grip"
+  },
+  {
+   "name": "Front Squats With Two Kettlebells",
+   "id": "fx-front-squats-with-two-kettlebells"
+  },
+  {
+   "name": "Front Two-Dumbbell Raise",
+   "id": "fx-front-two-dumbbell-raise"
+  },
+  {
+   "name": "Full Range-Of-Motion Lat Pulldown",
+   "id": "fx-full-range-of-motion-lat-pulldown"
+  },
+  {
+   "name": "Gironda Sternum Chins",
+   "id": "fx-gironda-sternum-chins"
+  },
+  {
+   "name": "Glute Ham Raise",
+   "id": "fx-glute-ham-raise"
+  },
+  {
+   "name": "Glute Kickback",
+   "id": "fx-glute-kickback"
+  },
+  {
+   "name": "Goblet Squat",
+   "id": "fx-goblet-squat"
+  },
+  {
+   "name": "Good Morning off Pins",
+   "id": "fx-good-morning-off-pins"
+  },
+  {
+   "name": "Gorilla Chin/Crunch",
+   "id": "fx-gorilla-chin-crunch"
+  },
+  {
+   "name": "Groin and Back Stretch",
+   "id": "fx-groin-and-back-stretch"
+  },
+  {
+   "name": "Groiners",
+   "id": "fx-groiners"
+  },
+  {
+   "name": "Hammer Grip Incline DB Bench Press",
+   "id": "fx-hammer-grip-incline-db-bench-press"
+  },
+  {
+   "name": "Hamstring-SMR",
+   "id": "fx-hamstring-smr"
+  },
+  {
+   "name": "Hamstring Stretch",
+   "id": "fx-hamstring-stretch"
+  },
+  {
+   "name": "Handstand Push-Ups",
+   "id": "fx-handstand-push-ups"
+  },
+  {
+   "name": "Hang Clean",
+   "id": "fx-hang-clean"
+  },
+  {
+   "name": "Hang Clean - Below the Knees",
+   "id": "fx-hang-clean-below-the-knees"
+  },
+  {
+   "name": "Hang Snatch",
+   "id": "fx-hang-snatch"
+  },
+  {
+   "name": "Hang Snatch - Below Knees",
+   "id": "fx-hang-snatch-below-knees"
+  },
+  {
+   "name": "Hanging Bar Good Morning",
+   "id": "fx-hanging-bar-good-morning"
+  },
+  {
+   "name": "Hanging Pike",
+   "id": "fx-hanging-pike"
+  },
+  {
+   "name": "Heaving Snatch Balance",
+   "id": "fx-heaving-snatch-balance"
+  },
+  {
+   "name": "Heavy Bag Thrust",
+   "id": "fx-heavy-bag-thrust"
+  },
+  {
+   "name": "High Cable Curls",
+   "id": "fx-high-cable-curls"
+  },
+  {
+   "name": "Hip Circles (prone)",
+   "id": "fx-hip-circles-prone"
+  },
+  {
+   "name": "Hip Extension with Bands",
+   "id": "fx-hip-extension-with-bands"
+  },
+  {
+   "name": "Hip Flexion with Band",
+   "id": "fx-hip-flexion-with-band"
+  },
+  {
+   "name": "Hip Lift with Band",
+   "id": "fx-hip-lift-with-band"
+  },
+  {
+   "name": "Hug A Ball",
+   "id": "fx-hug-a-ball"
+  },
+  {
+   "name": "Hug Knees To Chest",
+   "id": "fx-hug-knees-to-chest"
+  },
+  {
+   "name": "Hurdle Hops",
+   "id": "fx-hurdle-hops"
+  },
+  {
+   "name": "Hyperextensions (Back Extensions)",
+   "id": "fx-hyperextensions-back-extensions"
+  },
+  {
+   "name": "Hyperextensions With No Hyperextension Bench",
+   "id": "fx-hyperextensions-with-no-hyperextension-bench"
+  },
+  {
+   "name": "IT Band and Glute Stretch",
+   "id": "fx-it-band-and-glute-stretch"
+  },
+  {
+   "name": "Iliotibial Tract-SMR",
+   "id": "fx-iliotibial-tract-smr"
+  },
+  {
+   "name": "Inchworm",
+   "id": "fx-inchworm"
+  },
+  {
+   "name": "Incline Barbell Triceps Extension",
+   "id": "fx-incline-barbell-triceps-extension"
+  },
+  {
+   "name": "Incline Bench Pull",
+   "id": "fx-incline-bench-pull"
+  },
+  {
+   "name": "Incline Cable Chest Press",
+   "id": "fx-incline-cable-chest-press"
+  },
+  {
+   "name": "Incline Cable Flye",
+   "id": "fx-incline-cable-flye"
+  },
+  {
+   "name": "Incline Dumbbell Bench With Palms Facing In",
+   "id": "fx-incline-dumbbell-bench-with-palms-facing-in"
+  },
+  {
+   "name": "Incline Dumbbell Flyes",
+   "id": "fx-incline-dumbbell-flyes"
+  },
+  {
+   "name": "Incline Dumbbell Flyes - With A Twist",
+   "id": "fx-incline-dumbbell-flyes-with-a-twist"
+  },
+  {
+   "name": "Incline Hammer Curls",
+   "id": "fx-incline-hammer-curls"
+  },
+  {
+   "name": "Incline Inner Biceps Curl",
+   "id": "fx-incline-inner-biceps-curl"
+  },
+  {
+   "name": "Incline Push-Up",
+   "id": "fx-incline-push-up"
+  },
+  {
+   "name": "Incline Push-Up Close-Grip",
+   "id": "fx-incline-push-up-close-grip"
+  },
+  {
+   "name": "Incline Push-Up Depth Jump",
+   "id": "fx-incline-push-up-depth-jump"
+  },
+  {
+   "name": "Incline Push-Up Medium",
+   "id": "fx-incline-push-up-medium"
+  },
+  {
+   "name": "Incline Push-Up Reverse Grip",
+   "id": "fx-incline-push-up-reverse-grip"
+  },
+  {
+   "name": "Incline Push-Up Wide",
+   "id": "fx-incline-push-up-wide"
+  },
+  {
+   "name": "Intermediate Groin Stretch",
+   "id": "fx-intermediate-groin-stretch"
+  },
+  {
+   "name": "Intermediate Hip Flexor and Quad Stretch",
+   "id": "fx-intermediate-hip-flexor-and-quad-stretch"
+  },
+  {
+   "name": "Internal Rotation with Band",
+   "id": "fx-internal-rotation-with-band"
+  },
+  {
+   "name": "Inverted Row",
+   "id": "fx-inverted-row"
+  },
+  {
+   "name": "Inverted Row with Straps",
+   "id": "fx-inverted-row-with-straps"
+  },
+  {
+   "name": "Iron Cross",
+   "id": "fx-iron-cross"
+  },
+  {
+   "name": "Iron Crosses (stretch)",
+   "id": "fx-iron-crosses-stretch"
+  },
+  {
+   "name": "Isometric Chest Squeezes",
+   "id": "fx-isometric-chest-squeezes"
+  },
+  {
+   "name": "Isometric Neck Exercise - Front And Back",
+   "id": "fx-isometric-neck-exercise-front-and-back"
+  },
+  {
+   "name": "Isometric Neck Exercise - Sides",
+   "id": "fx-isometric-neck-exercise-sides"
+  },
+  {
+   "name": "Isometric Wipers",
+   "id": "fx-isometric-wipers"
+  },
+  {
+   "name": "JM Press",
+   "id": "fx-jm-press"
+  },
+  {
+   "name": "Jackknife Sit-Up",
+   "id": "fx-jackknife-sit-up"
+  },
+  {
+   "name": "Janda Sit-Up",
+   "id": "fx-janda-sit-up"
+  },
+  {
+   "name": "Jefferson Squats",
+   "id": "fx-jefferson-squats"
+  },
+  {
+   "name": "Jerk Balance",
+   "id": "fx-jerk-balance"
+  },
+  {
+   "name": "Jerk Dip Squat",
+   "id": "fx-jerk-dip-squat"
+  },
+  {
+   "name": "Jogging, Treadmill",
+   "id": "fx-jogging-treadmill"
+  },
+  {
+   "name": "Keg Load",
+   "id": "fx-keg-load"
+  },
+  {
+   "name": "Kettlebell Arnold Press",
+   "id": "fx-kettlebell-arnold-press"
+  },
+  {
+   "name": "Kettlebell Dead Clean",
+   "id": "fx-kettlebell-dead-clean"
+  },
+  {
+   "name": "Kettlebell Figure 8",
+   "id": "fx-kettlebell-figure-8"
+  },
+  {
+   "name": "Kettlebell Halo",
+   "id": "fx-kettlebell-halo"
+  },
+  {
+   "name": "Kettlebell Halo with Overhead Extension",
+   "id": "fx-kettlebell-halo-with-overhead-extension"
+  },
+  {
+   "name": "Kettlebell Hang Clean",
+   "id": "fx-kettlebell-hang-clean"
+  },
+  {
+   "name": "Kettlebell One-Legged Deadlift",
+   "id": "fx-kettlebell-one-legged-deadlift"
+  },
+  {
+   "name": "Kettlebell Overhead Triceps Extension",
+   "id": "fx-kettlebell-overhead-triceps-extension"
+  },
+  {
+   "name": "Kettlebell Pass Between The Legs",
+   "id": "fx-kettlebell-pass-between-the-legs"
+  },
+  {
+   "name": "Kettlebell Pirate Ships",
+   "id": "fx-kettlebell-pirate-ships"
+  },
+  {
+   "name": "Kettlebell Pistol Squat",
+   "id": "fx-kettlebell-pistol-squat"
+  },
+  {
+   "name": "Kettlebell Seated Press",
+   "id": "fx-kettlebell-seated-press"
+  },
+  {
+   "name": "Kettlebell Seesaw Press",
+   "id": "fx-kettlebell-seesaw-press"
+  },
+  {
+   "name": "Kettlebell Sumo High Pull",
+   "id": "fx-kettlebell-sumo-high-pull"
+  },
+  {
+   "name": "Kettlebell Thruster",
+   "id": "fx-kettlebell-thruster"
+  },
+  {
+   "name": "Kettlebell Turkish Get-Up (Lunge style)",
+   "id": "fx-kettlebell-turkish-get-up-lunge-style"
+  },
+  {
+   "name": "Kettlebell Turkish Get-Up (Squat style)",
+   "id": "fx-kettlebell-turkish-get-up-squat-style"
+  },
+  {
+   "name": "Kettlebell Windmill",
+   "id": "fx-kettlebell-windmill"
+  },
+  {
+   "name": "Kipping Muscle Up",
+   "id": "fx-kipping-muscle-up"
+  },
+  {
+   "name": "Knee Across The Body",
+   "id": "fx-knee-across-the-body"
+  },
+  {
+   "name": "Knee Circles",
+   "id": "fx-knee-circles"
+  },
+  {
+   "name": "Knee/Hip Raise On Parallel Bars",
+   "id": "fx-knee-hip-raise-on-parallel-bars"
+  },
+  {
+   "name": "Knee Tuck Jump",
+   "id": "fx-knee-tuck-jump"
+  },
+  {
+   "name": "Kneeling Arm Drill",
+   "id": "fx-kneeling-arm-drill"
+  },
+  {
+   "name": "Kneeling Cable Crunch With Alternating Oblique Twists",
+   "id": "fx-kneeling-cable-crunch-with-alternating-oblique-twists"
+  },
+  {
+   "name": "Kneeling Cable Triceps Extension",
+   "id": "fx-kneeling-cable-triceps-extension"
+  },
+  {
+   "name": "Kneeling Forearm Stretch",
+   "id": "fx-kneeling-forearm-stretch"
+  },
+  {
+   "name": "Kneeling High Pulley Row",
+   "id": "fx-kneeling-high-pulley-row"
+  },
+  {
+   "name": "Kneeling Hip Flexor",
+   "id": "fx-kneeling-hip-flexor"
+  },
+  {
+   "name": "Kneeling Jump Squat",
+   "id": "fx-kneeling-jump-squat"
+  },
+  {
+   "name": "Kneeling Single-Arm High Pulley Row",
+   "id": "fx-kneeling-single-arm-high-pulley-row"
+  },
+  {
+   "name": "Kneeling Squat",
+   "id": "fx-kneeling-squat"
+  },
+  {
+   "name": "Landmine 180's",
+   "id": "fx-landmine-180-s"
+  },
+  {
+   "name": "Landmine Linear Jammer",
+   "id": "fx-landmine-linear-jammer"
+  },
+  {
+   "name": "Lateral Bound",
+   "id": "fx-lateral-bound"
+  },
+  {
+   "name": "Lateral Box Jump",
+   "id": "fx-lateral-box-jump"
+  },
+  {
+   "name": "Lateral Cone Hops",
+   "id": "fx-lateral-cone-hops"
+  },
+  {
+   "name": "Lateral Raise - With Bands",
+   "id": "fx-lateral-raise-with-bands"
+  },
+  {
+   "name": "Latissimus Dorsi-SMR",
+   "id": "fx-latissimus-dorsi-smr"
+  },
+  {
+   "name": "Leg-Over Floor Press",
+   "id": "fx-leg-over-floor-press"
+  },
+  {
+   "name": "Leg-Up Hamstring Stretch",
+   "id": "fx-leg-up-hamstring-stretch"
+  },
+  {
+   "name": "Leg Lift",
+   "id": "fx-leg-lift"
+  },
+  {
+   "name": "Leg Pull-In",
+   "id": "fx-leg-pull-in"
+  },
+  {
+   "name": "Leverage Chest Press",
+   "id": "fx-leverage-chest-press"
+  },
+  {
+   "name": "Leverage Deadlift",
+   "id": "fx-leverage-deadlift"
+  },
+  {
+   "name": "Leverage Decline Chest Press",
+   "id": "fx-leverage-decline-chest-press"
+  },
+  {
+   "name": "Leverage High Row",
+   "id": "fx-leverage-high-row"
+  },
+  {
+   "name": "Leverage Incline Chest Press",
+   "id": "fx-leverage-incline-chest-press"
+  },
+  {
+   "name": "Leverage Iso Row",
+   "id": "fx-leverage-iso-row"
+  },
+  {
+   "name": "Leverage Shoulder Press",
+   "id": "fx-leverage-shoulder-press"
+  },
+  {
+   "name": "Leverage Shrug",
+   "id": "fx-leverage-shrug"
+  },
+  {
+   "name": "Linear 3-Part Start Technique",
+   "id": "fx-linear-3-part-start-technique"
+  },
+  {
+   "name": "Linear Acceleration Wall Drill",
+   "id": "fx-linear-acceleration-wall-drill"
+  },
+  {
+   "name": "Linear Depth Jump",
+   "id": "fx-linear-depth-jump"
+  },
+  {
+   "name": "Log Lift",
+   "id": "fx-log-lift"
+  },
+  {
+   "name": "London Bridges",
+   "id": "fx-london-bridges"
+  },
+  {
+   "name": "Looking At Ceiling",
+   "id": "fx-looking-at-ceiling"
+  },
+  {
+   "name": "Low Cable Crossover",
+   "id": "fx-low-cable-crossover"
+  },
+  {
+   "name": "Low Cable Triceps Extension",
+   "id": "fx-low-cable-triceps-extension"
+  },
+  {
+   "name": "Low Pulley Row To Neck",
+   "id": "fx-low-pulley-row-to-neck"
+  },
+  {
+   "name": "Lower Back-SMR",
+   "id": "fx-lower-back-smr"
+  },
+  {
+   "name": "Lower Back Curl",
+   "id": "fx-lower-back-curl"
+  },
+  {
+   "name": "Lunge Pass Through",
+   "id": "fx-lunge-pass-through"
+  },
+  {
+   "name": "Lunge Sprint",
+   "id": "fx-lunge-sprint"
+  },
+  {
+   "name": "Lying Bent Leg Groin",
+   "id": "fx-lying-bent-leg-groin"
+  },
+  {
+   "name": "Lying Cable Curl",
+   "id": "fx-lying-cable-curl"
+  },
+  {
+   "name": "Lying Cambered Barbell Row",
+   "id": "fx-lying-cambered-barbell-row"
+  },
+  {
+   "name": "Lying Close-Grip Bar Curl On High Pulley",
+   "id": "fx-lying-close-grip-bar-curl-on-high-pulley"
+  },
+  {
+   "name": "Lying Close-Grip Barbell Triceps Extension Behind The Head",
+   "id": "fx-lying-close-grip-barbell-triceps-extension-behind-the-head"
+  },
+  {
+   "name": "Lying Close-Grip Barbell Triceps Press To Chin",
+   "id": "fx-lying-close-grip-barbell-triceps-press-to-chin"
+  },
+  {
+   "name": "Lying Crossover",
+   "id": "fx-lying-crossover"
+  },
+  {
+   "name": "Lying Dumbbell Tricep Extension",
+   "id": "fx-lying-dumbbell-tricep-extension"
+  },
+  {
+   "name": "Lying Face Down Plate Neck Resistance",
+   "id": "fx-lying-face-down-plate-neck-resistance"
+  },
+  {
+   "name": "Lying Face Up Plate Neck Resistance",
+   "id": "fx-lying-face-up-plate-neck-resistance"
+  },
+  {
+   "name": "Lying Glute",
+   "id": "fx-lying-glute"
+  },
+  {
+   "name": "Lying Hamstring",
+   "id": "fx-lying-hamstring"
+  },
+  {
+   "name": "Lying High Bench Barbell Curl",
+   "id": "fx-lying-high-bench-barbell-curl"
+  },
+  {
+   "name": "Lying Machine Squat",
+   "id": "fx-lying-machine-squat"
+  },
+  {
+   "name": "Lying One-Arm Lateral Raise",
+   "id": "fx-lying-one-arm-lateral-raise"
+  },
+  {
+   "name": "Lying Prone Quadriceps",
+   "id": "fx-lying-prone-quadriceps"
+  },
+  {
+   "name": "Lying Rear Delt Raise",
+   "id": "fx-lying-rear-delt-raise"
+  },
+  {
+   "name": "Lying Supine Dumbbell Curl",
+   "id": "fx-lying-supine-dumbbell-curl"
+  },
+  {
+   "name": "Lying T-Bar Row",
+   "id": "fx-lying-t-bar-row"
+  },
+  {
+   "name": "Lying Triceps Press",
+   "id": "fx-lying-triceps-press"
+  },
+  {
+   "name": "Machine Bench Press",
+   "id": "fx-machine-bench-press"
+  },
+  {
+   "name": "Machine Bicep Curl",
+   "id": "fx-machine-bicep-curl"
+  },
+  {
+   "name": "Machine Preacher Curls",
+   "id": "fx-machine-preacher-curls"
+  },
+  {
+   "name": "Machine Shoulder (Military) Press",
+   "id": "fx-machine-shoulder-military-press"
+  },
+  {
+   "name": "Machine Triceps Extension",
+   "id": "fx-machine-triceps-extension"
+  },
+  {
+   "name": "Medicine Ball Chest Pass",
+   "id": "fx-medicine-ball-chest-pass"
+  },
+  {
+   "name": "Medicine Ball Full Twist",
+   "id": "fx-medicine-ball-full-twist"
+  },
+  {
+   "name": "Medicine Ball Scoop Throw",
+   "id": "fx-medicine-ball-scoop-throw"
+  },
+  {
+   "name": "Middle Back Shrug",
+   "id": "fx-middle-back-shrug"
+  },
+  {
+   "name": "Middle Back Stretch",
+   "id": "fx-middle-back-stretch"
+  },
+  {
+   "name": "Mixed Grip Chin",
+   "id": "fx-mixed-grip-chin"
+  },
+  {
+   "name": "Monster Walk",
+   "id": "fx-monster-walk"
+  },
+  {
+   "name": "Mountain Climbers",
+   "id": "fx-mountain-climbers"
+  },
+  {
+   "name": "Moving Claw Series",
+   "id": "fx-moving-claw-series"
+  },
+  {
+   "name": "Muscle Snatch",
+   "id": "fx-muscle-snatch"
+  },
+  {
+   "name": "Muscle Up",
+   "id": "fx-muscle-up"
+  },
+  {
+   "name": "Narrow Stance Hack Squats",
+   "id": "fx-narrow-stance-hack-squats"
+  },
+  {
+   "name": "Narrow Stance Leg Press",
+   "id": "fx-narrow-stance-leg-press"
+  },
+  {
+   "name": "Narrow Stance Squats",
+   "id": "fx-narrow-stance-squats"
+  },
+  {
+   "name": "Natural Glute Ham Raise",
+   "id": "fx-natural-glute-ham-raise"
+  },
+  {
+   "name": "Neck-SMR",
+   "id": "fx-neck-smr"
+  },
+  {
+   "name": "Neck Press",
+   "id": "fx-neck-press"
+  },
+  {
+   "name": "Oblique Crunches",
+   "id": "fx-oblique-crunches"
+  },
+  {
+   "name": "Oblique Crunches - On The Floor",
+   "id": "fx-oblique-crunches-on-the-floor"
+  },
+  {
+   "name": "Olympic Squat",
+   "id": "fx-olympic-squat"
+  },
+  {
+   "name": "On-Your-Back Quad Stretch",
+   "id": "fx-on-your-back-quad-stretch"
+  },
+  {
+   "name": "On Your Side Quad Stretch",
+   "id": "fx-on-your-side-quad-stretch"
+  },
+  {
+   "name": "One-Arm Dumbbell Row",
+   "id": "fx-one-arm-dumbbell-row"
+  },
+  {
+   "name": "One-Arm Flat Bench Dumbbell Flye",
+   "id": "fx-one-arm-flat-bench-dumbbell-flye"
+  },
+  {
+   "name": "One-Arm High-Pulley Cable Side Bends",
+   "id": "fx-one-arm-high-pulley-cable-side-bends"
+  },
+  {
+   "name": "One-Arm Incline Lateral Raise",
+   "id": "fx-one-arm-incline-lateral-raise"
+  },
+  {
+   "name": "One-Arm Kettlebell Clean",
+   "id": "fx-one-arm-kettlebell-clean"
+  },
+  {
+   "name": "One-Arm Kettlebell Floor Press",
+   "id": "fx-one-arm-kettlebell-floor-press"
+  },
+  {
+   "name": "One-Arm Kettlebell Jerk",
+   "id": "fx-one-arm-kettlebell-jerk"
+  },
+  {
+   "name": "One-Arm Kettlebell Military Press To The Side",
+   "id": "fx-one-arm-kettlebell-military-press-to-the-side"
+  },
+  {
+   "name": "One-Arm Kettlebell Para Press",
+   "id": "fx-one-arm-kettlebell-para-press"
+  },
+  {
+   "name": "One-Arm Kettlebell Push Press",
+   "id": "fx-one-arm-kettlebell-push-press"
+  },
+  {
+   "name": "One-Arm Kettlebell Row",
+   "id": "fx-one-arm-kettlebell-row"
+  },
+  {
+   "name": "One-Arm Kettlebell Snatch",
+   "id": "fx-one-arm-kettlebell-snatch"
+  },
+  {
+   "name": "One-Arm Kettlebell Swings",
+   "id": "fx-one-arm-kettlebell-swings"
+  },
+  {
+   "name": "One-Arm Long Bar Row",
+   "id": "fx-one-arm-long-bar-row"
+  },
+  {
+   "name": "One-Arm Medicine Ball Slam",
+   "id": "fx-one-arm-medicine-ball-slam"
+  },
+  {
+   "name": "One-Arm Open Palm Kettlebell Clean",
+   "id": "fx-one-arm-open-palm-kettlebell-clean"
+  },
+  {
+   "name": "One-Arm Overhead Kettlebell Squats",
+   "id": "fx-one-arm-overhead-kettlebell-squats"
+  },
+  {
+   "name": "One-Arm Side Deadlift",
+   "id": "fx-one-arm-side-deadlift"
+  },
+  {
+   "name": "One-Arm Side Laterals",
+   "id": "fx-one-arm-side-laterals"
+  },
+  {
+   "name": "One-Legged Cable Kickback",
+   "id": "fx-one-legged-cable-kickback"
+  },
+  {
+   "name": "One Arm Against Wall",
+   "id": "fx-one-arm-against-wall"
+  },
+  {
+   "name": "One Arm Chin-Up",
+   "id": "fx-one-arm-chin-up"
+  },
+  {
+   "name": "One Arm Dumbbell Bench Press",
+   "id": "fx-one-arm-dumbbell-bench-press"
+  },
+  {
+   "name": "One Arm Dumbbell Preacher Curl",
+   "id": "fx-one-arm-dumbbell-preacher-curl"
+  },
+  {
+   "name": "One Arm Floor Press",
+   "id": "fx-one-arm-floor-press"
+  },
+  {
+   "name": "One Arm Lat Pulldown",
+   "id": "fx-one-arm-lat-pulldown"
+  },
+  {
+   "name": "One Half Locust",
+   "id": "fx-one-half-locust"
+  },
+  {
+   "name": "One Handed Hang",
+   "id": "fx-one-handed-hang"
+  },
+  {
+   "name": "One Knee To Chest",
+   "id": "fx-one-knee-to-chest"
+  },
+  {
+   "name": "One Leg Barbell Squat",
+   "id": "fx-one-leg-barbell-squat"
+  },
+  {
+   "name": "Open Palm Kettlebell Clean",
+   "id": "fx-open-palm-kettlebell-clean"
+  },
+  {
+   "name": "Otis-Up",
+   "id": "fx-otis-up"
+  },
+  {
+   "name": "Overhead Cable Curl",
+   "id": "fx-overhead-cable-curl"
+  },
+  {
+   "name": "Overhead Lat",
+   "id": "fx-overhead-lat"
+  },
+  {
+   "name": "Overhead Slam",
+   "id": "fx-overhead-slam"
+  },
+  {
+   "name": "Overhead Squat",
+   "id": "fx-overhead-squat"
+  },
+  {
+   "name": "Overhead Stretch",
+   "id": "fx-overhead-stretch"
+  },
+  {
+   "name": "Overhead Triceps",
+   "id": "fx-overhead-triceps"
+  },
+  {
+   "name": "Pallof Press With Rotation",
+   "id": "fx-pallof-press-with-rotation"
+  },
+  {
+   "name": "Palms-Down Dumbbell Wrist Curl Over A Bench",
+   "id": "fx-palms-down-dumbbell-wrist-curl-over-a-bench"
+  },
+  {
+   "name": "Palms-Down Wrist Curl Over A Bench",
+   "id": "fx-palms-down-wrist-curl-over-a-bench"
+  },
+  {
+   "name": "Palms-Up Barbell Wrist Curl Over A Bench",
+   "id": "fx-palms-up-barbell-wrist-curl-over-a-bench"
+  },
+  {
+   "name": "Palms-Up Dumbbell Wrist Curl Over A Bench",
+   "id": "fx-palms-up-dumbbell-wrist-curl-over-a-bench"
+  },
+  {
+   "name": "Parallel Bar Dip",
+   "id": "fx-parallel-bar-dip"
+  },
+  {
+   "name": "Pelvic Tilt Into Bridge",
+   "id": "fx-pelvic-tilt-into-bridge"
+  },
+  {
+   "name": "Peroneals-SMR",
+   "id": "fx-peroneals-smr"
+  },
+  {
+   "name": "Peroneals Stretch",
+   "id": "fx-peroneals-stretch"
+  },
+  {
+   "name": "Physioball Hip Bridge",
+   "id": "fx-physioball-hip-bridge"
+  },
+  {
+   "name": "Pin Presses",
+   "id": "fx-pin-presses"
+  },
+  {
+   "name": "Piriformis-SMR",
+   "id": "fx-piriformis-smr"
+  },
+  {
+   "name": "Plate Pinch",
+   "id": "fx-plate-pinch"
+  },
+  {
+   "name": "Plate Twist",
+   "id": "fx-plate-twist"
+  },
+  {
+   "name": "Platform Hamstring Slides",
+   "id": "fx-platform-hamstring-slides"
+  },
+  {
+   "name": "Plie Dumbbell Squat",
+   "id": "fx-plie-dumbbell-squat"
+  },
+  {
+   "name": "Plyo Kettlebell Pushups",
+   "id": "fx-plyo-kettlebell-pushups"
+  },
+  {
+   "name": "Plyo Push-up",
+   "id": "fx-plyo-push-up"
+  },
+  {
+   "name": "Posterior Tibialis Stretch",
+   "id": "fx-posterior-tibialis-stretch"
+  },
+  {
+   "name": "Power Clean",
+   "id": "fx-power-clean"
+  },
+  {
+   "name": "Power Clean from Blocks",
+   "id": "fx-power-clean-from-blocks"
+  },
+  {
+   "name": "Power Jerk",
+   "id": "fx-power-jerk"
+  },
+  {
+   "name": "Power Partials",
+   "id": "fx-power-partials"
+  },
+  {
+   "name": "Power Snatch",
+   "id": "fx-power-snatch"
+  },
+  {
+   "name": "Power Snatch from Blocks",
+   "id": "fx-power-snatch-from-blocks"
+  },
+  {
+   "name": "Power Stairs",
+   "id": "fx-power-stairs"
+  },
+  {
+   "name": "Preacher Hammer Dumbbell Curl",
+   "id": "fx-preacher-hammer-dumbbell-curl"
+  },
+  {
+   "name": "Press Sit-Up",
+   "id": "fx-press-sit-up"
+  },
+  {
+   "name": "Prone Manual Hamstring",
+   "id": "fx-prone-manual-hamstring"
+  },
+  {
+   "name": "Prowler Sprint",
+   "id": "fx-prowler-sprint"
+  },
+  {
+   "name": "Pull Through",
+   "id": "fx-pull-through"
+  },
+  {
+   "name": "Pullups",
+   "id": "fx-pullups"
+  },
+  {
+   "name": "Push-Up Wide",
+   "id": "fx-push-up-wide"
+  },
+  {
+   "name": "Push-Ups - Close Triceps Position",
+   "id": "fx-push-ups-close-triceps-position"
+  },
+  {
+   "name": "Push-Ups With Feet Elevated",
+   "id": "fx-push-ups-with-feet-elevated"
+  },
+  {
+   "name": "Push-Ups With Feet On An Exercise Ball",
+   "id": "fx-push-ups-with-feet-on-an-exercise-ball"
+  },
+  {
+   "name": "Push Press",
+   "id": "fx-push-press"
+  },
+  {
+   "name": "Push Press - Behind the Neck",
+   "id": "fx-push-press-behind-the-neck"
+  },
+  {
+   "name": "Push Up to Side Plank",
+   "id": "fx-push-up-to-side-plank"
+  },
+  {
+   "name": "Pushups",
+   "id": "fx-pushups"
+  },
+  {
+   "name": "Pushups (Close and Wide Hand Positions)",
+   "id": "fx-pushups-close-and-wide-hand-positions"
+  },
+  {
+   "name": "Pyramid",
+   "id": "fx-pyramid"
+  },
+  {
+   "name": "Quad Stretch",
+   "id": "fx-quad-stretch"
+  },
+  {
+   "name": "Quadriceps-SMR",
+   "id": "fx-quadriceps-smr"
+  },
+  {
+   "name": "Quick Leap",
+   "id": "fx-quick-leap"
+  },
+  {
+   "name": "Rack Delivery",
+   "id": "fx-rack-delivery"
+  },
+  {
+   "name": "Rack Pull with Bands",
+   "id": "fx-rack-pull-with-bands"
+  },
+  {
+   "name": "Rack Pulls",
+   "id": "fx-rack-pulls"
+  },
+  {
+   "name": "Rear Leg Raises",
+   "id": "fx-rear-leg-raises"
+  },
+  {
+   "name": "Recumbent Bike",
+   "id": "fx-recumbent-bike"
+  },
+  {
+   "name": "Return Push from Stance",
+   "id": "fx-return-push-from-stance"
+  },
+  {
+   "name": "Reverse Band Bench Press",
+   "id": "fx-reverse-band-bench-press"
+  },
+  {
+   "name": "Reverse Band Box Squat",
+   "id": "fx-reverse-band-box-squat"
+  },
+  {
+   "name": "Reverse Band Deadlift",
+   "id": "fx-reverse-band-deadlift"
+  },
+  {
+   "name": "Reverse Band Power Squat",
+   "id": "fx-reverse-band-power-squat"
+  },
+  {
+   "name": "Reverse Band Sumo Deadlift",
+   "id": "fx-reverse-band-sumo-deadlift"
+  },
+  {
+   "name": "Reverse Barbell Curl",
+   "id": "fx-reverse-barbell-curl"
+  },
+  {
+   "name": "Reverse Barbell Preacher Curls",
+   "id": "fx-reverse-barbell-preacher-curls"
+  },
+  {
+   "name": "Reverse Cable Curl",
+   "id": "fx-reverse-cable-curl"
+  },
+  {
+   "name": "Reverse Crunch",
+   "id": "fx-reverse-crunch"
+  },
+  {
+   "name": "Reverse Flyes",
+   "id": "fx-reverse-flyes"
+  },
+  {
+   "name": "Reverse Flyes With External Rotation",
+   "id": "fx-reverse-flyes-with-external-rotation"
+  },
+  {
+   "name": "Reverse Grip Bent-Over Rows",
+   "id": "fx-reverse-grip-bent-over-rows"
+  },
+  {
+   "name": "Reverse Grip Triceps Pushdown",
+   "id": "fx-reverse-grip-triceps-pushdown"
+  },
+  {
+   "name": "Reverse Hyperextension",
+   "id": "fx-reverse-hyperextension"
+  },
+  {
+   "name": "Reverse Machine Flyes",
+   "id": "fx-reverse-machine-flyes"
+  },
+  {
+   "name": "Reverse Plate Curls",
+   "id": "fx-reverse-plate-curls"
+  },
+  {
+   "name": "Reverse Triceps Bench Press",
+   "id": "fx-reverse-triceps-bench-press"
+  },
+  {
+   "name": "Rhomboids-SMR",
+   "id": "fx-rhomboids-smr"
+  },
+  {
+   "name": "Rickshaw Carry",
+   "id": "fx-rickshaw-carry"
+  },
+  {
+   "name": "Rickshaw Deadlift",
+   "id": "fx-rickshaw-deadlift"
+  },
+  {
+   "name": "Ring Dips",
+   "id": "fx-ring-dips"
+  },
+  {
+   "name": "Rocket Jump",
+   "id": "fx-rocket-jump"
+  },
+  {
+   "name": "Rocking Standing Calf Raise",
+   "id": "fx-rocking-standing-calf-raise"
+  },
+  {
+   "name": "Rocky Pull-Ups/Pulldowns",
+   "id": "fx-rocky-pull-ups-pulldowns"
+  },
+  {
+   "name": "Romanian Deadlift from Deficit",
+   "id": "fx-romanian-deadlift-from-deficit"
+  },
+  {
+   "name": "Rope Climb",
+   "id": "fx-rope-climb"
+  },
+  {
+   "name": "Rope Crunch",
+   "id": "fx-rope-crunch"
+  },
+  {
+   "name": "Rope Jumping",
+   "id": "fx-rope-jumping"
+  },
+  {
+   "name": "Rope Straight-Arm Pulldown",
+   "id": "fx-rope-straight-arm-pulldown"
+  },
+  {
+   "name": "Round The World Shoulder Stretch",
+   "id": "fx-round-the-world-shoulder-stretch"
+  },
+  {
+   "name": "Rowing, Stationary",
+   "id": "fx-rowing-stationary"
+  },
+  {
+   "name": "Runner's Stretch",
+   "id": "fx-runner-s-stretch"
+  },
+  {
+   "name": "Running, Treadmill",
+   "id": "fx-running-treadmill"
+  },
+  {
+   "name": "Russian Twist",
+   "id": "fx-russian-twist"
+  },
+  {
+   "name": "Sandbag Load",
+   "id": "fx-sandbag-load"
+  },
+  {
+   "name": "Scapular Pull-Up",
+   "id": "fx-scapular-pull-up"
+  },
+  {
+   "name": "Scissor Kick",
+   "id": "fx-scissor-kick"
+  },
+  {
+   "name": "Scissors Jump",
+   "id": "fx-scissors-jump"
+  },
+  {
+   "name": "Seated Band Hamstring Curl",
+   "id": "fx-seated-band-hamstring-curl"
+  },
+  {
+   "name": "Seated Barbell Military Press",
+   "id": "fx-seated-barbell-military-press"
+  },
+  {
+   "name": "Seated Barbell Twist",
+   "id": "fx-seated-barbell-twist"
+  },
+  {
+   "name": "Seated Bent-Over One-Arm Dumbbell Triceps Extension",
+   "id": "fx-seated-bent-over-one-arm-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Seated Bent-Over Rear Delt Raise",
+   "id": "fx-seated-bent-over-rear-delt-raise"
+  },
+  {
+   "name": "Seated Bent-Over Two-Arm Dumbbell Triceps Extension",
+   "id": "fx-seated-bent-over-two-arm-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Seated Biceps",
+   "id": "fx-seated-biceps"
+  },
+  {
+   "name": "Seated Cable Shoulder Press",
+   "id": "fx-seated-cable-shoulder-press"
+  },
+  {
+   "name": "Seated Calf Stretch",
+   "id": "fx-seated-calf-stretch"
+  },
+  {
+   "name": "Seated Close-Grip Concentration Barbell Curl",
+   "id": "fx-seated-close-grip-concentration-barbell-curl"
+  },
+  {
+   "name": "Seated Dumbbell Curl",
+   "id": "fx-seated-dumbbell-curl"
+  },
+  {
+   "name": "Seated Dumbbell Inner Biceps Curl",
+   "id": "fx-seated-dumbbell-inner-biceps-curl"
+  },
+  {
+   "name": "Seated Dumbbell Palms-Down Wrist Curl",
+   "id": "fx-seated-dumbbell-palms-down-wrist-curl"
+  },
+  {
+   "name": "Seated Dumbbell Palms-Up Wrist Curl",
+   "id": "fx-seated-dumbbell-palms-up-wrist-curl"
+  },
+  {
+   "name": "Seated Dumbbell Press",
+   "id": "fx-seated-dumbbell-press"
+  },
+  {
+   "name": "Seated Flat Bench Leg Pull-In",
+   "id": "fx-seated-flat-bench-leg-pull-in"
+  },
+  {
+   "name": "Seated Floor Hamstring Stretch",
+   "id": "fx-seated-floor-hamstring-stretch"
+  },
+  {
+   "name": "Seated Front Deltoid",
+   "id": "fx-seated-front-deltoid"
+  },
+  {
+   "name": "Seated Glute",
+   "id": "fx-seated-glute"
+  },
+  {
+   "name": "Seated Good Mornings",
+   "id": "fx-seated-good-mornings"
+  },
+  {
+   "name": "Seated Hamstring",
+   "id": "fx-seated-hamstring"
+  },
+  {
+   "name": "Seated Hamstring and Calf Stretch",
+   "id": "fx-seated-hamstring-and-calf-stretch"
+  },
+  {
+   "name": "Seated Head Harness Neck Resistance",
+   "id": "fx-seated-head-harness-neck-resistance"
+  },
+  {
+   "name": "Seated Leg Tucks",
+   "id": "fx-seated-leg-tucks"
+  },
+  {
+   "name": "Seated One-Arm Dumbbell Palms-Down Wrist Curl",
+   "id": "fx-seated-one-arm-dumbbell-palms-down-wrist-curl"
+  },
+  {
+   "name": "Seated One-Arm Dumbbell Palms-Up Wrist Curl",
+   "id": "fx-seated-one-arm-dumbbell-palms-up-wrist-curl"
+  },
+  {
+   "name": "Seated One-arm Cable Pulley Rows",
+   "id": "fx-seated-one-arm-cable-pulley-rows"
+  },
+  {
+   "name": "Seated Overhead Stretch",
+   "id": "fx-seated-overhead-stretch"
+  },
+  {
+   "name": "Seated Palm-Up Barbell Wrist Curl",
+   "id": "fx-seated-palm-up-barbell-wrist-curl"
+  },
+  {
+   "name": "Seated Palms-Down Barbell Wrist Curl",
+   "id": "fx-seated-palms-down-barbell-wrist-curl"
+  },
+  {
+   "name": "Seated Side Lateral Raise",
+   "id": "fx-seated-side-lateral-raise"
+  },
+  {
+   "name": "Seated Triceps Press",
+   "id": "fx-seated-triceps-press"
+  },
+  {
+   "name": "Seated Two-Arm Palms-Up Low-Pulley Wrist Curl",
+   "id": "fx-seated-two-arm-palms-up-low-pulley-wrist-curl"
+  },
+  {
+   "name": "See-Saw Press (Alternating Side Press)",
+   "id": "fx-see-saw-press-alternating-side-press"
+  },
+  {
+   "name": "Shotgun Row",
+   "id": "fx-shotgun-row"
+  },
+  {
+   "name": "Shoulder Circles",
+   "id": "fx-shoulder-circles"
+  },
+  {
+   "name": "Shoulder Press - With Bands",
+   "id": "fx-shoulder-press-with-bands"
+  },
+  {
+   "name": "Shoulder Raise",
+   "id": "fx-shoulder-raise"
+  },
+  {
+   "name": "Shoulder Stretch",
+   "id": "fx-shoulder-stretch"
+  },
+  {
+   "name": "Side-Lying Floor Stretch",
+   "id": "fx-side-lying-floor-stretch"
+  },
+  {
+   "name": "Side Bridge",
+   "id": "fx-side-bridge"
+  },
+  {
+   "name": "Side Hop-Sprint",
+   "id": "fx-side-hop-sprint"
+  },
+  {
+   "name": "Side Jackknife",
+   "id": "fx-side-jackknife"
+  },
+  {
+   "name": "Side Lateral Raise",
+   "id": "fx-side-lateral-raise"
+  },
+  {
+   "name": "Side Laterals to Front Raise",
+   "id": "fx-side-laterals-to-front-raise"
+  },
+  {
+   "name": "Side Leg Raises",
+   "id": "fx-side-leg-raises"
+  },
+  {
+   "name": "Side Lying Groin Stretch",
+   "id": "fx-side-lying-groin-stretch"
+  },
+  {
+   "name": "Side Neck Stretch",
+   "id": "fx-side-neck-stretch"
+  },
+  {
+   "name": "Side Standing Long Jump",
+   "id": "fx-side-standing-long-jump"
+  },
+  {
+   "name": "Side To Side Chins",
+   "id": "fx-side-to-side-chins"
+  },
+  {
+   "name": "Side Wrist Pull",
+   "id": "fx-side-wrist-pull"
+  },
+  {
+   "name": "Side to Side Box Shuffle",
+   "id": "fx-side-to-side-box-shuffle"
+  },
+  {
+   "name": "Single-Arm Cable Crossover",
+   "id": "fx-single-arm-cable-crossover"
+  },
+  {
+   "name": "Single-Arm Linear Jammer",
+   "id": "fx-single-arm-linear-jammer"
+  },
+  {
+   "name": "Single-Arm Push-Up",
+   "id": "fx-single-arm-push-up"
+  },
+  {
+   "name": "Single-Cone Sprint Drill",
+   "id": "fx-single-cone-sprint-drill"
+  },
+  {
+   "name": "Single-Leg High Box Squat",
+   "id": "fx-single-leg-high-box-squat"
+  },
+  {
+   "name": "Single-Leg Hop Progression",
+   "id": "fx-single-leg-hop-progression"
+  },
+  {
+   "name": "Single-Leg Lateral Hop",
+   "id": "fx-single-leg-lateral-hop"
+  },
+  {
+   "name": "Single-Leg Leg Extension",
+   "id": "fx-single-leg-leg-extension"
+  },
+  {
+   "name": "Single-Leg Stride Jump",
+   "id": "fx-single-leg-stride-jump"
+  },
+  {
+   "name": "Single Dumbbell Raise",
+   "id": "fx-single-dumbbell-raise"
+  },
+  {
+   "name": "Single Leg Butt Kick",
+   "id": "fx-single-leg-butt-kick"
+  },
+  {
+   "name": "Single Leg Glute Bridge",
+   "id": "fx-single-leg-glute-bridge"
+  },
+  {
+   "name": "Single Leg Push-off",
+   "id": "fx-single-leg-push-off"
+  },
+  {
+   "name": "Sit-Up",
+   "id": "fx-sit-up"
+  },
+  {
+   "name": "Sit Squats",
+   "id": "fx-sit-squats"
+  },
+  {
+   "name": "Skating",
+   "id": "fx-skating"
+  },
+  {
+   "name": "Sled Drag - Harness",
+   "id": "fx-sled-drag-harness"
+  },
+  {
+   "name": "Sled Overhead Backward Walk",
+   "id": "fx-sled-overhead-backward-walk"
+  },
+  {
+   "name": "Sled Overhead Triceps Extension",
+   "id": "fx-sled-overhead-triceps-extension"
+  },
+  {
+   "name": "Sled Push",
+   "id": "fx-sled-push"
+  },
+  {
+   "name": "Sled Reverse Flye",
+   "id": "fx-sled-reverse-flye"
+  },
+  {
+   "name": "Sled Row",
+   "id": "fx-sled-row"
+  },
+  {
+   "name": "Sledgehammer Swings",
+   "id": "fx-sledgehammer-swings"
+  },
+  {
+   "name": "Smith Incline Shoulder Raise",
+   "id": "fx-smith-incline-shoulder-raise"
+  },
+  {
+   "name": "Smith Machine Behind the Back Shrug",
+   "id": "fx-smith-machine-behind-the-back-shrug"
+  },
+  {
+   "name": "Smith Machine Bench Press",
+   "id": "fx-smith-machine-bench-press"
+  },
+  {
+   "name": "Smith Machine Bent Over Row",
+   "id": "fx-smith-machine-bent-over-row"
+  },
+  {
+   "name": "Smith Machine Calf Raise",
+   "id": "fx-smith-machine-calf-raise"
+  },
+  {
+   "name": "Smith Machine Close-Grip Bench Press",
+   "id": "fx-smith-machine-close-grip-bench-press"
+  },
+  {
+   "name": "Smith Machine Decline Press",
+   "id": "fx-smith-machine-decline-press"
+  },
+  {
+   "name": "Smith Machine Hang Power Clean",
+   "id": "fx-smith-machine-hang-power-clean"
+  },
+  {
+   "name": "Smith Machine Hip Raise",
+   "id": "fx-smith-machine-hip-raise"
+  },
+  {
+   "name": "Smith Machine Incline Bench Press",
+   "id": "fx-smith-machine-incline-bench-press"
+  },
+  {
+   "name": "Smith Machine Leg Press",
+   "id": "fx-smith-machine-leg-press"
+  },
+  {
+   "name": "Smith Machine One-Arm Upright Row",
+   "id": "fx-smith-machine-one-arm-upright-row"
+  },
+  {
+   "name": "Smith Machine Overhead Shoulder Press",
+   "id": "fx-smith-machine-overhead-shoulder-press"
+  },
+  {
+   "name": "Smith Machine Pistol Squat",
+   "id": "fx-smith-machine-pistol-squat"
+  },
+  {
+   "name": "Smith Machine Reverse Calf Raises",
+   "id": "fx-smith-machine-reverse-calf-raises"
+  },
+  {
+   "name": "Smith Machine Squat",
+   "id": "fx-smith-machine-squat"
+  },
+  {
+   "name": "Smith Machine Stiff-Legged Deadlift",
+   "id": "fx-smith-machine-stiff-legged-deadlift"
+  },
+  {
+   "name": "Smith Machine Upright Row",
+   "id": "fx-smith-machine-upright-row"
+  },
+  {
+   "name": "Smith Single-Leg Split Squat",
+   "id": "fx-smith-single-leg-split-squat"
+  },
+  {
+   "name": "Snatch",
+   "id": "fx-snatch"
+  },
+  {
+   "name": "Snatch Balance",
+   "id": "fx-snatch-balance"
+  },
+  {
+   "name": "Snatch Deadlift",
+   "id": "fx-snatch-deadlift"
+  },
+  {
+   "name": "Snatch Pull",
+   "id": "fx-snatch-pull"
+  },
+  {
+   "name": "Snatch Shrug",
+   "id": "fx-snatch-shrug"
+  },
+  {
+   "name": "Snatch from Blocks",
+   "id": "fx-snatch-from-blocks"
+  },
+  {
+   "name": "Speed Band Overhead Triceps",
+   "id": "fx-speed-band-overhead-triceps"
+  },
+  {
+   "name": "Speed Box Squat",
+   "id": "fx-speed-box-squat"
+  },
+  {
+   "name": "Speed Squats",
+   "id": "fx-speed-squats"
+  },
+  {
+   "name": "Spell Caster",
+   "id": "fx-spell-caster"
+  },
+  {
+   "name": "Spider Crawl",
+   "id": "fx-spider-crawl"
+  },
+  {
+   "name": "Spider Curl",
+   "id": "fx-spider-curl"
+  },
+  {
+   "name": "Spinal Stretch",
+   "id": "fx-spinal-stretch"
+  },
+  {
+   "name": "Split Clean",
+   "id": "fx-split-clean"
+  },
+  {
+   "name": "Split Jerk",
+   "id": "fx-split-jerk"
+  },
+  {
+   "name": "Split Jump",
+   "id": "fx-split-jump"
+  },
+  {
+   "name": "Split Snatch",
+   "id": "fx-split-snatch"
+  },
+  {
+   "name": "Split Squat with Dumbbells",
+   "id": "fx-split-squat-with-dumbbells"
+  },
+  {
+   "name": "Split Squats",
+   "id": "fx-split-squats"
+  },
+  {
+   "name": "Squat Jerk",
+   "id": "fx-squat-jerk"
+  },
+  {
+   "name": "Squat with Bands",
+   "id": "fx-squat-with-bands"
+  },
+  {
+   "name": "Squat with Chains",
+   "id": "fx-squat-with-chains"
+  },
+  {
+   "name": "Squat with Plate Movers",
+   "id": "fx-squat-with-plate-movers"
+  },
+  {
+   "name": "Stairmaster",
+   "id": "fx-stairmaster"
+  },
+  {
+   "name": "Standing Alternating Dumbbell Press",
+   "id": "fx-standing-alternating-dumbbell-press"
+  },
+  {
+   "name": "Standing Barbell Calf Raise",
+   "id": "fx-standing-barbell-calf-raise"
+  },
+  {
+   "name": "Standing Barbell Press Behind Neck",
+   "id": "fx-standing-barbell-press-behind-neck"
+  },
+  {
+   "name": "Standing Bent-Over One-Arm Dumbbell Triceps Extension",
+   "id": "fx-standing-bent-over-one-arm-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Standing Bent-Over Two-Arm Dumbbell Triceps Extension",
+   "id": "fx-standing-bent-over-two-arm-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Standing Biceps Cable Curl",
+   "id": "fx-standing-biceps-cable-curl"
+  },
+  {
+   "name": "Standing Biceps Stretch",
+   "id": "fx-standing-biceps-stretch"
+  },
+  {
+   "name": "Standing Bradford Press",
+   "id": "fx-standing-bradford-press"
+  },
+  {
+   "name": "Standing Cable Chest Press",
+   "id": "fx-standing-cable-chest-press"
+  },
+  {
+   "name": "Standing Cable Lift",
+   "id": "fx-standing-cable-lift"
+  },
+  {
+   "name": "Standing Cable Wood Chop",
+   "id": "fx-standing-cable-wood-chop"
+  },
+  {
+   "name": "Standing Concentration Curl",
+   "id": "fx-standing-concentration-curl"
+  },
+  {
+   "name": "Standing Dumbbell Calf Raise",
+   "id": "fx-standing-dumbbell-calf-raise"
+  },
+  {
+   "name": "Standing Dumbbell Press",
+   "id": "fx-standing-dumbbell-press"
+  },
+  {
+   "name": "Standing Dumbbell Reverse Curl",
+   "id": "fx-standing-dumbbell-reverse-curl"
+  },
+  {
+   "name": "Standing Dumbbell Straight-Arm Front Delt Raise Above Head",
+   "id": "fx-standing-dumbbell-straight-arm-front-delt-raise-above-head"
+  },
+  {
+   "name": "Standing Dumbbell Triceps Extension",
+   "id": "fx-standing-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Standing Dumbbell Upright Row",
+   "id": "fx-standing-dumbbell-upright-row"
+  },
+  {
+   "name": "Standing Elevated Quad Stretch",
+   "id": "fx-standing-elevated-quad-stretch"
+  },
+  {
+   "name": "Standing Front Barbell Raise Over Head",
+   "id": "fx-standing-front-barbell-raise-over-head"
+  },
+  {
+   "name": "Standing Gastrocnemius Calf Stretch",
+   "id": "fx-standing-gastrocnemius-calf-stretch"
+  },
+  {
+   "name": "Standing Hamstring and Calf Stretch",
+   "id": "fx-standing-hamstring-and-calf-stretch"
+  },
+  {
+   "name": "Standing Hip Circles",
+   "id": "fx-standing-hip-circles"
+  },
+  {
+   "name": "Standing Hip Flexors",
+   "id": "fx-standing-hip-flexors"
+  },
+  {
+   "name": "Standing Inner-Biceps Curl",
+   "id": "fx-standing-inner-biceps-curl"
+  },
+  {
+   "name": "Standing Lateral Stretch",
+   "id": "fx-standing-lateral-stretch"
+  },
+  {
+   "name": "Standing Leg Curl",
+   "id": "fx-standing-leg-curl"
+  },
+  {
+   "name": "Standing Long Jump",
+   "id": "fx-standing-long-jump"
+  },
+  {
+   "name": "Standing Low-Pulley Deltoid Raise",
+   "id": "fx-standing-low-pulley-deltoid-raise"
+  },
+  {
+   "name": "Standing Low-Pulley One-Arm Triceps Extension",
+   "id": "fx-standing-low-pulley-one-arm-triceps-extension"
+  },
+  {
+   "name": "Standing Military Press",
+   "id": "fx-standing-military-press"
+  },
+  {
+   "name": "Standing Olympic Plate Hand Squeeze",
+   "id": "fx-standing-olympic-plate-hand-squeeze"
+  },
+  {
+   "name": "Standing One-Arm Cable Curl",
+   "id": "fx-standing-one-arm-cable-curl"
+  },
+  {
+   "name": "Standing One-Arm Dumbbell Curl Over Incline Bench",
+   "id": "fx-standing-one-arm-dumbbell-curl-over-incline-bench"
+  },
+  {
+   "name": "Standing One-Arm Dumbbell Triceps Extension",
+   "id": "fx-standing-one-arm-dumbbell-triceps-extension"
+  },
+  {
+   "name": "Standing Overhead Barbell Triceps Extension",
+   "id": "fx-standing-overhead-barbell-triceps-extension"
+  },
+  {
+   "name": "Standing Palm-In One-Arm Dumbbell Press",
+   "id": "fx-standing-palm-in-one-arm-dumbbell-press"
+  },
+  {
+   "name": "Standing Palms-In Dumbbell Press",
+   "id": "fx-standing-palms-in-dumbbell-press"
+  },
+  {
+   "name": "Standing Palms-Up Barbell Behind The Back Wrist Curl",
+   "id": "fx-standing-palms-up-barbell-behind-the-back-wrist-curl"
+  },
+  {
+   "name": "Standing Pelvic Tilt",
+   "id": "fx-standing-pelvic-tilt"
+  },
+  {
+   "name": "Standing Rope Crunch",
+   "id": "fx-standing-rope-crunch"
+  },
+  {
+   "name": "Standing Soleus And Achilles Stretch",
+   "id": "fx-standing-soleus-and-achilles-stretch"
+  },
+  {
+   "name": "Standing Toe Touches",
+   "id": "fx-standing-toe-touches"
+  },
+  {
+   "name": "Standing Towel Triceps Extension",
+   "id": "fx-standing-towel-triceps-extension"
+  },
+  {
+   "name": "Standing Two-Arm Overhead Throw",
+   "id": "fx-standing-two-arm-overhead-throw"
+  },
+  {
+   "name": "Star Jump",
+   "id": "fx-star-jump"
+  },
+  {
+   "name": "Step-up with Knee Raise",
+   "id": "fx-step-up-with-knee-raise"
+  },
+  {
+   "name": "Step Mill",
+   "id": "fx-step-mill"
+  },
+  {
+   "name": "Stiff-Legged Barbell Deadlift",
+   "id": "fx-stiff-legged-barbell-deadlift"
+  },
+  {
+   "name": "Stiff-Legged Dumbbell Deadlift",
+   "id": "fx-stiff-legged-dumbbell-deadlift"
+  },
+  {
+   "name": "Stiff Leg Barbell Good Morning",
+   "id": "fx-stiff-leg-barbell-good-morning"
+  },
+  {
+   "name": "Stomach Vacuum",
+   "id": "fx-stomach-vacuum"
+  },
+  {
+   "name": "Straight-Arm Dumbbell Pullover",
+   "id": "fx-straight-arm-dumbbell-pullover"
+  },
+  {
+   "name": "Straight Bar Bench Mid Rows",
+   "id": "fx-straight-bar-bench-mid-rows"
+  },
+  {
+   "name": "Straight Raises on Incline Bench",
+   "id": "fx-straight-raises-on-incline-bench"
+  },
+  {
+   "name": "Stride Jump Crossover",
+   "id": "fx-stride-jump-crossover"
+  },
+  {
+   "name": "Sumo Deadlift",
+   "id": "fx-sumo-deadlift"
+  },
+  {
+   "name": "Sumo Deadlift with Bands",
+   "id": "fx-sumo-deadlift-with-bands"
+  },
+  {
+   "name": "Sumo Deadlift with Chains",
+   "id": "fx-sumo-deadlift-with-chains"
+  },
+  {
+   "name": "Superman",
+   "id": "fx-superman"
+  },
+  {
+   "name": "Supine Chest Throw",
+   "id": "fx-supine-chest-throw"
+  },
+  {
+   "name": "Supine One-Arm Overhead Throw",
+   "id": "fx-supine-one-arm-overhead-throw"
+  },
+  {
+   "name": "Supine Two-Arm Overhead Throw",
+   "id": "fx-supine-two-arm-overhead-throw"
+  },
+  {
+   "name": "Suspended Fallout",
+   "id": "fx-suspended-fallout"
+  },
+  {
+   "name": "Suspended Push-Up",
+   "id": "fx-suspended-push-up"
+  },
+  {
+   "name": "Suspended Reverse Crunch",
+   "id": "fx-suspended-reverse-crunch"
+  },
+  {
+   "name": "Suspended Row",
+   "id": "fx-suspended-row"
+  },
+  {
+   "name": "Suspended Split Squat",
+   "id": "fx-suspended-split-squat"
+  },
+  {
+   "name": "Svend Press",
+   "id": "fx-svend-press"
+  },
+  {
+   "name": "T-Bar Row with Handle",
+   "id": "fx-t-bar-row-with-handle"
+  },
+  {
+   "name": "Tate Press",
+   "id": "fx-tate-press"
+  },
+  {
+   "name": "The Straddle",
+   "id": "fx-the-straddle"
+  },
+  {
+   "name": "Thigh Abductor",
+   "id": "fx-thigh-abductor"
+  },
+  {
+   "name": "Thigh Adductor",
+   "id": "fx-thigh-adductor"
+  },
+  {
+   "name": "Tire Flip",
+   "id": "fx-tire-flip"
+  },
+  {
+   "name": "Toe Touchers",
+   "id": "fx-toe-touchers"
+  },
+  {
+   "name": "Torso Rotation",
+   "id": "fx-torso-rotation"
+  },
+  {
+   "name": "Trail Running/Walking",
+   "id": "fx-trail-running-walking"
+  },
+  {
+   "name": "Trap Bar Deadlift",
+   "id": "fx-trap-bar-deadlift"
+  },
+  {
+   "name": "Tricep Dumbbell Kickback",
+   "id": "fx-tricep-dumbbell-kickback"
+  },
+  {
+   "name": "Tricep Side Stretch",
+   "id": "fx-tricep-side-stretch"
+  },
+  {
+   "name": "Triceps Overhead Extension with Rope",
+   "id": "fx-triceps-overhead-extension-with-rope"
+  },
+  {
+   "name": "Triceps Pushdown - Rope Attachment",
+   "id": "fx-triceps-pushdown-rope-attachment"
+  },
+  {
+   "name": "Triceps Pushdown - V-Bar Attachment",
+   "id": "fx-triceps-pushdown-v-bar-attachment"
+  },
+  {
+   "name": "Triceps Stretch",
+   "id": "fx-triceps-stretch"
+  },
+  {
+   "name": "Tuck Crunch",
+   "id": "fx-tuck-crunch"
+  },
+  {
+   "name": "Two-Arm Dumbbell Preacher Curl",
+   "id": "fx-two-arm-dumbbell-preacher-curl"
+  },
+  {
+   "name": "Two-Arm Kettlebell Clean",
+   "id": "fx-two-arm-kettlebell-clean"
+  },
+  {
+   "name": "Two-Arm Kettlebell Jerk",
+   "id": "fx-two-arm-kettlebell-jerk"
+  },
+  {
+   "name": "Two-Arm Kettlebell Military Press",
+   "id": "fx-two-arm-kettlebell-military-press"
+  },
+  {
+   "name": "Two-Arm Kettlebell Row",
+   "id": "fx-two-arm-kettlebell-row"
+  },
+  {
+   "name": "Underhand Cable Pulldowns",
+   "id": "fx-underhand-cable-pulldowns"
+  },
+  {
+   "name": "Upper Back-Leg Grab",
+   "id": "fx-upper-back-leg-grab"
+  },
+  {
+   "name": "Upper Back Stretch",
+   "id": "fx-upper-back-stretch"
+  },
+  {
+   "name": "Upright Barbell Row",
+   "id": "fx-upright-barbell-row"
+  },
+  {
+   "name": "Upright Cable Row",
+   "id": "fx-upright-cable-row"
+  },
+  {
+   "name": "Upright Row - With Bands",
+   "id": "fx-upright-row-with-bands"
+  },
+  {
+   "name": "Upward Stretch",
+   "id": "fx-upward-stretch"
+  },
+  {
+   "name": "V-Bar Pulldown",
+   "id": "fx-v-bar-pulldown"
+  },
+  {
+   "name": "V-Bar Pullup",
+   "id": "fx-v-bar-pullup"
+  },
+  {
+   "name": "Vertical Swing",
+   "id": "fx-vertical-swing"
+  },
+  {
+   "name": "Walking, Treadmill",
+   "id": "fx-walking-treadmill"
+  },
+  {
+   "name": "Weighted Ball Hyperextension",
+   "id": "fx-weighted-ball-hyperextension"
+  },
+  {
+   "name": "Weighted Ball Side Bend",
+   "id": "fx-weighted-ball-side-bend"
+  },
+  {
+   "name": "Weighted Bench Dip",
+   "id": "fx-weighted-bench-dip"
+  },
+  {
+   "name": "Weighted Crunches",
+   "id": "fx-weighted-crunches"
+  },
+  {
+   "name": "Weighted Jump Squat",
+   "id": "fx-weighted-jump-squat"
+  },
+  {
+   "name": "Weighted Pull Ups",
+   "id": "fx-weighted-pull-ups"
+  },
+  {
+   "name": "Weighted Sissy Squat",
+   "id": "fx-weighted-sissy-squat"
+  },
+  {
+   "name": "Weighted Sit-Ups - With Bands",
+   "id": "fx-weighted-sit-ups-with-bands"
+  },
+  {
+   "name": "Weighted Squat",
+   "id": "fx-weighted-squat"
+  },
+  {
+   "name": "Wide-Grip Barbell Bench Press",
+   "id": "fx-wide-grip-barbell-bench-press"
+  },
+  {
+   "name": "Wide-Grip Decline Barbell Bench Press",
+   "id": "fx-wide-grip-decline-barbell-bench-press"
+  },
+  {
+   "name": "Wide-Grip Decline Barbell Pullover",
+   "id": "fx-wide-grip-decline-barbell-pullover"
+  },
+  {
+   "name": "Wide-Grip Lat Pulldown",
+   "id": "fx-wide-grip-lat-pulldown"
+  },
+  {
+   "name": "Wide-Grip Pulldown Behind The Neck",
+   "id": "fx-wide-grip-pulldown-behind-the-neck"
+  },
+  {
+   "name": "Wide-Grip Rear Pull-Up",
+   "id": "fx-wide-grip-rear-pull-up"
+  },
+  {
+   "name": "Wide-Grip Standing Barbell Curl",
+   "id": "fx-wide-grip-standing-barbell-curl"
+  },
+  {
+   "name": "Wide Stance Barbell Squat",
+   "id": "fx-wide-stance-barbell-squat"
+  },
+  {
+   "name": "Wide Stance Stiff Legs",
+   "id": "fx-wide-stance-stiff-legs"
+  },
+  {
+   "name": "Wind Sprints",
+   "id": "fx-wind-sprints"
+  },
+  {
+   "name": "Windmills",
+   "id": "fx-windmills"
+  },
+  {
+   "name": "World's Greatest Stretch",
+   "id": "fx-world-s-greatest-stretch"
+  },
+  {
+   "name": "Wrist Circles",
+   "id": "fx-wrist-circles"
+  },
+  {
+   "name": "Wrist Roller",
+   "id": "fx-wrist-roller"
+  },
+  {
+   "name": "Wrist Rotations with Straight Bar",
+   "id": "fx-wrist-rotations-with-straight-bar"
+  },
+  {
+   "name": "Yoke Walk",
+   "id": "fx-yoke-walk"
+  },
+  {
+   "name": "Zercher Squats",
+   "id": "fx-zercher-squats"
+  },
+  {
+   "name": "Zottman Curl",
+   "id": "fx-zottman-curl"
+  },
+  {
+   "name": "Zottman Preacher Curl",
+   "id": "fx-zottman-preacher-curl"
+  },
+  {
+   "name": "Weighted Push-up",
+   "id": "wg-weighted-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Seated Shoulder Press",
+   "id": "wg-dumbbell-seated-shoulder-press",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Machine Row",
+   "id": "wg-machine-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Close-Grip Lat Pulldown",
+   "id": "wg-close-grip-lat-pulldown",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Assisted Pull-up",
+   "id": "wg-assisted-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Weighted Pull-up",
+   "id": "wg-weighted-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Step-Up",
+   "id": "wg-step-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Leg Curl",
+   "id": "wg-leg-curl",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dip",
+   "id": "wg-dip",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Assisted Dip",
+   "id": "wg-assisted-dip",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Side Plank",
+   "id": "wg-side-plank",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Running",
+   "id": "wg-running",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Rowing",
+   "id": "wg-rowing",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Fly",
+   "id": "wg-dumbbell-fly",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Incline Cable Fly",
+   "id": "wg-incline-cable-fly",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Landmine Press",
+   "id": "wg-landmine-press",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Bent-Over Rear Delt Raise",
+   "id": "wg-bent-over-rear-delt-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Pendlay Row",
+   "id": "wg-pendlay-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Meadows Row",
+   "id": "wg-meadows-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Single-Arm Cable Row",
+   "id": "wg-single-arm-cable-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Neutral-Grip Pull-up",
+   "id": "wg-neutral-grip-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Assisted Chin-up",
+   "id": "wg-assisted-chin-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Weighted Chin-up",
+   "id": "wg-weighted-chin-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Belt Squat",
+   "id": "wg-belt-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Single-Leg Romanian Deadlift",
+   "id": "wg-single-leg-romanian-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Reverse Lunge",
+   "id": "wg-reverse-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hip Abduction Machine",
+   "id": "wg-hip-abduction-machine",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Glute Bridge",
+   "id": "wg-dumbbell-glute-bridge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Hip Thrust",
+   "id": "wg-dumbbell-hip-thrust",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Smith Machine Romanian Deadlift",
+   "id": "wg-smith-machine-romanian-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Romanian Deadlift",
+   "id": "wg-dumbbell-romanian-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Kettlebell Romanian Deadlift",
+   "id": "wg-kettlebell-romanian-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cable Pull-Through",
+   "id": "wg-cable-pull-through",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Machine Glute Kickback",
+   "id": "wg-machine-glute-kickback",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cable Standing Hip Abduction",
+   "id": "wg-cable-standing-hip-abduction",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cable Standing Hip Adduction",
+   "id": "wg-cable-standing-hip-adduction",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hip Adduction Machine",
+   "id": "wg-hip-adduction-machine",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Smith Machine Bulgarian Split Squat",
+   "id": "wg-smith-machine-bulgarian-split-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Smith Machine Reverse Lunge",
+   "id": "wg-smith-machine-reverse-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Smith Machine Split Squat",
+   "id": "wg-smith-machine-split-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Heel-Elevated Goblet Squat",
+   "id": "wg-heel-elevated-goblet-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Sumo Squat",
+   "id": "wg-dumbbell-sumo-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Sumo Deadlift",
+   "id": "wg-dumbbell-sumo-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Front-Foot Elevated Split Squat",
+   "id": "wg-front-foot-elevated-split-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Deficit Reverse Lunge",
+   "id": "wg-deficit-reverse-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Lateral Lunge",
+   "id": "wg-dumbbell-lateral-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Landmine Squat",
+   "id": "wg-landmine-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Landmine Romanian Deadlift",
+   "id": "wg-landmine-romanian-deadlift",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Kettlebell Swing",
+   "id": "wg-kettlebell-swing",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Glute-Focused Back Extension",
+   "id": "wg-glute-focused-back-extension",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Wall Sit",
+   "id": "wg-wall-sit",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Rope Tricep Pushdown",
+   "id": "wg-rope-tricep-pushdown",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Two Dumbbell Skullcrusher",
+   "id": "wg-two-dumbbell-skullcrusher",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Single Dumbbell Skullcrusher",
+   "id": "wg-single-dumbbell-skullcrusher",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dumbbell Overhead Tricep Extension",
+   "id": "wg-dumbbell-overhead-tricep-extension",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Single Arm Dumbbell Tricep Extension",
+   "id": "wg-single-arm-dumbbell-tricep-extension",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Wrist Extension",
+   "id": "wg-wrist-extension",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Farmer Carry",
+   "id": "wg-farmer-carry",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Crunch",
+   "id": "wg-crunch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Bicycle Crunch",
+   "id": "wg-bicycle-crunch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Bird Dog",
+   "id": "wg-bird-dog",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cable Woodchop",
+   "id": "wg-cable-woodchop",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Half-Kneeling Pallof Press",
+   "id": "wg-half-kneeling-pallof-press",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cable Pallof Hold",
+   "id": "wg-cable-pallof-hold",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hanging Knee Raise",
+   "id": "wg-hanging-knee-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Captain's Chair Knee Raise",
+   "id": "wg-captain-s-chair-knee-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Decline Sit-Up",
+   "id": "wg-decline-sit-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Weighted Crunch",
+   "id": "wg-weighted-crunch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Weighted Russian Twist",
+   "id": "wg-weighted-russian-twist",
+   "from": "workout-guide"
+  },
+  {
+   "name": "SkiErg",
+   "id": "wg-skierg",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hiking",
+   "id": "wg-hiking",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Treadmill Incline Walk",
+   "id": "wg-treadmill-incline-walk",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Battle Ropes",
+   "id": "wg-battle-ropes",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Knee Push-up",
+   "id": "wg-knee-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Diamond Push-up",
+   "id": "wg-diamond-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Pike Push-up",
+   "id": "wg-pike-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Feet-Elevated Pike Push-up",
+   "id": "wg-feet-elevated-pike-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Archer Push-up",
+   "id": "wg-archer-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Typewriter Push-up",
+   "id": "wg-typewriter-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Explosive Push-up",
+   "id": "wg-explosive-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hindu Push-up",
+   "id": "wg-hindu-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Scapular Push-up",
+   "id": "wg-scapular-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Push-up Shoulder Tap",
+   "id": "wg-push-up-shoulder-tap",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Wall Push-up",
+   "id": "wg-wall-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Wall Walk",
+   "id": "wg-wall-walk",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Wall Handstand Push-up",
+   "id": "wg-wall-handstand-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Handstand Push-up",
+   "id": "wg-handstand-push-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Chair Dip",
+   "id": "wg-chair-dip",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Doorway Row",
+   "id": "wg-doorway-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Towel Row",
+   "id": "wg-towel-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Prone Y Raise",
+   "id": "wg-prone-y-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Prone T Raise",
+   "id": "wg-prone-t-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Superman Hold",
+   "id": "wg-superman-hold",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Reverse Snow Angel",
+   "id": "wg-reverse-snow-angel",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dead Hang",
+   "id": "wg-dead-hang",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Active Hang",
+   "id": "wg-active-hang",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Negative Pull-up",
+   "id": "wg-negative-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Commando Pull-up",
+   "id": "wg-commando-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "L-Sit Pull-up",
+   "id": "wg-l-sit-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Towel Pull-up",
+   "id": "wg-towel-pull-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Pistol Squat",
+   "id": "wg-pistol-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Assisted Pistol Squat",
+   "id": "wg-assisted-pistol-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Shrimp Squat",
+   "id": "wg-shrimp-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cossack Squat",
+   "id": "wg-cossack-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Sissy Squat",
+   "id": "wg-sissy-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Forward Lunge",
+   "id": "wg-forward-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Lateral Lunge",
+   "id": "wg-lateral-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Curtsy Lunge",
+   "id": "wg-curtsy-lunge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Skater Squat",
+   "id": "wg-skater-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Step-Down",
+   "id": "wg-step-down",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Calf Raise",
+   "id": "wg-calf-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Single-Leg Calf Raise",
+   "id": "wg-single-leg-calf-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Glute Bridge March",
+   "id": "wg-glute-bridge-march",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Frog Pump",
+   "id": "wg-frog-pump",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Donkey Kick",
+   "id": "wg-donkey-kick",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Fire Hydrant",
+   "id": "wg-fire-hydrant",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Clamshell",
+   "id": "wg-clamshell",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hip Airplane",
+   "id": "wg-hip-airplane",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Side-Lying Hip Abduction",
+   "id": "wg-side-lying-hip-abduction",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Side-Lying Leg Raise",
+   "id": "wg-side-lying-leg-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Towel Hamstring Curl",
+   "id": "wg-towel-hamstring-curl",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Stability Ball Hamstring Curl",
+   "id": "wg-stability-ball-hamstring-curl",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Glute Bridge",
+   "id": "wg-banded-glute-bridge",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Hip Thrust",
+   "id": "wg-banded-hip-thrust",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Frog Pump",
+   "id": "wg-banded-frog-pump",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Clamshell",
+   "id": "wg-banded-clamshell",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Lateral Walk",
+   "id": "wg-banded-lateral-walk",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Monster Walk",
+   "id": "wg-banded-monster-walk",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Squat",
+   "id": "wg-banded-squat",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Donkey Kick",
+   "id": "wg-banded-donkey-kick",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Fire Hydrant",
+   "id": "wg-banded-fire-hydrant",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Kickback",
+   "id": "wg-banded-kickback",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Standing Hip Abduction",
+   "id": "wg-banded-standing-hip-abduction",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Seated Hip Abduction",
+   "id": "wg-banded-seated-hip-abduction",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Face Pull",
+   "id": "wg-banded-face-pull",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Row",
+   "id": "wg-banded-row",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Lat Pulldown",
+   "id": "wg-banded-lat-pulldown",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Pallof Press",
+   "id": "wg-banded-pallof-press",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Woodchop",
+   "id": "wg-banded-woodchop",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Banded Dead Bug",
+   "id": "wg-banded-dead-bug",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hollow Body Hold",
+   "id": "wg-hollow-body-hold",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Hollow Rock",
+   "id": "wg-hollow-rock",
+   "from": "workout-guide"
+  },
+  {
+   "name": "V-Up",
+   "id": "wg-v-up",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Lying Leg Raise",
+   "id": "wg-lying-leg-raise",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Toe Touch",
+   "id": "wg-toe-touch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Heel Tap",
+   "id": "wg-heel-tap",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Plank Shoulder Tap",
+   "id": "wg-plank-shoulder-tap",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Plank Jack",
+   "id": "wg-plank-jack",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Bear Plank",
+   "id": "wg-bear-plank",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Bear Crawl",
+   "id": "wg-bear-crawl",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Crab Walk",
+   "id": "wg-crab-walk",
+   "from": "workout-guide"
+  },
+  {
+   "name": "L-Sit Hold",
+   "id": "wg-l-sit-hold",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Seated Knee Tuck",
+   "id": "wg-seated-knee-tuck",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Side Plank Hip Dip",
+   "id": "wg-side-plank-hip-dip",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Copenhagen Plank",
+   "id": "wg-copenhagen-plank",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Dragon Flag",
+   "id": "wg-dragon-flag",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Burpee",
+   "id": "wg-burpee",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Half Burpee",
+   "id": "wg-half-burpee",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Squat Thrust",
+   "id": "wg-squat-thrust",
+   "from": "workout-guide"
+  },
+  {
+   "name": "High Knees",
+   "id": "wg-high-knees",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Jumping Jack",
+   "id": "wg-jumping-jack",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Skater Hop",
+   "id": "wg-skater-hop",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Lateral Shuffle",
+   "id": "wg-lateral-shuffle",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Fast Feet",
+   "id": "wg-fast-feet",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Sprawl",
+   "id": "wg-sprawl",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Seal Jack",
+   "id": "wg-seal-jack",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Leg Swings",
+   "id": "wg-leg-swings",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Torso Twists",
+   "id": "wg-torso-twists",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Doorway Chest Stretch",
+   "id": "wg-doorway-chest-stretch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Seated Forward Fold",
+   "id": "wg-seated-forward-fold",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Cross-Body Shoulder Stretch",
+   "id": "wg-cross-body-shoulder-stretch",
+   "from": "workout-guide"
+  },
+  {
+   "name": "Butterfly Stretch",
+   "id": "wg-butterfly-stretch",
+   "from": "workout-guide"
+  }
+ ],
+ "merged": [
+  {
+   "name": "Barbell Curl",
+   "into": "lib-barbell-curl",
+   "how": "key"
+  },
+  {
+   "name": "Bent Over Two-Dumbbell Row With Palms In",
+   "into": "fx-bent-over-two-dumbbell-row",
+   "how": "fuzzy"
+  },
+  {
+   "name": "Cable Crunch",
+   "into": "lib-cable-crunch",
+   "how": "key"
+  },
+  {
+   "name": "Chin-Up",
+   "into": "lib-chin-up",
+   "how": "key"
+  },
+  {
+   "name": "Close-Grip EZ Bar Curl",
+   "into": "fx-close-grip-ez-bar-curl-with-band",
+   "how": "fuzzy"
+  },
+  {
+   "name": "Dips - Chest Version",
+   "into": "lib-dips-chest",
+   "how": "key"
+  },
+  {
+   "name": "Dips - Triceps Version",
+   "into": "lib-dips-triceps",
+   "how": "key"
+  },
+  {
+   "name": "Dumbbell Shoulder Press",
+   "into": "lib-dumbbell-shoulder-press",
+   "how": "key"
+  },
+  {
+   "name": "Face Pull",
+   "into": "lib-face-pull",
+   "how": "key"
+  },
+  {
+   "name": "Farmer's Walk",
+   "into": "lib-farmers-walk",
+   "how": "key"
+  },
+  {
+   "name": "Good Morning",
+   "into": "lib-good-morning",
+   "how": "key"
+  },
+  {
+   "name": "Hack Squat",
+   "into": "lib-hack-squat",
+   "how": "key"
+  },
+  {
+   "name": "Hammer Curls",
+   "into": "lib-hammer-curl",
+   "how": "key"
+  },
+  {
+   "name": "Hanging Leg Raise",
+   "into": "lib-hanging-leg-raise",
+   "how": "key"
+  },
+  {
+   "name": "Incline Dumbbell Curl",
+   "into": "lib-incline-dumbbell-curl",
+   "how": "key"
+  },
+  {
+   "name": "Incline Dumbbell Press",
+   "into": "lib-incline-dumbbell-press",
+   "how": "key"
+  },
+  {
+   "name": "Leg Extensions",
+   "into": "lib-leg-extension",
+   "how": "key"
+  },
+  {
+   "name": "Leg Press",
+   "into": "lib-leg-press",
+   "how": "key"
+  },
+  {
+   "name": "Lying Leg Curls",
+   "into": "lib-lying-leg-curl",
+   "how": "key"
+  },
+  {
+   "name": "One-Arm Kettlebell Clean and Jerk",
+   "into": "fx-one-arm-kettlebell-clean",
+   "how": "fuzzy"
+  },
+  {
+   "name": "One-Arm Kettlebell Split Jerk",
+   "into": "fx-one-arm-kettlebell-jerk",
+   "how": "fuzzy"
+  },
+  {
+   "name": "One-Arm Kettlebell Split Snatch",
+   "into": "fx-one-arm-kettlebell-snatch",
+   "how": "fuzzy"
+  },
+  {
+   "name": "One Arm Pronated Dumbbell Triceps Extension",
+   "into": "fx-dumbbell-one-arm-triceps-extension",
+   "how": "fuzzy"
+  },
+  {
+   "name": "One Arm Supinated Dumbbell Triceps Extension",
+   "into": "fx-dumbbell-one-arm-triceps-extension",
+   "how": "fuzzy"
+  },
+  {
+   "name": "Pallof Press",
+   "into": "lib-pallof-press",
+   "how": "key"
+  },
+  {
+   "name": "Plank",
+   "into": "lib-plank",
+   "how": "key"
+  },
+  {
+   "name": "Preacher Curl",
+   "into": "lib-preacher-curl",
+   "how": "key"
+  },
+  {
+   "name": "Romanian Deadlift",
+   "into": "lib-romanian-deadlift",
+   "how": "key"
+  },
+  {
+   "name": "Seated Cable Rows",
+   "into": "lib-seated-cable-row",
+   "how": "key"
+  },
+  {
+   "name": "Seated Calf Raise",
+   "into": "lib-seated-calf-raise",
+   "how": "key"
+  },
+  {
+   "name": "Seated Leg Curl",
+   "into": "lib-seated-leg-curl",
+   "how": "key"
+  },
+  {
+   "name": "Squats - With Bands",
+   "into": "fx-squat-with-bands",
+   "how": "key"
+  },
+  {
+   "name": "Standing Calf Raises",
+   "into": "lib-standing-calf-raise",
+   "how": "key"
+  },
+  {
+   "name": "Straight-Arm Pulldown",
+   "into": "lib-straight-arm-pulldown",
+   "how": "key"
+  },
+  {
+   "name": "Triceps Pushdown",
+   "into": "lib-triceps-pushdown",
+   "how": "key"
+  }
+ ],
+ "skipped": [],
+ "review": [
+  {
+   "name": "Iron Cross",
+   "id": "fx-iron-cross",
+   "problems": [
+    "sin instrucciones"
+   ]
+  },
+  {
+   "name": "One-Arm Kettlebell Swings",
+   "id": "fx-one-arm-kettlebell-swings",
+   "problems": [
+    "sin instrucciones"
+   ]
+  },
+  {
+   "name": "Push Press",
+   "id": "fx-push-press",
+   "problems": [
+    "sin instrucciones"
+   ]
+  },
+  {
+   "name": "Side Bridge",
+   "id": "fx-side-bridge",
+   "problems": [
+    "sin instrucciones"
+   ]
+  },
+  {
+   "name": "Side Jackknife",
+   "id": "fx-side-jackknife",
+   "problems": [
+    "sin instrucciones"
+   ]
+  }
+ ],
+ "media": [
+  {
+   "exercise": "lib-barbell-bench-press",
+   "slug": "bench-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-incline-barbell-press",
+   "slug": "incline-bench-press",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "lib-incline-dumbbell-press",
+   "slug": "incline-dumbbell-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-dumbbell-bench-press",
+   "slug": "dumbbell-bench-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-decline-barbell-bench-press",
+   "slug": "decline-bench-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-chest-press-machine",
+   "slug": "machine-chest-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-pec-deck",
+   "slug": "pec-deck",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cable-fly-mid",
+   "slug": "cable-fly",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-push-up",
+   "slug": "push-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-weighted-push-up",
+   "slug": "weighted-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-overhead-press",
+   "slug": "overhead-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-dumbbell-seated-shoulder-press",
+   "slug": "seated-dumbbell-press",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-arnold-dumbbell-press",
+   "slug": "arnold-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-lateral-raise",
+   "slug": "lateral-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cable-lateral-raise",
+   "slug": "cable-lateral-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-front-dumbbell-raise",
+   "slug": "front-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-rear-delt-fly",
+   "slug": "rear-delt-fly",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-reverse-pec-deck",
+   "slug": "reverse-pec-deck",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-face-pull",
+   "slug": "face-pull",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-upright-barbell-row",
+   "slug": "upright-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-barbell-deadlift",
+   "slug": "deadlift",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-romanian-deadlift",
+   "slug": "romanian-deadlift",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-barbell-row",
+   "slug": "barbell-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-t-bar-row",
+   "slug": "t-bar-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-bent-over-two-dumbbell-row",
+   "slug": "dumbbell-bent-over-row",
+   "frames": 3,
+   "how": "fuzzy"
+  },
+  {
+   "exercise": "fx-one-arm-dumbbell-row",
+   "slug": "one-arm-dumbbell-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-chest-supported-row",
+   "slug": "chest-supported-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-seated-cable-row",
+   "slug": "seated-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-machine-row",
+   "slug": "machine-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-lat-pulldown",
+   "slug": "lat-pulldown",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-close-grip-lat-pulldown",
+   "slug": "close-grip-lat-pulldown",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-straight-arm-pulldown",
+   "slug": "straight-arm-pulldown",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-pull-up",
+   "slug": "pull-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-assisted-pull-up",
+   "slug": "assisted-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-weighted-pull-up",
+   "slug": "weighted-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-chin-up",
+   "slug": "chin-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-barbell-shrug",
+   "slug": "shrug",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-barbell-squat",
+   "slug": "squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-front-barbell-squat",
+   "slug": "front-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-hack-squat",
+   "slug": "hack-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-leg-press",
+   "slug": "leg-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-bulgarian-split-squat",
+   "slug": "bulgarian-split-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-walking-lunge",
+   "slug": "walking-lunge",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-step-up",
+   "slug": "step-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-leg-extension",
+   "slug": "leg-extension",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-leg-curl",
+   "slug": "leg-curl",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-seated-leg-curl",
+   "slug": "seated-leg-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-barbell-hip-thrust",
+   "slug": "hip-thrust",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-glute-bridge",
+   "slug": "glute-bridge",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-good-morning",
+   "slug": "good-morning",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-standing-calf-raise",
+   "slug": "standing-calf-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-seated-calf-raise",
+   "slug": "seated-calf-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-dumbbell-bicep-curl",
+   "slug": "bicep-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-hammer-curl",
+   "slug": "hammer-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-machine-preacher-curls",
+   "slug": "preacher-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cable-curl",
+   "slug": "cable-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-reverse-barbell-curl",
+   "slug": "reverse-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-wrist-curl",
+   "slug": "wrist-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-triceps-pushdown",
+   "slug": "tricep-pushdown",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-cable-rope-overhead-triceps-extension",
+   "slug": "overhead-tricep-extension",
+   "frames": 3,
+   "how": "fuzzy"
+  },
+  {
+   "exercise": "lib-skull-crusher",
+   "slug": "skull-crusher",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-close-grip-barbell-bench-press",
+   "slug": "close-grip-bench-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-dip",
+   "slug": "dip",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-assisted-dip",
+   "slug": "assisted-dip",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-plank",
+   "slug": "plank",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-side-plank",
+   "slug": "side-plank",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-hanging-leg-raise",
+   "slug": "hanging-leg-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cable-crunch",
+   "slug": "cable-crunch",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-ab-wheel",
+   "slug": "ab-wheel",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-running",
+   "slug": "running",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-walking",
+   "slug": "walking",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cycling-outdoor",
+   "slug": "cycling",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-rowing",
+   "slug": "rowing",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-stair-climber",
+   "slug": "stair-climber",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-dumbbell-fly",
+   "slug": "dumbbell-fly",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-incline-cable-fly",
+   "slug": "incline-cable-fly",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-decline-dumbbell-bench-press",
+   "slug": "decline-dumbbell-press",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-smith-machine-bench-press",
+   "slug": "smith-machine-bench-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-landmine-press",
+   "slug": "landmine-press",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-dips-chest",
+   "slug": "chest-dip",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-weighted-bench-dip",
+   "slug": "weighted-dip",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-machine-shoulder-military-press",
+   "slug": "machine-shoulder-press",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-standing-dumbbell-press",
+   "slug": "standing-dumbbell-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-push-press",
+   "slug": "push-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-machine-lateral-raise",
+   "slug": "machine-lateral-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-front-cable-raise",
+   "slug": "cable-front-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-front-plate-raise",
+   "slug": "plate-front-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-bent-over-rear-delt-raise",
+   "slug": "bent-over-rear-delt-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-cable-rear-delt-fly",
+   "slug": "cable-rear-delt-fly",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-pendlay-row",
+   "slug": "pendlay-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-inverted-row",
+   "slug": "inverted-row",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-meadows-row",
+   "slug": "meadows-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-single-arm-cable-row",
+   "slug": "single-arm-cable-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-wide-grip-lat-pulldown",
+   "slug": "wide-grip-lat-pulldown",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-neutral-grip-pull-up",
+   "slug": "neutral-grip-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-assisted-chin-up",
+   "slug": "assisted-chin-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-weighted-chin-up",
+   "slug": "weighted-chin-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-rack-pulls",
+   "slug": "rack-pull",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-hyperextensions-back-extensions",
+   "slug": "back-extension",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-dumbbell-shrug",
+   "slug": "dumbbell-shrug",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-goblet-squat",
+   "slug": "goblet-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-smith-machine-squat",
+   "slug": "smith-machine-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-belt-squat",
+   "slug": "belt-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-sumo-deadlift",
+   "slug": "sumo-deadlift",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-trap-bar-deadlift",
+   "slug": "trap-bar-deadlift",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-lying-leg-curl",
+   "slug": "lying-leg-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-nordic-curl",
+   "slug": "nordic-hamstring-curl",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-single-leg-romanian-deadlift",
+   "slug": "single-leg-romanian-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-reverse-lunge",
+   "slug": "reverse-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-split-squat-with-dumbbells",
+   "slug": "split-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-cable-kickback",
+   "slug": "cable-kickback",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-hip-abduction-machine",
+   "slug": "hip-abduction-machine",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-single-leg-glute-bridge",
+   "slug": "single-leg-glute-bridge",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-barbell-glute-bridge",
+   "slug": "barbell-glute-bridge",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-dumbbell-glute-bridge",
+   "slug": "dumbbell-glute-bridge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-hip-thrust",
+   "slug": "dumbbell-hip-thrust",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-smith-machine-hip-raise",
+   "slug": "smith-machine-hip-thrust",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-smith-machine-romanian-deadlift",
+   "slug": "smith-machine-romanian-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-romanian-deadlift",
+   "slug": "dumbbell-romanian-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-kettlebell-romanian-deadlift",
+   "slug": "kettlebell-romanian-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cable-pull-through",
+   "slug": "cable-pull-through",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-machine-glute-kickback",
+   "slug": "machine-glute-kickback",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cable-standing-hip-abduction",
+   "slug": "cable-standing-hip-abduction",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cable-standing-hip-adduction",
+   "slug": "cable-standing-hip-adduction",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hip-adduction-machine",
+   "slug": "hip-adduction-machine",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-smith-machine-bulgarian-split-squat",
+   "slug": "smith-machine-bulgarian-split-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-smith-machine-reverse-lunge",
+   "slug": "smith-machine-reverse-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-smith-machine-split-squat",
+   "slug": "smith-machine-split-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-heel-elevated-goblet-squat",
+   "slug": "heel-elevated-goblet-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-sumo-squat",
+   "slug": "dumbbell-sumo-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-sumo-deadlift",
+   "slug": "dumbbell-sumo-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-front-foot-elevated-split-squat",
+   "slug": "front-foot-elevated-split-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-deficit-reverse-lunge",
+   "slug": "deficit-reverse-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-lateral-lunge",
+   "slug": "dumbbell-lateral-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-dumbbell-lunges",
+   "slug": "dumbbell-curtsy-lunge",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-landmine-squat",
+   "slug": "landmine-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-landmine-romanian-deadlift",
+   "slug": "landmine-romanian-deadlift",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-kettlebell-swing",
+   "slug": "kettlebell-swing",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-glute-focused-back-extension",
+   "slug": "glute-focused-back-extension",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-reverse-hyperextension",
+   "slug": "reverse-hyperextension",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-donkey-calf-raises",
+   "slug": "donkey-calf-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-leg-press-calf-raise",
+   "slug": "leg-press-calf-raise",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-wall-sit",
+   "slug": "wall-sit",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-freehand-jump-squat",
+   "slug": "jump-squat",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "lib-incline-dumbbell-curl",
+   "slug": "incline-dumbbell-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-concentration-curls",
+   "slug": "concentration-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-ez-bar-curl",
+   "slug": "ez-bar-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-spider-curl",
+   "slug": "spider-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-cable-hammer-curls-rope-attachment",
+   "slug": "rope-hammer-curl",
+   "frames": 3,
+   "how": "fuzzy"
+  },
+  {
+   "exercise": "fx-drag-curl",
+   "slug": "drag-curl",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-rope-tricep-pushdown",
+   "slug": "rope-tricep-pushdown",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-two-dumbbell-skullcrusher",
+   "slug": "dumbbell-skull-crusher",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-single-dumbbell-skullcrusher",
+   "slug": "single-dumbbell-skullcrusher",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dumbbell-overhead-tricep-extension",
+   "slug": "dumbbell-overhead-tricep-extension",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-single-arm-dumbbell-tricep-extension",
+   "slug": "single-arm-dumbbell-tricep-extension",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-bench-dips",
+   "slug": "bench-dip",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-tricep-dumbbell-kickback",
+   "slug": "tricep-kickback",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-wrist-extension",
+   "slug": "wrist-extension",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-farmer-carry",
+   "slug": "farmer-carry",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-crunch",
+   "slug": "crunch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-reverse-crunch",
+   "slug": "reverse-crunch",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-russian-twist",
+   "slug": "russian-twist",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-bicycle-crunch",
+   "slug": "bicycle-crunch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-mountain-climbers",
+   "slug": "mountain-climber",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-dead-bug",
+   "slug": "dead-bug",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-bird-dog",
+   "slug": "bird-dog",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "lib-pallof-press",
+   "slug": "pallof-press",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-cable-woodchop",
+   "slug": "cable-woodchop",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-half-kneeling-pallof-press",
+   "slug": "half-kneeling-pallof-press",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cable-pallof-hold",
+   "slug": "cable-pallof-hold",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hanging-knee-raise",
+   "slug": "hanging-knee-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-captain-s-chair-knee-raise",
+   "slug": "captains-chair-knee-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-decline-sit-up",
+   "slug": "decline-sit-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-weighted-crunch",
+   "slug": "weighted-crunch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-weighted-russian-twist",
+   "slug": "weighted-russian-twist",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-dumbbell-side-bend",
+   "slug": "dumbbell-side-bend",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-elliptical",
+   "slug": "elliptical",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-swimming",
+   "slug": "swimming",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-jump-rope",
+   "slug": "jump-rope",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "lib-assault-bike",
+   "slug": "assault-bike",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-skierg",
+   "slug": "skierg",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hiking",
+   "slug": "hiking",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-treadmill-incline-walk",
+   "slug": "treadmill-incline-walk",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-battle-ropes",
+   "slug": "battle-ropes",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-incline-push-up",
+   "slug": "incline-push-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-knee-push-up",
+   "slug": "knee-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-push-up-wide",
+   "slug": "wide-push-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-diamond-push-up",
+   "slug": "diamond-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-decline-push-up",
+   "slug": "decline-push-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-pike-push-up",
+   "slug": "pike-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-feet-elevated-pike-push-up",
+   "slug": "feet-elevated-pike-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-archer-push-up",
+   "slug": "archer-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-typewriter-push-up",
+   "slug": "typewriter-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-explosive-push-up",
+   "slug": "explosive-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hindu-push-up",
+   "slug": "hindu-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-scapular-push-up",
+   "slug": "scapular-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-push-up-shoulder-tap",
+   "slug": "push-up-shoulder-tap",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-wall-push-up",
+   "slug": "wall-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-wall-walk",
+   "slug": "wall-walk",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-wall-handstand-push-up",
+   "slug": "wall-handstand-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-handstand-push-up",
+   "slug": "handstand-push-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-chair-dip",
+   "slug": "chair-dip",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-doorway-row",
+   "slug": "doorway-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-towel-row",
+   "slug": "towel-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-prone-y-raise",
+   "slug": "prone-y-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-prone-t-raise",
+   "slug": "prone-t-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-superman",
+   "slug": "superman",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-superman-hold",
+   "slug": "superman-hold",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-reverse-snow-angel",
+   "slug": "reverse-snow-angel",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dead-hang",
+   "slug": "dead-hang",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-active-hang",
+   "slug": "active-hang",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-scapular-pull-up",
+   "slug": "scapular-pull-up",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-negative-pull-up",
+   "slug": "negative-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-commando-pull-up",
+   "slug": "commando-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-l-sit-pull-up",
+   "slug": "l-sit-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-towel-pull-up",
+   "slug": "towel-pull-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-bodyweight-squat",
+   "slug": "bodyweight-squat",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-pistol-squat",
+   "slug": "pistol-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-assisted-pistol-squat",
+   "slug": "assisted-pistol-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-shrimp-squat",
+   "slug": "shrimp-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cossack-squat",
+   "slug": "cossack-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-sissy-squat",
+   "slug": "sissy-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-forward-lunge",
+   "slug": "forward-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-lateral-lunge",
+   "slug": "lateral-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-curtsy-lunge",
+   "slug": "curtsy-lunge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-skater-squat",
+   "slug": "skater-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-single-leg-high-box-squat",
+   "slug": "single-leg-box-squat",
+   "frames": 3,
+   "how": "fuzzy"
+  },
+  {
+   "exercise": "wg-step-down",
+   "slug": "step-down",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-calf-raise",
+   "slug": "calf-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-single-leg-calf-raise",
+   "slug": "single-leg-calf-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-glute-bridge-march",
+   "slug": "glute-bridge-march",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-frog-pump",
+   "slug": "frog-pump",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-donkey-kick",
+   "slug": "donkey-kick",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-fire-hydrant",
+   "slug": "fire-hydrant",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-clamshell",
+   "slug": "clamshell",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hip-airplane",
+   "slug": "hip-airplane",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-side-lying-hip-abduction",
+   "slug": "side-lying-hip-abduction",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-side-lying-leg-raise",
+   "slug": "side-lying-leg-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-lying-hamstring",
+   "slug": "lying-hamstring-walkout",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-towel-hamstring-curl",
+   "slug": "towel-hamstring-curl",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-stability-ball-hamstring-curl",
+   "slug": "stability-ball-hamstring-curl",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-glute-bridge",
+   "slug": "banded-glute-bridge",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-hip-thrust",
+   "slug": "banded-hip-thrust",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-frog-pump",
+   "slug": "banded-frog-pump",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-clamshell",
+   "slug": "banded-clamshell",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-lateral-walk",
+   "slug": "banded-lateral-walk",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-monster-walk",
+   "slug": "banded-monster-walk",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-squat",
+   "slug": "banded-squat",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-donkey-kick",
+   "slug": "banded-donkey-kick",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-fire-hydrant",
+   "slug": "banded-fire-hydrant",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-kickback",
+   "slug": "banded-kickback",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-standing-hip-abduction",
+   "slug": "banded-standing-hip-abduction",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-seated-hip-abduction",
+   "slug": "banded-seated-hip-abduction",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-band-pull-apart",
+   "slug": "band-pull-apart",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-banded-face-pull",
+   "slug": "banded-face-pull",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-row",
+   "slug": "banded-row",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-lat-pulldown",
+   "slug": "banded-lat-pulldown",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-pallof-press",
+   "slug": "banded-pallof-press",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-woodchop",
+   "slug": "banded-woodchop",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-banded-dead-bug",
+   "slug": "banded-dead-bug",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hollow-body-hold",
+   "slug": "hollow-body-hold",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-hollow-rock",
+   "slug": "hollow-rock",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-v-up",
+   "slug": "v-up",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-flutter-kicks",
+   "slug": "flutter-kick",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-lying-leg-raise",
+   "slug": "lying-leg-raise",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-toe-touch",
+   "slug": "toe-touch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-heel-tap",
+   "slug": "heel-tap",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-plank-shoulder-tap",
+   "slug": "plank-shoulder-tap",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-plank-jack",
+   "slug": "plank-jack",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-bear-plank",
+   "slug": "bear-plank",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-bear-crawl",
+   "slug": "bear-crawl",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-crab-walk",
+   "slug": "crab-walk",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-inchworm",
+   "slug": "inchworm",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-l-sit-hold",
+   "slug": "l-sit-hold",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-seated-knee-tuck",
+   "slug": "seated-knee-tuck",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-side-plank-hip-dip",
+   "slug": "side-plank-hip-dip",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-copenhagen-plank",
+   "slug": "copenhagen-plank",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-dragon-flag",
+   "slug": "dragon-flag",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-burpee",
+   "slug": "burpee",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-half-burpee",
+   "slug": "half-burpee",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-squat-thrust",
+   "slug": "squat-thrust",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-high-knees",
+   "slug": "high-knees",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-jumping-jack",
+   "slug": "jumping-jack",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-skater-hop",
+   "slug": "skater-hop",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-lateral-shuffle",
+   "slug": "lateral-shuffle",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-fast-feet",
+   "slug": "fast-feet",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-sprawl",
+   "slug": "sprawl",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-seal-jack",
+   "slug": "seal-jack",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-cat-stretch",
+   "slug": "cat-cow-stretch",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-arm-circles",
+   "slug": "arm-circles",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-world-s-greatest-stretch",
+   "slug": "worlds-greatest-stretch",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "wg-leg-swings",
+   "slug": "leg-swings-stretch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-torso-twists",
+   "slug": "torso-twist-stretch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-doorway-chest-stretch",
+   "slug": "doorway-chest-stretch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-child-s-pose",
+   "slug": "childs-pose",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-kneeling-hip-flexor",
+   "slug": "kneeling-hip-flexor-stretch",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "fx-hamstring-stretch",
+   "slug": "hamstring-stretch",
+   "frames": 3,
+   "how": "key"
+  },
+  {
+   "exercise": "fx-standing-elevated-quad-stretch",
+   "slug": "standing-quad-stretch",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-seated-forward-fold",
+   "slug": "seated-forward-fold-stretch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "wg-cross-body-shoulder-stretch",
+   "slug": "cross-body-shoulder-stretch",
+   "frames": 3,
+   "how": "created"
+  },
+  {
+   "exercise": "fx-calf-stretch-elbows-against-wall",
+   "slug": "wall-calf-stretch",
+   "frames": 3,
+   "how": "media-fuzzy"
+  },
+  {
+   "exercise": "wg-butterfly-stretch",
+   "slug": "butterfly-stretch",
+   "frames": 3,
+   "how": "created"
+  }
+ ]
+}

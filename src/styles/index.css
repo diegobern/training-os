@@ -1,0 +1,323 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* ----------------------------------------------------------------------
+     LIGHT is the default theme. It is designed, not derived: a soft neutral
+     ground, white cards, hairline borders, near-black CTAs carrying the volt
+     brand colour as their type, and a dark olive-volt for emphasis that
+     actually passes contrast on white.
+     ---------------------------------------------------------------------- */
+  :root,
+  [data-theme='light'] {
+    --c-bg: 244 245 247;
+    --c-surface: 255 255 255;
+    --c-elevated: 249 250 251;
+    --c-line: 228 231 236;
+    --c-line-strong: 209 214 221;
+    --c-ink: 14 16 19;
+    --c-muted: 90 100 114;
+    --c-faint: 111 119 133;
+    --c-accent: 77 107 0;
+    --c-brand: 20 23 28;
+    --c-brand-ink: 205 255 79;
+    --c-accent-ink: 255 255 255;
+    --c-pr: 161 98 7;
+    --c-up: 21 128 61;
+    --c-down: 185 28 28;
+    --c-info: 29 78 216;
+    --c-warn: 180 83 9;
+    --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+    --shadow-lift: 0 12px 32px -12px rgb(16 24 40 / 0.24);
+    color-scheme: light;
+  }
+
+  [data-theme='dark'] {
+    --c-bg: 10 11 13;
+    --c-surface: 19 21 26;
+    --c-elevated: 26 29 35;
+    --c-line: 42 46 54;
+    --c-line-strong: 58 63 73;
+    --c-ink: 242 244 247;
+    --c-muted: 158 166 178;
+    --c-faint: 120 128 140;
+    --c-accent: 205 255 79;
+    --c-brand: 205 255 79;
+    --c-brand-ink: 10 11 13;
+    --c-accent-ink: 10 11 13;
+    --c-pr: 255 184 32;
+    --c-up: 74 222 128;
+    --c-down: 248 113 113;
+    --c-info: 96 165 250;
+    --c-warn: 251 146 60;
+    --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+    --shadow-lift: 0 18px 40px -20px rgb(0 0 0 / 0.85);
+    color-scheme: dark;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    margin: 0;
+    min-height: 100%;
+    overscroll-behavior-y: none;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  }
+
+  #root {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Numbers everywhere in a training log should not jitter. */
+  .tnum,
+  input[type='number'],
+  input[inputmode='decimal'],
+  input[inputmode='numeric'] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--c-accent));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgb(var(--c-accent) / 0.3);
+  }
+
+  /* Scrollbars — desktop only, unobtrusive */
+  @media (pointer: fine) {
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgb(var(--c-line));
+      border-radius: 999px;
+      border: 3px solid rgb(var(--c-bg));
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-surface shadow-card;
+  }
+
+  .card-pad {
+    @apply card p-4;
+  }
+
+  /* Section heading. Bigger and darker than the old micro-label: these are
+     signposts, and they were too quiet to do that job. */
+  .label-xs {
+    @apply text-section uppercase text-muted;
+  }
+
+  .label-micro {
+    @apply text-2xs font-semibold uppercase tracking-[0.1em] text-faint;
+  }
+
+  .hairline {
+    @apply border-line;
+  }
+
+  /* Big tappable numeric field used all over the workout screen */
+  .field {
+    @apply w-full rounded-xl border border-line bg-elevated px-3 text-center text-ink
+           placeholder:text-faint/60 transition-colors duration-150
+           focus:border-accent focus:bg-surface;
+  }
+
+  .chip {
+    @apply inline-flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-full
+           border border-line bg-surface px-3.5 py-2 text-sm font-medium text-muted
+           transition-colors duration-150;
+  }
+
+  .chip-active {
+    @apply border-accent/45 bg-accent/10 font-semibold text-accent;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-lg bg-elevated;
+  }
+
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, rgb(var(--c-ink) / 0.06), transparent);
+  }
+
+  .scroll-x {
+    @apply flex gap-2 overflow-x-auto pb-1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-x::-webkit-scrollbar { display: none; }
+
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@layer utilities {
+  .animate-spin {
+    animation: to-spin 1.1s linear infinite;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+  .press {
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+
+  .grid-noise {
+    background-image:
+      radial-gradient(1200px 400px at 50% -10%, rgb(var(--c-accent) / 0.07), transparent 70%);
+  }
+}
+
+/* ------------------------------------------------------------
+   Celebration animations (PR / weight up). All of them are
+   disabled wholesale under prefers-reduced-motion.
+   ------------------------------------------------------------ */
+@keyframes to-countup {
+  0% { transform: translateY(0.35em); opacity: 0; filter: blur(4px); }
+  100% { transform: none; opacity: 1; filter: none; }
+}
+@keyframes to-pop {
+  0% { transform: scale(0.82); opacity: 0; }
+  55% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes to-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--c-accent) / 0); }
+  35% { box-shadow: 0 0 34px -4px rgb(var(--c-accent) / 0.55); }
+}
+@keyframes to-pr-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--c-pr) / 0); }
+  35% { box-shadow: 0 0 44px -4px rgb(var(--c-pr) / 0.7); }
+}
+@keyframes to-confetti {
+  0% { transform: translate3d(0,0,0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot)); opacity: 0; }
+}
+@keyframes to-ring {
+  0% { transform: scale(0.8); opacity: 0.55; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes to-slide-down {
+  0% { transform: translateY(-120%); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+.anim-countup { animation: to-countup 420ms cubic-bezier(0.16,1,0.3,1) both; }
+.anim-pop { animation: to-pop 380ms cubic-bezier(0.34,1.56,0.64,1) both; }
+.anim-glow { animation: to-glow 700ms ease-out both; }
+.anim-pr-glow { animation: to-pr-glow 1100ms ease-out both; }
+.anim-ring { animation: to-ring 900ms cubic-bezier(0.16,1,0.3,1) both; }
+.anim-slide-down { animation: to-slide-down 320ms cubic-bezier(0.16,1,0.3,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Honour the in-app "Animations off" setting the same way. */
+[data-motion='off'] *,
+[data-motion='off'] *::before,
+[data-motion='off'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+@keyframes to-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------ auth stack
+   Moving between the welcome screen and a form is a vertical push: the pane
+   you are leaving flies up and out while the next one rides in from below,
+   and going back reverses it.
+
+   The two panes stay exactly 100% apart at every keyframe, so they tile as
+   one continuous surface with no seam — that is what makes it read as one
+   sheet of paper being pushed, rather than two screens crossfading.
+
+   The 18% stop is the anticipation dip: a few percent in the opposite
+   direction before the launch. It is the difference between sliding and
+   jumping, which is what was asked for.
+
+   The global prefers-reduced-motion rule above collapses the duration, which
+   lands both panes on their end state immediately — the correct no-animation
+   behaviour, so there is nothing extra to write for it. */
+.auth-pane {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  will-change: transform;
+}
+
+.auth-leave-up { animation: to-auth-leave-up 520ms both; }
+.auth-enter-up { animation: to-auth-enter-up 520ms both; }
+.auth-leave-down { animation: to-auth-leave-down 520ms both; }
+.auth-enter-down { animation: to-auth-enter-down 520ms both; }
+
+@keyframes to-auth-leave-up {
+  0% { transform: translateY(0); animation-timing-function: cubic-bezier(0.4,0,0.6,1); }
+  18% { transform: translateY(3%); animation-timing-function: cubic-bezier(0.22,1,0.36,1); }
+  100% { transform: translateY(-100%); }
+}
+@keyframes to-auth-enter-up {
+  0% { transform: translateY(100%); animation-timing-function: cubic-bezier(0.4,0,0.6,1); }
+  18% { transform: translateY(103%); animation-timing-function: cubic-bezier(0.22,1,0.36,1); }
+  100% { transform: translateY(0); }
+}
+@keyframes to-auth-leave-down {
+  0% { transform: translateY(0); animation-timing-function: cubic-bezier(0.4,0,0.6,1); }
+  18% { transform: translateY(-3%); animation-timing-function: cubic-bezier(0.22,1,0.36,1); }
+  100% { transform: translateY(100%); }
+}
+@keyframes to-auth-enter-down {
+  0% { transform: translateY(-100%); animation-timing-function: cubic-bezier(0.4,0,0.6,1); }
+  18% { transform: translateY(-103%); animation-timing-function: cubic-bezier(0.22,1,0.36,1); }
+  100% { transform: translateY(0); }
+}

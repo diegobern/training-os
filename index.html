@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#F4F5F7" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Training OS — register, analyse and progress your gym training. Works offline, your data stays on your device." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Training OS" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Runs before the first paint. There is no stored value on a first
+         visit, which is correct: the app opens light by default, and only a
+         user who has chosen dark has something here to read. -->
+    <script>
+      try {
+        if (localStorage.getItem('to:theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark')
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0A0B0D')
+        }
+      } catch (e) {}
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>Training OS</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- The mark, painted from the HTML itself.
+
+         Everything else on this screen waits for a JavaScript bundle, and on a
+         phone connection that is seconds. This is markup and inline CSS only,
+         so it is on screen with the first paint — no request, no parse, no
+         React. main.tsx fades it out once the app has rendered.
+
+         BootScreen draws the same mark at the same size and position, so the
+         crossfade between them has nothing to show. It is only once the app
+         reaches a real screen that the mark moves.
+
+         The colours are literals rather than CSS custom properties: the theme
+         tokens live in the stylesheet, a separate request that may not have
+         arrived yet. The script in the head has already set data-theme by the
+         time this paints. -->
+    <div id="boot-mark" aria-hidden="true" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .34s ease;z-index:9999;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:18px;">
+        <div style="width:78px;height:78px;border-radius:23px;background:#cdff4f;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 34px rgba(150,190,40,.34);">
+          <svg viewBox="0 0 24 24" width="38" height="38" aria-hidden="true">
+            <path d="M14.2 1.6 3.9 12.1h4.5L7.8 22.4 18.1 11.9h-4.5Z" fill="#10141c" />
+          </svg>
+        </div>
+        <span style="font:700 11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;letter-spacing:1.9px;color:#8a92a3;">TRAINING OS</span>
+      </div>
+    </div>
+    <style>
+      /* The background lives here rather than in the element's style attribute:
+         an inline declaration outranks every stylesheet rule, so with it inline
+         the dark variant below could never win. */
+      #boot-mark { background: #f4f5f7; }
+      html[data-theme='dark'] #boot-mark { background: #0b0e14; }
+    </style>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

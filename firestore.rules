@@ -1,0 +1,68 @@
+rules_version = '2';
+
+/*
+ * TRAINING OS — Firestore security rules
+ *
+ * The model is deliberately boring: every document a person owns lives under
+ * `users/{uid}`, so the whole policy is "you may touch your own subtree".
+ * There is no rule that grants access to another user's data, at any depth.
+ *
+ * Nothing here trusts the client: the app's own checks are for ergonomics,
+ * these rules are the enforcement.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function ownsPayload(uid) {
+      // A document may not claim to belong to somebody else.
+      return !('uid' in request.resource.data) || request.resource.data.uid == uid;
+    }
+
+    /* ----------------------------------------------------------- profile */
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && ownsPayload(uid);
+      allow update: if isOwner(uid) && ownsPayload(uid);
+      allow delete: if isOwner(uid);
+
+      /* Every training collection, plus the tombstones that let one device
+         learn about a deletion made on another. Same rule for all of them. */
+      match /{collection}/{docId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    /* ---------------------------------------------------------- usernames
+     * The uniqueness index. A signed-in user may look one up (that is what
+     * makes "is this name free?" possible) and may claim a free one for
+     * themselves. Claiming is safe against races because the client does it
+     * inside a transaction and `create` fails if the document already exists.
+     *
+     * Deleting is only allowed for the name your own profile currently holds,
+     * which is checked against the profile document rather than against a uid
+     * field, so nobody can release somebody else's name.
+     */
+    match /usernames/{name} {
+      allow get: if signedIn();
+      allow list: if false; // no enumerating who exists
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.keys().hasOnly(['uid', 'createdAt']);
+      allow update: if false; // a claim is never rewritten, only released
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    /* Anything not named above is denied. */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

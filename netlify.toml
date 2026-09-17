@@ -1,0 +1,76 @@
+# =============================================================================
+# TRAINING OS — configuración de Netlify
+# =============================================================================
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+  # ---------------------------------------------------------------------------
+  # Secrets scanning
+  # ---------------------------------------------------------------------------
+  # 1) El SDK de Firebase trae una clave de EJEMPLO dentro de los comentarios
+  #    JSDoc de sus ficheros de tipos:
+  #
+  #      node_modules/@firebase/app/dist/app.d.ts:164
+  #        * (example value: `AIzaSyDOCAbC123dEf456GhI789jKl012-MnO`).
+  #
+  #    El escáner de Netlify recorre también node_modules y la marca como
+  #    "likely secret". Es documentación de Firebase, no una clave nuestra.
+  #    Excluimos node_modules y dejamos la detección activa sobre nuestro
+  #    código y sobre el build, que es donde sí importa.
+  SECRETS_SCAN_OMIT_PATHS = "node_modules/**"
+  # Dos valores, por razones distintas:
+  #  1. El placeholder que el SDK de Firebase trae escrito en su propio
+  #     JSDoc dentro de node_modules — no es una clave de nadie.
+  #  2. La clave web real del proyecto. Vite la inyecta en el bundle en
+  #     tiempo de compilacion, que es como Firebase Web esta disenado: la
+  #     clave identifica el proyecto, no autoriza nada. Quien protege los
+  #     datos son firestore.rules y storage.rules.
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDOCAbC123dEf456GhI789jKl012-MnO,AIzaSyChqt1khRLduq58vaWM88Px2web-GQj7Ug"
+
+  # 2) Todo lo que empieza por VITE_ lo incrusta Vite dentro del JavaScript que
+  #    se sirve al navegador: es público por definición del bundler. La
+  #    configuración web de Firebase está pensada para ser pública; lo que
+  #    protege los datos son firestore.rules y storage.rules.
+  #    Sin esta línea, el build falla en cuanto añadas las variables reales.
+  #
+  #    Aquí solo van claves públicas por diseño. Nunca añadas a esta lista una
+  #    credencial de servidor, un service account ni un token de API privado.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY,VITE_FIREBASE_AUTH_DOMAIN,VITE_FIREBASE_PROJECT_ID,VITE_FIREBASE_STORAGE_BUCKET,VITE_FIREBASE_MESSAGING_SENDER_ID,VITE_FIREBASE_APP_ID,VITE_FIREBASE_MEASUREMENT_ID"
+
+# ---------------------------------------------------------------------------
+# SPA: cualquier ruta interna debe servir index.html al recargar
+# ---------------------------------------------------------------------------
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ---------------------------------------------------------------------------
+# Caché
+# ---------------------------------------------------------------------------
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # El service worker se comprueba en cada carga; si se cachea, una versión
+  # nueva puede tardar días en llegar.
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
