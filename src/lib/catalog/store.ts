@@ -25,7 +25,7 @@ import type {
  *   media-attribution.json  30 KB gz   only by the attributions screen
  */
 
-export const CATALOG_VERSION = 1
+export const CATALOG_VERSION = 2
 const BASE = `/catalog/v${CATALOG_VERSION}`
 
 type CacheKey = 'exercises' | 'media-index' | 'instructions' | 'media-attribution'

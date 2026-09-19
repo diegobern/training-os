@@ -70,6 +70,8 @@ export function toExercise(
     fromCatalog: true,
     catalogSlug: entry.slug,
     mediaKey: entry.m ?? null,
+    mediaStatus: entry.mediaStatus,
+    mediaVariantOf: entry.mv,
     hasInstructions: entry.hasInstructions,
     nameStatus: entry.ns,
   }

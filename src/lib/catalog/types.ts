@@ -56,6 +56,15 @@ export interface CatalogEntryRaw {
   cmo?: CardioMode
   /** media manifest key, absent when the exercise has no illustration */
   m?: string
+  /**
+   * Where that illustration comes from.
+   *   illustrated  this exercise's own drawing (Workout Guide or Everkinetic)
+   *   variant      an equivalent movement's drawing, named on screen
+   *   none         no drawing at all
+   */
+  mediaStatus?: 'illustrated' | 'variant' | 'none'
+  /** The movement actually drawn, when `mediaStatus` is 'variant'. */
+  mv?: { id: string; en: string; es: string }
   /** which source this came from */
   src: string
   hasInstructions: boolean

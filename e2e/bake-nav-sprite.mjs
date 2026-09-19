@@ -1,25 +1,39 @@
 /**
- * Bakes the real 3D logo into a sprite sheet for the bottom navigation.
+ * Bakes the real 3D logo into the animated mark used in the tab bar.
  *
  * A live WebGL canvas in the tab bar would be the wrong trade: the bar is on
- * every screen, so it would mean a permanent GPU context and three.js (about
- * 140KB gzipped) on the critical path of every launch — the exact cost the
- * boot work just removed. And at 48 CSS pixels almost none of the geometry is
- * visible anyway.
+ * every screen, so it would mean a permanent GPU context and three.js on the
+ * critical path of every launch — the exact cost the boot work removed. And at
+ * 52 CSS pixels almost none of the geometry is visible anyway.
  *
- * So the frames come from the same LogoTotem3D, rendered once here, and the
- * app plays them back with CSS `steps()`. Same object, same materials, same
- * lighting; no runtime cost beyond one small image.
+ * Two things the first version got wrong, and both showed up as stutter:
+ *
+ *   · it sampled the live animation on a wall clock, so the frames were not
+ *     evenly spaced around the revolution;
+ *   · the live animation eases the spin and floats the totem on periods that
+ *     do not divide a revolution, so the last frame did not meet the first and
+ *     the loop jumped once per turn.
+ *
+ * Both are fixed by driving the scene instead of watching it: `__logoBake`
+ * puts the component into a pure turntable and this script sets the angle for
+ * every single frame. The output is an animated WebP — one file, decoded and
+ * timed by the browser, with none of the `steps()` arithmetic that made a
+ * twelve-frame strip look like a flip-book.
  */
 import { chromium } from 'playwright'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, existsSync, statSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 
 const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
 const BASE = process.env.BASE || 'http://127.0.0.1:4320'
 const TMP = '/tmp/nav-frames'
-const FRAMES = 24
-const SIZE = 128 // rendered at 128, displayed at 48 or less — sharp on any DPI
+const OUT = 'public/brand'
+
+/** 24 fps over 4 s: the eye stops seeing steps somewhere around 20. */
+const FRAMES = Number(process.env.FRAMES || 96)
+const PERIOD_MS = Number(process.env.PERIOD || 4000)
+/** Rendered at 144 so it stays sharp on a 3× phone at 52 CSS pixels. */
+const SIZE = 144
 
 mkdirSync(TMP, { recursive: true })
 execSync(`rm -f ${TMP}/*.png`)
@@ -28,8 +42,18 @@ const browser = await chromium.launch({
   executablePath: EXE,
   args: ['--no-sandbox', '--enable-unsafe-swiftshader'],
 })
-const ctx = await browser.newContext({ viewport: { width: 400, height: 900 }, deviceScaleFactor: 2, locale: 'es-ES' })
+const ctx = await browser.newContext({
+  viewport: { width: 400, height: 900 },
+  deviceScaleFactor: 2,
+  locale: 'es-ES',
+  colorScheme: 'dark',
+})
 const page = await ctx.newPage()
+// Installed before any app code runs, so the very first rendered frame is
+// already a bake frame and nothing of the live animation leaks in.
+await page.addInitScript(() => {
+  window.__logoBake = { angle: 0 }
+})
 await page.goto(BASE, { waitUntil: 'networkidle' })
 await page.waitForTimeout(6000)
 
@@ -39,31 +63,51 @@ if (!(await canvas.count())) {
   process.exit(1)
 }
 
-// Freeze the turntable and step it by hand, so the frames are evenly spaced
-// around exactly one revolution and the loop is seamless.
-await page.evaluate(() => {
-  const c = document.querySelector('canvas')
-  c.style.outline = 'none'
-})
-
 const box = await canvas.boundingBox()
 const side = Math.min(box.width, box.height)
 const clip = {
-  x: box.x + (box.width - side) / 2,
-  y: box.y + (box.height - side) / 2,
-  width: side,
-  height: side,
+  x: Math.round(box.x + (box.width - side) / 2),
+  y: Math.round(box.y + (box.height - side) / 2),
+  width: Math.round(side),
+  height: Math.round(side),
 }
-
-// The object rotates on its own; sampling at a fixed cadence over one
-// revolution is enough and avoids reaching into the module's internals.
-// One revolution is 2*PI / 0.0118 rad per frame at 60fps.
-const REVOLUTION_MS = ((2 * Math.PI) / 0.0118 / 60) * 1000
-const step = REVOLUTION_MS / FRAMES
 
 for (let i = 0; i < FRAMES; i++) {
-  await page.screenshot({ path: `${TMP}/f${String(i).padStart(2, '0')}.png`, clip })
-  await page.waitForTimeout(step)
+  const angle = (i / FRAMES) * Math.PI * 2
+  await page.evaluate((a) => {
+    window.__logoBake.angle = a
+  }, angle)
+  // Two frames of grace: one for the rAF that reads the new angle, one for the
+  // compositor to put it on the screen before the screenshot is taken.
+  await page.waitForTimeout(40)
+  await page.screenshot({ path: `${TMP}/f${String(i).padStart(3, '0')}.png`, clip })
 }
-console.log(`${FRAMES} fotogramas capturados, una revolución de ${Math.round(REVOLUTION_MS)}ms`)
 await browser.close()
+
+/* ------------------------------------------------------------------ encode */
+
+const delay = Math.round(PERIOD_MS / FRAMES)
+execSync(
+  `cd ${TMP} && for f in f*.png; do convert "$f" -resize ${SIZE}x${SIZE} "r_$f"; done`,
+  { stdio: 'inherit', shell: '/bin/bash' },
+)
+
+// Animated WebP rather than a sprite strip: the browser decodes and times it,
+// so there is no `steps()` timing to get wrong, and consecutive frames of a
+// turning object compress against each other.
+execSync(
+  `ffmpeg -y -loglevel error -framerate ${(1000 / delay).toFixed(3)} -i ${TMP}/r_f%03d.png ` +
+    `-vcodec libwebp_anim -lossless 0 -q:v 62 -compression_level 6 -loop 0 -an -vsync 0 ${OUT}/nav-logo.webp`,
+  { stdio: 'inherit' },
+)
+
+// The still, for reduced motion and for the data-motion='off' setting. A
+// chosen pose, not whichever frame the animation happened to stop on.
+execSync(`convert ${TMP}/r_f000.png -quality 82 ${OUT}/nav-logo-still.webp`, { stdio: 'inherit' })
+
+for (const f of ['nav-logo.webp', 'nav-logo-still.webp']) {
+  const p = `${OUT}/${f}`
+  if (!existsSync(p)) throw new Error(`no se generó ${p}`)
+  console.log(`${f.padEnd(20)} ${(statSync(p).size / 1024).toFixed(1)} KB`)
+}
+console.log(`${FRAMES} fotogramas · ${PERIOD_MS}ms por vuelta · ${(1000 / delay).toFixed(1)} fps`)

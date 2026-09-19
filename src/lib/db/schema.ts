@@ -159,6 +159,10 @@ export interface Exercise {
   catalogSlug?: string
   /** Key into the media manifest; null when the exercise has no illustration. */
   mediaKey?: string | null
+  /** Its own drawing, an equivalent movement's, or none at all. */
+  mediaStatus?: 'illustrated' | 'variant' | 'none'
+  /** The movement actually drawn, when `mediaStatus` is 'variant'. */
+  mediaVariantOf?: { id: string; en: string; es: string }
   hasInstructions?: boolean
   /** Whether the Spanish name was written by hand or generated. */
   nameStatus?: 'missing' | 'machine' | 'reviewed'

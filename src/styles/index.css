@@ -336,42 +336,29 @@
    rather than background-position keeps the animation on the compositor. */
 .nav-logo3d {
   position: relative;
+  display: block;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
+/*
+   An animated WebP, decoded and timed by the browser.
+
+   It used to be a twelve-frame strip scrubbed with `steps(12)` over 7.2s —
+   1.7 frames a second, in 30° jumps, with a first and last frame that did not
+   meet. That is what read as stuttering. There is no animation here at all now;
+   the movement lives in the file, at 24 fps, and the still variant is a
+   different file chosen in `CenterMark` rather than a paused one.
+*/
 .nav-logo3d img {
   position: absolute;
   inset: 0;
   width: 100%;
-  /* Twelve frames stacked, so the strip is twelve times the frame height. */
-  height: 1200%;
-  image-rendering: auto;
-  animation: nav-logo-spin 7.2s steps(12) infinite;
-  will-change: transform;
-}
-
-@keyframes nav-logo-spin {
-  from { transform: translateY(0); }
-  /* A full strip height lands the twelfth step back on the first frame, so
-     the loop closes with no jump. */
-  to { transform: translateY(-100%); }
-}
-
-/* The global reduced-motion and animations-off rules collapse the duration,
-   which would leave it stopped on an arbitrary frame. Pinned to the first
-   frame instead — a considered still, not wherever it happened to be. */
-@media (prefers-reduced-motion: reduce) {
-  .nav-logo3d img {
-    animation: none !important;
-    transform: translateY(0) !important;
-  }
-}
-
-[data-motion='off'] .nav-logo3d img {
-  animation: none !important;
-  transform: translateY(0) !important;
+  height: 100%;
+  object-fit: contain;
+  /* Promoted once, so scrolling the app never re-rasterises the tile. */
+  transform: translateZ(0);
 }
 
 /* -----------------------------------------------------------------------
@@ -389,4 +376,16 @@
 .demo-plate {
   background:
     radial-gradient(120% 100% at 50% 0%, rgb(41 45 54) 0%, rgb(22 24 29) 70%);
+}
+
+/*
+   Everkinetic's drawings are the other way round: dark line work on a white
+   canvas, where Workout Guide's are a white silhouette on nothing. Put one on
+   the other's backing and it vanishes or floats on a white card inside a dark
+   one. Two plates, chosen per illustration by where it came from.
+*/
+.demo-paper {
+  /* Exactly the white the SVG paints its own canvas, so the letterboxing
+     around a non-square drawing leaves no seam. */
+  background: #fff;
 }

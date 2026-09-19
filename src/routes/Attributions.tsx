@@ -50,6 +50,7 @@ export default function Attributions() {
     <Page title={t('attrib.title')} subtitle={t('attrib.subtitle')} back>
       <Card className="p-4">
         <p className="text-secondary leading-relaxed text-muted">{t('attrib.summary')}</p>
+        <p className="mt-2 text-secondary leading-relaxed text-muted">{t('attrib.summary2')}</p>
         <div className="mt-3 flex flex-col gap-1">
           <a className="text-secondary font-semibold text-accent" href="https://github.com/bryllim/workout-guide" target="_blank" rel="noreferrer noopener">
             Workout Guide — Bryl Lim

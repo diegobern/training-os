@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { IconBolt, IconChart, IconGrid, IconHome, IconRoutines } from '../ui/Icon'
 import { cx } from '../ui/primitives'
-import { useT } from '../../store/useApp'
+import { useApp, useT } from '../../store/useApp'
 import { haptic } from '../../lib/feedback'
 
 const ITEMS = [
@@ -15,25 +15,44 @@ const ITEMS = [
 
 
 /**
- * The 3D mark in the middle of the tab bar, played from a baked sprite rather
- * than a live canvas — see `.nav-logo3d` in index.css for why.
+ * The 3D mark in the middle of the tab bar.
  *
- * The flat icon is the fallback and is rendered only if the sprite fails to
+ * It is the real logo, rendered once by `e2e/bake-nav-sprite.mjs` and shipped
+ * as an animated WebP rather than a live canvas — see that script for why a
+ * permanent WebGL context in the tab bar was the wrong trade.
+ *
+ * An animated image, not a sprite strip stepped by CSS. The strip was twelve
+ * frames played at under two per second, which is a flip-book, and its first
+ * and last frames did not meet, so it jumped once every turn. This is 96
+ * frames at 24 fps, timed and decoded by the browser, with nothing for the
+ * stylesheet to get wrong.
+ *
+ * The flat icon is the fallback and is rendered only if the image fails to
  * load. Drawing both and stacking them looked fine in a still and wrong in
  * motion: the green bolt showed through the tile's transparent corners as a
  * ghost that turned with it.
  */
 function CenterMark({ Icon }: { Icon: (p: { size?: number; strokeWidth?: number }) => JSX.Element }) {
   const [failed, setFailed] = useState(false)
+  const animations = useApp((s) => s.settings.animations)
+  const [systemReduced] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+
   if (failed) return <Icon size={24} strokeWidth={2} />
+
+  // An animated WebP cannot be paused from CSS, so the choice is made here:
+  // a different file, not a stopped animation.
+  const still = systemReduced || !animations
+
   return (
     <span className="nav-logo3d">
       <img
-        src="/brand/nav-logo.webp"
+        src={still ? '/brand/nav-logo-still.webp' : '/brand/nav-logo.webp'}
         alt=""
         aria-hidden="true"
-        width={104}
-        height={1248}
+        width={144}
+        height={144}
         decoding="async"
         onError={() => setFailed(true)}
       />

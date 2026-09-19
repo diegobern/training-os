@@ -132,7 +132,7 @@ if (only(1))
   const { page, errors, close } = await openApp()
   const catalogRequests = []
   page.on('request', (r) => {
-    if (r.url().includes('/catalog/v1/')) catalogRequests.push({ url: r.url(), at: Date.now() })
+    if (r.url().includes('/catalog/v2/')) catalogRequests.push({ url: r.url(), at: Date.now() })
   })
   const t0 = Date.now()
   await page.goto(BASE, { waitUntil: 'commit' })
@@ -207,10 +207,14 @@ if (only(3))
   // asserting the wrong thing about the sheet.
   const withBoth = await page.evaluate(async () => {
     const [ex, ins] = await Promise.all([
-      fetch('/catalog/v1/exercises.json').then((r) => r.json()),
-      fetch('/catalog/v1/instructions.json').then((r) => r.json()),
+      fetch('/catalog/v2/exercises.json').then((r) => r.json()),
+      fetch('/catalog/v2/instructions.json').then((r) => r.json()),
     ])
-    const hit = ex.exercises.find((e) => e.m && (ins[e.id]?.en?.length ?? 0) > 0)
+    // A Workout Guide one specifically: three frames plus written steps, the
+    // richest state the sheet can be in.
+    const hit = ex.exercises.find(
+      (e) => e.mediaStatus === 'illustrated' && !e.m.startsWith('ek-') && (ins[e.id]?.en?.length ?? 0) > 0,
+    )
     return hit ? { id: hit.id, name: hit.n.es } : null
   })
   check(!!withBoth, 'catálogo — hay ejercicios con ilustración e instrucciones', JSON.stringify(withBoth))
@@ -272,7 +276,7 @@ if (only(4))
   // Ask the catalog itself for an entry that declares no media, so the test
   // cannot silently stop covering this case when the catalog changes.
   const slug = await page.evaluate(async () => {
-    const res = await fetch('/catalog/v1/exercises.json')
+    const res = await fetch('/catalog/v2/exercises.json')
     const file = await res.json()
     const hit = file.exercises.find((e) => !e.m && e.hasInstructions)
     return hit ? { id: hit.id, name: hit.n.es } : null
@@ -291,6 +295,73 @@ if (only(4))
     await page.screenshot({ path: `${SHOTS}/cat-04-nomedia.png` })
   }
   check(errors.length === 0, 'sin ilustración — sin errores', errors.slice(0, 2).join(' | '))
+  await close()
+}
+
+/* ========================= 4 bis. cobertura y procedencia, vistas desde la app */
+if (only(4))
+{
+  const { page, errors, close } = await openApp()
+  await skipOnboarding(page)
+
+  const stats = await page.evaluate(async () => {
+    const [ex, ins] = await Promise.all([
+      fetch('/catalog/v2/exercises.json').then((r) => r.json()),
+      fetch('/catalog/v2/instructions.json').then((r) => r.json()),
+    ])
+    const text = (e) => (ins[e.id]?.en?.length ?? 0) > 0 || !!ins[e.id]?.cueEn || !!ins[e.id]?.cueEs
+    return {
+      total: ex.exercises.length,
+      drawn: ex.exercises.filter((e) => e.mediaStatus !== 'none').length,
+      own: ex.exercises.filter((e) => e.mediaStatus === 'illustrated').length,
+      variant: ex.exercises.filter((e) => e.mediaStatus === 'variant').length,
+      nothing: ex.exercises.filter((e) => e.mediaStatus === 'none' && !text(e)).length,
+      variantsLabelled: ex.exercises.filter((e) => e.mediaStatus === 'variant').every((e) => e.mv?.es),
+    }
+  })
+  check(stats.drawn >= 660, `cobertura — ${stats.drawn} de ${stats.total} muestran un dibujo`, JSON.stringify(stats))
+  check(stats.nothing <= 1, `cobertura — como mucho un ejercicio sin dibujo ni texto (hay ${stats.nothing})`, JSON.stringify(stats))
+  check(stats.variantsLabelled, 'procedencia — toda variante trae el nombre del movimiento dibujado')
+
+  /* --- a borrowed illustration must say so, on screen --- */
+  const variant = await page.evaluate(async () => {
+    const ex = await fetch('/catalog/v2/exercises.json').then((r) => r.json())
+    const hit = ex.exercises.find((e) => e.mediaStatus === 'variant')
+    return hit ? { id: hit.id, from: hit.mv.es } : null
+  })
+  check(!!variant, 'hay ejercicios que reutilizan el dibujo de un equivalente')
+  if (variant) {
+    await page.goto(`${BASE}/library/${variant.id}`, { waitUntil: 'commit' })
+    await page.waitForTimeout(3000)
+    await page.getByRole('button', { name: /Cómo hacerlo/ }).first().click()
+    await page.waitForTimeout(3000)
+    const txt = await body(page)
+    check(txt.includes('movimiento equivalente'), 'variante — dice en pantalla que el dibujo es de otro movimiento', txt.slice(0, 200))
+    check(txt.includes(variant.from), 'variante — nombra el movimiento que sí está dibujado', variant.from)
+    const imgs = await page.locator('img[src^="/exercise-media/"]').count()
+    check(imgs >= 1, 'variante — y enseña la ilustración', `imágenes=${imgs}`)
+    await page.screenshot({ path: `${SHOTS}/cat-10-variante.png` })
+  }
+
+  /* --- an Everkinetic one is a still, not a fake sequence --- */
+  const single = await page.evaluate(async () => {
+    const ex = await fetch('/catalog/v2/exercises.json').then((r) => r.json())
+    const hit = ex.exercises.find((e) => e.mediaStatus === 'illustrated' && e.m.startsWith('ek-'))
+    return hit ? hit.id : null
+  })
+  if (single) {
+    await page.goto(`${BASE}/library/${single}`, { waitUntil: 'commit' })
+    await page.waitForTimeout(3000)
+    await page.getByRole('button', { name: /Cómo hacerlo/ }).first().click()
+    await page.waitForTimeout(3000)
+    const txt = await body(page)
+    check(txt.includes('Posición de máxima tensión'), 'fotograma único — se presenta como dibujo fijo', txt.slice(0, 200))
+    check(txt.includes('Greg Priday'), 'fotograma único — acredita a quien lo dibujó, no a la otra fuente')
+    const imgs = await page.locator('img[src^="/exercise-media/"]').count()
+    check(imgs === 1, 'fotograma único — carga una sola imagen', `imágenes=${imgs}`)
+    await page.screenshot({ path: `${SHOTS}/cat-11-everkinetic.png` })
+  }
+  check(errors.length === 0, 'cobertura — sin errores', errors.slice(0, 2).join(' | '))
   await close()
 }
 

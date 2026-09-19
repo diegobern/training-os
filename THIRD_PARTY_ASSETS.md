@@ -48,6 +48,47 @@ con él. Para que esa separación sea evidente y no dependa de un argumento:
 - su licencia va declarada en `public/exercise-media/LICENSE`, dentro de la
   propia carpeta.
 
+## 1 bis. Ilustraciones de ejercicios — Everkinetic (directo)
+
+| | |
+|---|---|
+| **Qué se usa** | 116 ficheros SVG (un fotograma por ejercicio), en `public/exercise-media/everkinetic/` |
+| **Repositorio** | https://github.com/everkinetic/data |
+| **Autor** | Greg Priday — proyecto everkinetic.com |
+| **Licencia de las imágenes** | **CC BY-SA 4.0** |
+| **Texto de la licencia** | https://creativecommons.org/licenses/by-sa/4.0/legalcode |
+| **Cómo se verificó** | Descarga directa de `LICENSE.md` de `everkinetic/data` rama `main` el 2026-09-19; texto íntegro de CC BY-SA 4.0, comprobado por el propio script (`verifyEverkineticLicence` en `scripts/catalog/enrich.mjs`), que aborta si cambia |
+| **Modificaciones** | **Ninguna.** Los SVG se copian tal cual |
+
+Es la misma fuente de la que deriva parte del arte de Workout Guide, tomada
+ahora directamente para cubrir ejercicios que Workout Guide no dibuja. Cada
+ejercicio aporta **un** fotograma (la posición de máxima tensión), no una
+secuencia, y la app lo presenta como lo que es: un dibujo fijo, sin puntos de
+secuencia que prometan una animación inexistente.
+
+También se toman de aquí **instrucciones escritas** para 14 ejercicios que no
+las tenían. Van bajo la misma licencia y con la misma atribución.
+
+### Ilustraciones prestadas entre ejercicios
+
+253 ejercicios no tienen dibujo propio en ninguna de las dos fuentes y muestran
+el de un **movimiento equivalente** del mismo grupo muscular y del mismo tipo.
+No es un asset nuevo ni una licencia nueva: es el mismo fichero, ya atribuido,
+mostrado en otra ficha. La app **lo dice en pantalla**, con el nombre del
+movimiento que se está dibujando:
+
+> Ilustración de un movimiento equivalente: Curl con Mancuernas
+> El dibujo enseña el patrón, no esta variante exacta.
+
+Las reglas que impiden que eso engañe están en el código y en las pruebas: el
+donante tiene que trabajar el mismo grupo muscular, ser del mismo tipo
+(fuerza/cardio/movilidad), coincidir en toda palabra que cambie la forma del
+movimiento —*incline*, *reverse*, *sumo*, *behind*— y tener dibujo propio, para
+que nunca se encadene un préstamo de un préstamo.
+
+425 ejercicios siguen sin ilustración de ningún tipo. La ficha lo dice y, en su
+lugar, muestra músculos, material, tipo y objetivo de series.
+
 ## 2. Metadatos de ejercicios — Free Exercise DB
 
 | | |

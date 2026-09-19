@@ -84,6 +84,22 @@ export function HowToSheet({
   const showingEnglishInstead = lang === 'es' && steps.length > 0 && !spanishAvailable
   const cue = lang === 'es' ? (info?.cueEs ?? info?.cueEn) : info?.cueEn
 
+  /**
+   * The name of the movement actually drawn, when it is not this one.
+   *
+   * 671 of the 1096 exercises have an illustration; 253 of those borrow the
+   * drawing of an equivalent movement, because nobody has drawn every
+   * variation of a cable curl and inventing one is not on the table. Showing
+   * it is useful — the pattern is the same — but only if the sheet says whose
+   * drawing it is. Silence there would be a small lie.
+   */
+  const variantName =
+    exercise.mediaStatus === 'variant' && exercise.mediaVariantOf
+      ? lang === 'es'
+        ? exercise.mediaVariantOf.es
+        : exercise.mediaVariantOf.en
+      : null
+
   return (
     <Sheet open={open} onClose={onClose} title={exercise.name}>
       <div className="space-y-lg pb-2">
@@ -96,17 +112,46 @@ export function HowToSheet({
 
         {/* --- the demonstration ----------------------------------------- */}
         {frames ? (
-          <FrameSequence frames={frames} name={exercise.name} />
+          <FrameSequence frames={frames} name={exercise.name} variantOf={variantName} />
         ) : loading ? (
           <div className="aspect-square w-full animate-pulse rounded-2xl bg-line/50" />
         ) : (
           /* No broken image, no grey placeholder pretending to be one. It
-             says plainly that there is no illustration yet and gets out of
-             the way of the instructions, which are the useful part. */
-          <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5">
-            <IconAlert size={17} className="shrink-0 text-faint" />
-            <p className="text-secondary text-muted">{t('howto.noDemo')}</p>
+             says plainly that there is no illustration and gets out of the
+             way of the reference card below, which is the useful part. */
+          <div className="flex items-start gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5">
+            <IconAlert size={17} className="mt-0.5 shrink-0 text-faint" />
+            <p className="text-secondary leading-relaxed text-muted">
+              {exercise.kind === 'cardio' ? t('howto.noDemoCardio') : t('howto.noDemo')}
+            </p>
           </div>
+        )}
+
+        {/* --- what we always know --------------------------------------
+            Shown when there is no drawing. Muscles, equipment and the
+            targets are real data that the sheet is already holding, and a
+            card of them is a great deal more use than two grey sentences. */}
+        {!frames && !loading && (
+          <Section label={t('howto.reference')}>
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2.5 rounded-2xl border border-line bg-surface px-4 py-3.5">
+              <Fact label={t('common.muscle')} value={exercise.primaryMuscle} />
+              <Fact label={t('common.equipment')} value={t(`equipment.${exercise.equipment}`)} />
+              <Fact label={t('common.type')} value={t(`type.${exercise.type}`)} />
+              <Fact
+                label={t('howto.target')}
+                value={
+                  exercise.kind === 'cardio'
+                    ? t('howto.targetCardio', { rest: exercise.restSeconds })
+                    : t('howto.targetValue', {
+                        sets: exercise.defaultSets,
+                        min: exercise.repMin,
+                        max: exercise.repMax,
+                        rest: exercise.restSeconds,
+                      })
+                }
+              />
+            </dl>
+          </Section>
         )}
 
         {/* --- secondary muscles ------------------------------------------ */}
@@ -162,28 +207,47 @@ export function HowToSheet({
 }
 
 /**
- * The three poses, played as a loop.
+ * The illustration: three poses played as a loop, or a single drawing.
  *
- * Presented as what it is — a sequence of drawings — and never dressed up as a
- * video. There is no play button and no scrubber, because there is nothing to
- * scrub: three frames crossfading is an illustration that moves, and implying
- * otherwise would be a small lie the user discovers immediately.
+ * Presented as what it is — drawings — and never dressed up as a video. There
+ * is no play button and no scrubber, because with three frames there is
+ * nothing to scrub, and with one there is nothing to play. Everkinetic
+ * publishes a single peak-tension pose per exercise, so a third of the
+ * illustrated catalogue is a still; showing dots under a still would promise
+ * a sequence that does not exist.
  */
-function FrameSequence({ frames, name }: { frames: Frames; name: string }) {
+function FrameSequence({
+  frames,
+  name,
+  variantOf,
+}: {
+  frames: Frames
+  name: string
+  variantOf: string | null
+}) {
   const t = useT()
   const list = [frames.start, frames.mid, frames.end].filter(Boolean) as string[]
   const [i, setI] = useState(0)
   const [playing, setPlaying] = useState(true)
+  const animated = list.length > 1
+  // Everkinetic draws dark lines on white; Workout Guide draws a white
+  // silhouette on nothing. Each needs the opposite backing.
+  const paper = !!list[0]?.startsWith('/exercise-media/everkinetic/')
 
   useEffect(() => {
-    if (!playing || list.length < 2) return
+    if (!playing || !animated) return
     const timer = window.setInterval(() => setI((n) => (n + 1) % list.length), 900)
     return () => window.clearInterval(timer)
-  }, [playing, list.length])
+  }, [playing, animated, list.length])
 
   return (
     <div>
-      <div className="demo-plate relative aspect-square w-full overflow-hidden rounded-2xl border border-line">
+      <div
+        className={cx(
+          'relative aspect-square w-full overflow-hidden rounded-2xl border border-line',
+          paper ? 'demo-paper' : 'demo-plate',
+        )}
+      >
         {list.map((src, n) => (
           <img
             key={src}
@@ -193,7 +257,8 @@ function FrameSequence({ frames, name }: { frames: Frames; name: string }) {
             // src: swapping makes the browser decode on each change, which
             // flickers on a phone. Three small SVGs cost nothing to keep.
             className={cx(
-              'absolute inset-0 h-full w-full object-contain p-4 transition-opacity duration-300',
+              'absolute inset-0 h-full w-full object-contain transition-opacity duration-300',
+              paper ? 'p-0' : 'p-4',
               n === i ? 'opacity-100' : 'opacity-0',
             )}
             loading="lazy"
@@ -207,32 +272,50 @@ function FrameSequence({ frames, name }: { frames: Frames; name: string }) {
           what the upstream source changed — is on the attributions screen; it
           is a 30 KB file and does not belong in a workout. */}
       <p className="mt-2 text-caption leading-relaxed text-faint">
-        {t('howto.credit')}{' '}
+        {/* Credited to whoever actually drew THIS one. Both sources are
+            CC BY-SA 4.0, but they are different people and the licence asks
+            for the author, not for a licence family. */}
+        {t(paper ? 'howto.creditEk' : 'howto.credit')}{' '}
         <Link to="/attributions" className="font-semibold text-accent">
           {t('howto.creditLink')}
         </Link>
       </p>
 
-      <div className="mt-2 flex items-center justify-between">
-        <div className="flex gap-1.5">
-          {list.map((src, n) => (
-            <button
-              key={src}
-              aria-label={`${n + 1}`}
-              onClick={() => {
-                setPlaying(false)
-                setI(n)
-              }}
-              className={cx(
-                'h-1.5 rounded-full transition-all',
-                n === i ? 'w-6 bg-accent' : 'w-1.5 bg-line',
-              )}
-            />
-          ))}
+      {variantOf && (
+        /* Said plainly, above the fold of the instructions: this is not a
+           drawing of the exercise you tapped. */
+        <div className="mt-2 rounded-xl border border-line bg-elevated px-3.5 py-2.5">
+          <p className="text-caption font-semibold text-ink">{t('howto.variantOf', { name: variantOf })}</p>
+          <p className="mt-0.5 text-caption text-faint">{t('howto.variantWhy')}</p>
         </div>
-        <span className="text-caption text-faint">
-          {i === 0 ? t('howto.start') : i === list.length - 1 ? t('howto.end') : t('howto.mid')}
-        </span>
+      )}
+
+      <div className="mt-2 flex items-center justify-between">
+        {animated ? (
+          <>
+            <div className="flex gap-1.5">
+              {list.map((src, n) => (
+                <button
+                  key={src}
+                  aria-label={`${n + 1}`}
+                  onClick={() => {
+                    setPlaying(false)
+                    setI(n)
+                  }}
+                  className={cx(
+                    'h-1.5 rounded-full transition-all',
+                    n === i ? 'w-6 bg-accent' : 'w-1.5 bg-line',
+                  )}
+                />
+              ))}
+            </div>
+            <span className="text-caption text-faint">
+              {i === 0 ? t('howto.start') : i === list.length - 1 ? t('howto.end') : t('howto.mid')}
+            </span>
+          </>
+        ) : (
+          <span className="text-caption text-faint">{t('howto.single')}</span>
+        )}
       </div>
     </div>
   )
@@ -257,5 +340,16 @@ function Tag({ children, muted }: { children: React.ReactNode; muted?: boolean }
     >
       {children}
     </span>
+  )
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-caption text-faint">{label}</dt>
+      {/* Wraps rather than truncates: "3 × 12–15 · 90s de descanso" cut off at
+          "90s de d…" is the one line on this card nobody can guess. */}
+      <dd className="text-secondary leading-snug text-ink">{value}</dd>
+    </div>
   )
 }

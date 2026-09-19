@@ -1,7 +1,7 @@
 /**
  * Integrity of the generated catalog.
  *
- * These run against the files that actually ship — `public/catalog/v1/*.json`
+ * These run against the files that actually ship — `public/catalog/v2/*.json`
  * — not against the importer's in-memory result. An importer that is correct
  * and a published catalog that is broken are different problems, and only the
  * second one reaches a user.
@@ -12,7 +12,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const V = 'public/catalog/v1'
+const V = `public/catalog/v${process.env.CATALOG_V || 2}`
 
 let pass = 0
 let fail = 0
@@ -116,28 +116,48 @@ const mediaKeys = new Set(Object.keys(media.entries))
 }
 
 {
+  // 'illustrated' is the exercise's own drawing; 'variant' borrows an
+  // equivalent movement's. Both put a picture on the screen, so both count as
+  // having media — but only the first owns an entry in the index.
   const illustrated = entries.filter((e) => e.mediaStatus === 'illustrated')
+  const shown = entries.filter((e) => e.mediaStatus === 'illustrated' || e.mediaStatus === 'variant')
   const broken = illustrated.filter((e) => !e.m || !mediaKeys.has(e.m))
   check(broken.length === 0, 'media — ningún ejercicio ilustrado sin entrada en el índice', broken.slice(0, 5).map((e) => e.id).join(', '))
 
-  const noFrames = illustrated.filter((e) => {
+  // Workout Guide draws three poses; Everkinetic publishes one. What has to
+  // be true of every one of them is that there is something to show.
+  const noFrames = shown.filter((e) => {
     const m = media.entries[e.m]
-    return !m || !m.s || !m.e
+    return !m || !(m.s || m.m || m.e)
   })
-  check(noFrames.length === 0, 'media — todo ejercicio ilustrado tiene fotograma inicial y final', noFrames.slice(0, 5).map((e) => e.id).join(', '))
+  check(noFrames.length === 0, 'media — todo ejercicio con dibujo tiene al menos un fotograma', noFrames.slice(0, 5).map((e) => e.id).join(', '))
 
-  const mismatch = entries.filter((e) => (e.mediaStatus === 'illustrated') !== !!e.m)
+  const wgSequences = Object.entries(media.entries).filter(([k]) => !k.startsWith('ek-'))
+  check(
+    wgSequences.every(([, m]) => m.s && m.e),
+    'media — las secuencias de Workout Guide conservan inicio y final',
+    JSON.stringify(wgSequences.filter(([, m]) => !m.s || !m.e).slice(0, 3).map(([k]) => k)),
+  )
+
+  const mismatch = entries.filter((e) => (e.mediaStatus !== 'none') !== !!e.m)
   check(mismatch.length === 0, 'media — mediaStatus concuerda con la referencia real', mismatch.slice(0, 5).map((e) => e.id).join(', '))
 
   check(
-    illustrated.length === catalog.counts.illustrated,
+    shown.length === catalog.counts.illustrated,
     'media — el recuento de ilustrados coincide con el declarado',
-    `${illustrated.length} vs ${catalog.counts.illustrated}`,
+    `${shown.length} vs ${catalog.counts.illustrated}`,
   )
   check(
-    mediaKeys.size === catalog.counts.illustrated,
-    'media — el índice tiene tantas entradas como ilustrados',
-    `${mediaKeys.size} vs ${catalog.counts.illustrated}`,
+    illustrated.length === catalog.counts.illustratedOwn,
+    'media — el recuento de dibujos propios coincide con el declarado',
+    `${illustrated.length} vs ${catalog.counts.illustratedOwn}`,
+  )
+  check(
+    // Variants reuse a key rather than adding one, so the index is exactly as
+    // big as the set of exercises that own a drawing.
+    mediaKeys.size === catalog.counts.illustratedOwn,
+    'media — el índice tiene una entrada por dibujo propio, sin duplicar por variante',
+    `${mediaKeys.size} vs ${catalog.counts.illustratedOwn}`,
   )
   check(
     Object.keys(attribution.entries).length === mediaKeys.size,
@@ -207,6 +227,71 @@ const mediaKeys = new Set(Object.keys(media.entries))
 {
   const unresolved = Object.entries(catalog.aliasToCanonical).filter(([, id]) => !ids.has(id))
   check(unresolved.length === 0, 'alias — todo alias resuelve a un ejercicio existente', unresolved.slice(0, 5).map(([a]) => a).join(', '))
+}
+
+
+/* ------------------------------------------------- provenance of the art */
+
+{
+  const withMedia = entries.filter((e) => e.m)
+  check(
+    withMedia.every((e) => e.mediaStatus === 'illustrated' || e.mediaStatus === 'variant'),
+    'procedencia — toda ilustración declara si es propia o de una variante',
+    JSON.stringify(withMedia.filter((e) => e.mediaStatus !== 'illustrated' && e.mediaStatus !== 'variant').slice(0, 3).map((e) => e.id)),
+  )
+
+  const variants = withMedia.filter((e) => e.mediaStatus === 'variant')
+  check(
+    variants.every((e) => e.mv && e.mv.id && e.mv.en && e.mv.es),
+    'procedencia — toda variante dice de qué movimiento es el dibujo',
+    JSON.stringify(variants.filter((e) => !e.mv?.id).slice(0, 3).map((e) => e.id)),
+  )
+
+  const byId = new Map(entries.map((e) => [e.id, e]))
+  check(
+    variants.every((e) => byId.has(e.mv.id) && byId.get(e.mv.id).mediaStatus === 'illustrated'),
+    'procedencia — el donante existe y tiene dibujo propio (nada de cadenas de préstamos)',
+    JSON.stringify(variants.filter((e) => !byId.has(e.mv.id) || byId.get(e.mv.id).mediaStatus !== 'illustrated').slice(0, 3).map((e) => e.id)),
+  )
+
+  // A borrowed drawing of a different muscle group would teach the wrong
+  // movement, which is worse than no drawing at all.
+  check(
+    variants.every((e) => byId.get(e.mv.id)?.mg === e.mg && byId.get(e.mv.id)?.kind === e.kind),
+    'procedencia — el donante trabaja el mismo grupo muscular y es del mismo tipo',
+    JSON.stringify(
+      variants
+        .filter((e) => byId.get(e.mv.id)?.mg !== e.mg || byId.get(e.mv.id)?.kind !== e.kind)
+        .slice(0, 3)
+        .map((e) => `${e.n.en} ← ${byId.get(e.mv.id)?.n.en}`),
+    ),
+  )
+
+  check(
+    withMedia.every((e) => media.entries[e.m]),
+    'procedencia — toda clave de media resuelve en el manifiesto',
+    JSON.stringify(withMedia.filter((e) => !media.entries[e.m]).slice(0, 3).map((e) => e.m)),
+  )
+
+  const ekKeys = Object.keys(media.entries).filter((k) => k.startsWith('ek-'))
+  check(
+    ekKeys.every((k) => attribution.entries[k]?.license === 'CC BY-SA 4.0' && attribution.entries[k]?.originalAuthor),
+    'licencias — cada ilustración de Everkinetic lleva autor y CC BY-SA 4.0',
+    JSON.stringify(ekKeys.filter((k) => !attribution.entries[k]?.originalAuthor).slice(0, 3)),
+  )
+
+  check(
+    ekKeys.every((k) => {
+      const e = media.entries[k]
+      return e.s && !e.m && !e.e
+    }),
+    'media — las de Everkinetic declaran un solo fotograma, no una secuencia falsa',
+  )
+
+  // The number the report and the docs quote. If the pipeline silently loses
+  // illustrations, this is what says so.
+  const illustrated = withMedia.length
+  check(illustrated >= 660, `cobertura — al menos 660 ejercicios con ilustración (hay ${illustrated})`, String(illustrated))
 }
 
 console.log(out.join('\n'))

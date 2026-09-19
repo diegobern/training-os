@@ -844,6 +844,17 @@ export const es = {
   "auth.iVerified": "Ya lo he verificado",
   "auth.notVerifiedYet": "Firebase todavía no ve tu email como verificado. Revisa la bandeja de entrada y el spam.",
   "auth.verifiedOk": "Email verificado",
+  "howto.variantOf": "Ilustración de un movimiento equivalente: {name}",
+  "howto.variantWhy": "El dibujo enseña el patrón, no esta variante exacta.",
+  "howto.single": "Posición de máxima tensión",
+  "howto.noDemoCardio": "El cardio no lleva ilustración: lo que importa es el ritmo y el tiempo, no la postura.",
+  "howto.reference": "Ficha del ejercicio",
+  "howto.level": "Nivel",
+  "howto.target": "Series y repeticiones",
+  "howto.targetValue": "{sets} × {min}–{max} · {rest}s de descanso",
+  "howto.targetCardio": "{rest}s de descanso",
+  "howto.creditEk": "Ilustración: Greg Priday (Everkinetic) · CC BY-SA 4.0",
+  "attrib.summary2": "Otras 116 provienen directamente de Everkinetic, de Greg Priday, bajo la misma licencia. Y 253 ejercicios sin dibujo propio muestran el de un movimiento equivalente, siempre indicado en pantalla.",
 } as const
 
 export type Dict = Record<string, string>

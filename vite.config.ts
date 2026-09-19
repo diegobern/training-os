@@ -83,6 +83,21 @@ export default defineConfig({
             },
           },
           {
+            // The animated mark in the tab bar. Deliberately not precached:
+            // it is 100KB that the welcome screen does not show, and a first
+            // visit on a phone connection should not pay for it. It is cached
+            // the first time the tab bar actually draws it, which is once the
+            // person is inside the app, and is offline-safe from then on.
+            urlPattern: ({ url }: { url: URL }) =>
+              url.origin === self.location.origin && url.pathname.startsWith('/brand/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'brand-v1',
+              expiration: { maxEntries: 6, maxAgeSeconds: 60 * 60 * 24 * 180 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: ({ url }: { url: URL }) =>
               url.origin === self.location.origin && /\/assets\/.*\.js$/.test(url.pathname),
             handler: 'CacheFirst',

@@ -347,3 +347,77 @@ REGISTRO
   → onboarding (7 pasos)
   → app
 ```
+
+## D29. Cobertura de ilustraciones: tres procedencias, dicha cada una
+
+Workout Guide dibuja 302 de los 1096 ejercicios. Abrir CÓMO HACERLO en
+cualquiera de los otros 794 daba dos frases grises y nada más: correcto e
+inútil. La segunda etapa del pipeline (`scripts/catalog/enrich.mjs`) cierra ese
+hueco en tres pasadas, en orden descendente de honestidad, y **cada ejercicio
+guarda de cuál salió**:
+
+| `mediaStatus` | Qué es | Cuántos |
+|---|---|---|
+| `illustrated` | Su propio dibujo: Workout Guide (3 fotogramas) o Everkinetic (1) | 418 |
+| `variant` | El dibujo de un movimiento equivalente, **con su nombre en pantalla** | 253 |
+| `none` | Sin dibujo. La ficha muestra músculos, material, tipo y objetivo | 425 |
+
+Everkinetic entra directamente, no a través de Workout Guide: misma licencia
+CC BY-SA 4.0, verificada por el propio script contra `LICENSE.md` antes de
+copiar un solo fichero, y aporta 116 dibujos y 14 juegos de instrucciones.
+
+### Las reglas del préstamo
+
+Un dibujo prestado tiene que enseñar el mismo movimiento o no vale la pena:
+
+- mismo grupo muscular y mismo tipo (fuerza / cardio / movilidad);
+- coincidencia exacta en **toda palabra que cambie la forma** del movimiento:
+  *incline*, *decline*, *reverse*, *sumo*, *behind*, *preacher*…;
+- las palabras que solo cambian la **ejecución** —*alternating*, *single*,
+  *banded*, *paused*— sí se ignoran, porque el dibujo enseña el patrón;
+- el donante tiene que tener dibujo propio, para que nunca se preste un
+  préstamo.
+
+Las cuatro reglas están en `tests/catalog-integrity.mjs`, no solo en el código.
+
+### Lo que no se hace
+
+No se inventa ninguna ilustración, ninguna traducción ni ninguna instrucción.
+Los 425 sin dibujo lo dicen; los cinco que además no tenían texto llevan una
+clave de ejecución **escrita por nosotros** y marcada como nuestra. El sexto,
+*Iron Cross*, se deja en blanco a propósito: escribir consejos de técnica de un
+movimiento del que no estamos seguros es peor que una ficha vacía.
+
+### Dos fondos, no uno
+
+Workout Guide dibuja una silueta blanca sobre nada; Everkinetic dibuja trazo
+oscuro sobre blanco. Cada uno sobre el fondo del otro desaparece. La hoja elige
+la placa según de dónde venga el fichero: `.demo-plate` oscura para la primera,
+`.demo-paper` blanca para la segunda.
+
+## D30. La marca del menú es un WebP animado, no una tira con `steps()`
+
+Giraba a tirones por dos motivos, y ninguno era el tamaño del fichero:
+
+1. **Doce fotogramas en 7,2 s son 1,7 fps**, en saltos de 30°. Eso no es una
+   animación, es un pase de diapositivas.
+2. **El bucle no cerraba.** La tira se sacaba muestreando la animación real con
+   un reloj de pared, y esa animación *suaviza* el giro y flota el tótem con
+   periodos que no dividen una vuelta: el último fotograma no encajaba con el
+   primero y saltaba una vez por vuelta.
+
+Ahora el horneado **conduce** la escena en lugar de mirarla: el gancho
+`__logoBake` —que solo existe mientras el script lo instala— pone el componente
+en un plato giratorio puro y el script fija el ángulo de cada fotograma. Salen
+96 fotogramas exactamente equiespaciados, que se codifican como **WebP animado**
+(98 KB): un fichero que decodifica y temporiza el navegador, sin aritmética de
+`steps()` que equivocar.
+
+Un WebP animado no se puede pausar desde CSS, así que el modo sin animaciones
+**carga otro fichero** (`nav-logo-still.webp`, 1,5 KB) en vez de intentar parar
+el primero. No se precachea: son 100 KB que la pantalla de bienvenida no
+enseña, y se guardan la primera vez que la barra los dibuja de verdad.
+
+Lo comprueba `e2e/nav-logo-shot.mjs` midiendo la diferencia entre fotogramas
+consecutivos: si vuelve a haber pares idénticos, o un salto desproporcionado
+—la costura del bucle—, la prueba falla.

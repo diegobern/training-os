@@ -502,6 +502,36 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
 
       const t = (now - start) / 1000
 
+      /*
+       * Bake mode.
+       *
+       * The sprite for the tab bar is rendered from this very object, and for
+       * that the motion has to be something a strip of frames can actually
+       * hold: a pure turntable, at an angle the baker sets, with the drift and
+       * the bob switched off. The live animation eases the spin and floats the
+       * totem on periods that do not divide the revolution, so sampling it
+       * gives frames that are unevenly spaced AND a loop whose ends do not
+       * meet — which is exactly what made the tab-bar mark stutter.
+       *
+       * The hook exists only while a baking script has installed it. Nothing
+       * in the shipped app ever sets it.
+       */
+      const bake = (window as unknown as { __logoBake?: { angle: number } }).__logoBake
+      if (bake) {
+        totem.rotation.set(-0.17, bake.angle - 0.55, 0.04)
+        totem.position.y = 0
+        ringGroup.rotation.set(0, -(bake.angle - 0.55) * 1.5, 0.2)
+        ringA.rotation.z = bake.angle
+        ringB.rotation.z = -bake.angle * 0.68
+        nodeGroup.position.set(Math.cos(bake.angle * 3) * 1.86, Math.sin(bake.angle * 3) * 1.86, 0)
+        groove.material.opacity = dark ? 0.72 : 0.58
+        dust.rotation.set(0, 0, 0)
+        camera.position.set(0, 0, camera.position.z)
+        camera.lookAt(0, 0, 0)
+        renderer.render(scene, camera)
+        return
+      }
+
       // Eased turntable: slow through the face, quick across the edge. This is
       // where the thickness is visible, so it should not blur past.
       spin += 0.0118 + flick
