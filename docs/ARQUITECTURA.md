@@ -442,6 +442,26 @@ mandar 174 KB de fotogramas a quien ha pedido que nada se mueva no tiene sentido
 Lo comprueba `e2e/nav-logo-shot.mjs`, y una de sus pruebas **hace scroll
 mientras mide**: si la marca vuelve a congelarse durante el scroll, falla.
 
+### El nombre del fichero lleva el hash de su contenido
+
+Esto no es pulcritud, es la corrección de un fallo que llegó a un móvil de
+verdad. `/brand/` se sirve **CacheFirst**, así que un teléfono que ya había
+abierto la app se queda con su copia durante meses. La tira cambió de forma
+tres veces —12 fotogramas, luego un fichero animado, luego 96— y el nombre no,
+así que el móvil siguió sirviendo la imagen del mes pasado a la hoja de estilos
+de este mes. La petición funcionaba, no había ningún 404, todas las pruebas en
+un perfil limpio pasaban, y la barra mostraba **una columna de rayas**.
+
+Ahora `e2e/bake-nav-sprite.mjs` calcula el sha256 de cada fichero, lo mete en
+el nombre y genera `src/components/nav/navLogoAsset.ts` con las rutas, que es
+lo que importa el componente. Un CSS nuevo solo puede pedir el fichero con el
+que se construyó. Además el script **verifica que el CSS declara el mismo
+número de fotogramas** que la tira antes de escribir nada, y aborta si no.
+
+`e2e/stale-cache.mjs` reproduce el fallo a propósito: planta una imagen con la
+forma equivocada bajo el nombre antiguo y comprueba que la app ni la pide ni se
+ve afectada.
+
 ## D31. Añadir un ejercicio en mitad del entrenamiento
 
 Estaba, y no se veía. Era el último chip de una fila con scroll horizontal, así

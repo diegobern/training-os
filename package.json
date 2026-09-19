@@ -20,6 +20,7 @@
     "catalog:build": "node scripts/catalog/import.mjs && node scripts/catalog/enrich.mjs",
     "catalog:enrich": "node scripts/catalog/enrich.mjs",
     "test:nav": "node e2e/nav-logo-shot.mjs",
+    "test:cache": "node e2e/stale-cache.mjs",
     "test:onboarding": "node e2e/onboarding.mjs",
     "test:boot": "node e2e/boot-matrix.mjs",
     "test:sw": "node e2e/sw-offline.mjs",

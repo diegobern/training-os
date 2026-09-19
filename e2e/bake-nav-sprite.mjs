@@ -21,12 +21,16 @@
  * twelve-frame strip look like a flip-book.
  */
 import { chromium } from 'playwright'
-import { mkdirSync, existsSync, statSync } from 'node:fs'
+import { mkdirSync, existsSync, statSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from 'node:fs'
 import { execSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 
 const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
 const BASE = process.env.BASE || 'http://127.0.0.1:4320'
+import { join } from 'node:path'
+
 const TMP = '/tmp/nav-frames'
+const ROOT = process.cwd()
 const OUT = 'public/brand'
 
 /**
@@ -46,9 +50,29 @@ const PERIOD_MS = Number(process.env.PERIOD || 3200)
 /** Rendered at 144 so it stays sharp on a 3× phone at 52 CSS pixels. */
 const SIZE = 144
 
-mkdirSync(TMP, { recursive: true })
-execSync(`rm -f ${TMP}/*.png`)
+/*
+ * The stylesheet and the strip are one contract: `height: 9600%` and
+ * `steps(96)` only make sense against a strip of exactly 96 frames. Checked
+ * here rather than trusted, because getting it wrong produces an image that
+ * still loads, still passes every "did it 404" test, and renders as stripes.
+ */
+const CSS = join(ROOT, 'src', 'styles', 'index.css')
+{
+  const css = readFileSync(CSS, 'utf8')
+  const wants = [`steps(${FRAMES})`, `height: ${FRAMES * 100}%`]
+  for (const needle of wants) {
+    if (!css.includes(needle)) {
+      console.error(`index.css no declara "${needle}" — el CSS y la tira tienen que decir lo mismo`)
+      process.exit(1)
+    }
+  }
+}
 
+const SKIP_RENDER = process.env.SKIP_RENDER === '1' && existsSync(`${TMP}/r_f000.png`)
+mkdirSync(TMP, { recursive: true })
+if (!SKIP_RENDER) execSync(`rm -f ${TMP}/*.png`)
+
+if (!SKIP_RENDER) {
 const browser = await chromium.launch({
   executablePath: EXE,
   args: ['--no-sandbox', '--enable-unsafe-swiftshader'],
@@ -110,6 +134,7 @@ for (let i = 0; i < FRAMES; i++) {
   await page.screenshot({ path: `${TMP}/f${String(i).padStart(3, '0')}.png`, clip, omitBackground: true })
 }
 await browser.close()
+}
 
 /* ------------------------------------------------------------------ encode */
 
@@ -130,16 +155,55 @@ execSync(
  * doing. Same frames, same size, and it cannot be starved.
  */
 execSync(`cd ${TMP} && convert $(ls r_f*.png | sort) -append strip.png`, { stdio: 'inherit', shell: '/bin/bash' })
-execSync(`convert ${TMP}/strip.png -define webp:lossless=false -quality 82 ${OUT}/nav-logo.webp`, { stdio: 'inherit' })
 
-// The still, for reduced motion and for the data-motion='off' setting. A
-// chosen pose, not whichever frame the animation happened to stop on.
-execSync(`convert ${TMP}/r_f000.png -quality 82 ${OUT}/nav-logo-still.webp`, { stdio: 'inherit' })
+/*
+ * Content-hashed filenames, and this is not tidiness.
+ *
+ * `/brand/nav-logo.webp` is served CacheFirst, so a phone that has visited
+ * once keeps its copy for months. Ship a new stylesheet that says "96 frames"
+ * against a cached file that holds one, and the mark renders as a column of
+ * stripes: the request never fails, nothing 404s, and every test on a clean
+ * profile passes. That happened. A name that changes with the bytes makes it
+ * impossible — the new CSS can only ever ask for the file it was built with.
+ */
+const hash = (p) => createHash('sha256').update(readFileSync(p)).digest('hex').slice(0, 8)
 
-for (const f of ['nav-logo.webp', 'nav-logo-still.webp']) {
+for (const f of readdirSync(OUT)) {
+  if (/^nav-logo.*\.webp$/.test(f)) unlinkSync(join(OUT, f))
+}
+
+execSync(`convert ${TMP}/strip.png -define webp:lossless=false -quality 82 ${TMP}/strip.webp`, { stdio: 'inherit' })
+execSync(`convert ${TMP}/r_f000.png -quality 86 ${TMP}/still.webp`, { stdio: 'inherit' })
+
+const stripName = `nav-logo.${hash(`${TMP}/strip.webp`)}.webp`
+const stillName = `nav-logo-still.${hash(`${TMP}/still.webp`)}.webp`
+execSync(`cp ${TMP}/strip.webp ${OUT}/${stripName}`)
+execSync(`cp ${TMP}/still.webp ${OUT}/${stillName}`)
+
+/*
+ * The component reads the names from here rather than spelling them out, so a
+ * re-bake cannot leave the markup pointing at a file that no longer exists.
+ */
+writeFileSync(
+  join(ROOT, 'src', 'components', 'nav', 'navLogoAsset.ts'),
+  `/* Generado por e2e/bake-nav-sprite.mjs. No editar a mano.
+ *
+ * Los nombres llevan el hash del contenido a propósito: /brand/ se sirve
+ * CacheFirst, así que un fichero con el mismo nombre y distinto contenido se
+ * queda cacheado en el móvil durante meses y se mezcla con un CSS nuevo. Con
+ * el hash dentro del nombre, eso no puede pasar.
+ */
+export const NAV_LOGO_SPIN = '/brand/${stripName}'
+export const NAV_LOGO_STILL = '/brand/${stillName}'
+/** Lo que declara el CSS: height ${FRAMES * 100}% y steps(${FRAMES}). */
+export const NAV_LOGO_FRAMES = ${FRAMES}
+`,
+)
+
+for (const f of [stripName, stillName]) {
   const p = `${OUT}/${f}`
   if (!existsSync(p)) throw new Error(`no se generó ${p}`)
-  console.log(`${f.padEnd(20)} ${(statSync(p).size / 1024).toFixed(1)} KB`)
+  console.log(`${f.padEnd(34)} ${(statSync(p).size / 1024).toFixed(1)} KB`)
 }
 console.log(`${FRAMES} fotogramas · ${PERIOD_MS}ms por vuelta · ${(1000 / delay).toFixed(1)} fps`)
 console.log(`la tira mide ${SIZE} × ${SIZE * FRAMES} px — el CSS usa height: ${FRAMES * 100}%`)

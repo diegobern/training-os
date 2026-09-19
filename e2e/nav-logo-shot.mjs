@@ -49,7 +49,11 @@ const mark = page.locator('.nav-logo3d')
 check(await mark.count() > 0, 'la marca del menú está en pantalla')
 
 const src = await mark.locator('img').getAttribute('src')
-check(src === '/brand/nav-logo.webp', 'con animaciones activas usa la tira', String(src))
+check(/^\/brand\/nav-logo\.[0-9a-f]{8}\.webp$/.test(src ?? ''), 'con animaciones activas usa la tira', String(src))
+// The name has to carry a hash of the contents. Without it, /brand/ being
+// CacheFirst means a phone serves last month's strip to this month's
+// stylesheet — the mark renders as stripes and nothing errors.
+check(/\.[0-9a-f]{8}\.webp$/.test(src ?? ''), 'el nombre del fichero lleva el hash del contenido', String(src))
 
 const natural = await mark.locator('img').evaluate((i) => ({ w: i.naturalWidth, h: i.naturalHeight, ok: i.complete && i.naturalWidth > 0 }))
 check(natural.ok, 'la imagen carga de verdad', JSON.stringify(natural))
@@ -134,7 +138,7 @@ await page.evaluate(async () => {
 await page.reload({ waitUntil: 'commit' })
 await page.waitForTimeout(4000)
 const stillSrc = await page.locator('.nav-logo3d img').getAttribute('src')
-check(stillSrc === '/brand/nav-logo-still.webp', 'con animaciones desactivadas usa el fotograma fijo', String(stillSrc))
+check(/^\/brand\/nav-logo-still\.[0-9a-f]{8}\.webp$/.test(stillSrc ?? ''), 'con animaciones desactivadas usa el fotograma fijo', String(stillSrc))
 
 await ctx.close()
 await browser.close()

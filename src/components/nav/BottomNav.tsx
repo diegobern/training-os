@@ -4,6 +4,7 @@ import { IconBolt, IconChart, IconGrid, IconHome, IconRoutines } from '../ui/Ico
 import { cx } from '../ui/primitives'
 import { useApp, useT } from '../../store/useApp'
 import { haptic } from '../../lib/feedback'
+import { NAV_LOGO_SPIN, NAV_LOGO_STILL } from './navLogoAsset'
 
 const ITEMS = [
   { to: '/', key: 'nav.home', Icon: IconHome, end: true },
@@ -48,7 +49,7 @@ function CenterMark({ Icon }: { Icon: (p: { size?: number; strokeWidth?: number 
     <span className="nav-logo3d">
       <img
         className={still ? 'still' : 'spin'}
-        src={still ? '/brand/nav-logo-still.webp' : '/brand/nav-logo.webp'}
+        src={still ? NAV_LOGO_STILL : NAV_LOGO_SPIN}
         alt=""
         aria-hidden="true"
         width={144}
