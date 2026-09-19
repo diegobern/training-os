@@ -279,27 +279,71 @@ La corrección va en el CSS (`.demo-plate`), no en los ficheros: la placa es
 oscura en los dos temas. No cambia el asset; cambia el fondo sobre el que se
 mira.
 
-## D28. Sin verificación de email
+## D28. La verificación del correo es obligatoria
 
-El correo se pide al registrarse y sigue siendo obligatorio: es con lo que se
-inicia sesión y lo único que permite recuperar la contraseña. Lo que se retira
-es la **puerta**: no se envía ningún correo de verificación, no existe la fase
-`needs-verification` y ninguna pantalla pregunta por ello. La cuenta sirve
-desde el instante en que existe.
+El correo no solo se pide: hay que demostrarlo. `needs-verification` es una
+puerta, no un aviso, y **no existe ningún modo de saltársela**. Las únicas dos
+salidas de esa pantalla son *Reenviar email* y *Cerrar sesión*: quien escribió
+mal su dirección cierra sesión y se registra otra vez, no entra igualmente.
 
-Qué desaparece: `VerifyEmail`, `skipVerification`, `recheckVerification`,
-`resendVerification`, `refreshVerification`, el aviso de Ajustes y sus doce
-cadenas de traducción.
+### Orden dentro de `resolve()`
 
-Qué se conserva a propósito:
+La comprobación va **antes** de leer el perfil, antes de mirar de quién son los
+datos locales y antes de sincronizar un solo byte. El orden importa, no solo la
+presencia: más abajo, `resetLocalData()` borra los datos de este dispositivo
+cuando la cuenta es nueva o de otra persona. Ejecutar eso para una sesión que
+aún no ha demostrado su dirección sería destruir datos sobre la base de una
+afirmación sin verificar. Una sesión sin verificar hace exactamente una cosa:
+esperar.
 
-- **`/auth/verificado`** sigue enrutada. Hay enlaces enviados antes de este
-  cambio esperando en bandejas de entrada; al pulsarlos hay que llegar a algún
-  sitio con sentido, no a un 404.
-- **`firebase/email-verificacion.html`** y su README quedan en el repositorio,
-  marcados como retirados, por si algún día se vuelve atrás.
+### El recheck
 
-Lo asegura una prueba, no una intención: `e2e/authgate.mjs` se registra contra
-el emulador de Auth y comprueba dos cosas —que ninguna pantalla pide verificar
-y que el emulador **no ha emitido ningún código `VERIFY_EMAIL`**—, así que un
-`sendEmailVerification` que volviera a colarse haría fallar la suite.
+`user.emailVerified` es lo que era cierto cuando se emitió el token de esta
+pestaña. El enlace casi nunca se abre aquí —se abre en el móvil, o en otra
+pestaña— y nada se lo cuenta a esta. Por eso:
+
+- `resolve()` pregunta al servidor (`reload()` + `getIdToken(true)`) antes de
+  enseñar la puerta, así una bandera caducada nunca bloquea a nadie;
+- la pantalla reintenta cada 5 s y también cada vez que la pestaña recupera el
+  foco, que es el caso habitual: verificas en la otra pestaña, vuelves, y ya ha
+  seguido sola.
+
+### El email se envía lo primero
+
+Dentro de `signUp()`, `sendEmailVerification()` va justo después de crear la
+cuenta, **antes** de reservar el nombre de usuario y de escribir el perfil. El
+oyente de auth pone a la persona en la puerta en cuanto la cuenta existe, así
+que desde ese instante lo único que espera es el correo; las dos llamadas a
+Firestore reintentan durante mucho tiempo cuando el backend va lento, y enviar
+por detrás de ellas significaba que la puerta podía estar en pantalla sin que
+se hubiera enviado nada. Lo detectó `e2e/authgate.mjs`, no una revisión a ojo.
+
+El envío no es fatal: la cuenta ya existe, así que un fallo se registra y se
+recupera desde el botón *Reenviar*, no lanzando "error al registrarse" junto a
+una cuenta que sí se creó.
+
+### APIs de Firebase
+
+Las oficiales, sin atajos: `sendEmailVerification(user, { url })` para enviar,
+`applyActionCode(auth, oobCode)` en `/auth/verificado` cuando el enlace llega
+con código, y `reload()` + `getIdToken(true)` + `user.emailVerified` para
+comprobar. Nunca se confía en la bandera cacheada.
+
+### Qué NO existe
+
+`skipVerification` era un resto de la primera implementación —un botón
+*Continuar sin verificar*— y está **eliminado**, no recreado. Que no vuelva lo
+asegura una prueba: `e2e/authgate.mjs` falla si ese botón reaparece.
+
+### Flujo completo
+
+```
+REGISTRO
+  → sendEmailVerification()          (lo primero, antes de Firestore)
+  → puerta needs-verification        (sin salida salvo reenviar o salir)
+  → la persona abre el enlace        (normalmente en otro sitio)
+  → recheck: reload() + getIdToken(true) + emailVerified
+  → nombre de usuario, si la reserva falló al registrarse
+  → onboarding (7 pasos)
+  → app
+```

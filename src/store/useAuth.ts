@@ -4,6 +4,7 @@ import { firebaseEnabled } from '../lib/firebase/app'
 import {
   onAuth,
   readProfile,
+  refreshVerification,
   signOutUser,
   writeProfile,
 } from '../lib/firebase/account'
@@ -37,6 +38,8 @@ export type AuthPhase =
   | 'local-only'
   | 'signed-out'
   | 'migrating'
+  /** Signed in, but the address has not been proven yet. Nothing gets past. */
+  | 'needs-verification'
   | 'needs-username'
   | 'onboarding'
   | 'ready'
@@ -69,6 +72,8 @@ interface AuthState {
   resolve: () => Promise<void>
   refreshProfile: () => Promise<void>
   setPhase: (phase: AuthPhase) => void
+  /** Re-reads the user from Firebase and continues if it now says verified. */
+  recheckVerification: () => Promise<boolean>
   adoptLocal: () => Promise<void>
   keepLocalSeparate: () => Promise<void>
   discardLocal: () => Promise<void>
@@ -140,6 +145,35 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (!user) return
     set({ busy: true })
     try {
+      /*
+       * The verification gate comes first, before the profile is read, before
+       * local ownership is checked and before a single byte is synced.
+       *
+       * Order matters here, not just presence. `resetLocalData()` further down
+       * wipes this device's data when the account is new or belongs to someone
+       * else — running that for a session that has not proven its address
+       * would be destroying data on the strength of an unverified claim. An
+       * unverified session does exactly one thing: wait.
+       */
+      if (!user.emailVerified) {
+        /*
+         * Ask the server before gating anyone.
+         *
+         * `emailVerified` on a restored session is whatever the stored token
+         * said when it was minted. Someone who verifies in another tab and
+         * comes back to this one — the ordinary case — would otherwise be
+         * shown the gate again over a flag that is simply out of date. This is
+         * the RECHECK step, and it only costs a round trip for sessions the
+         * cache already believes are unverified.
+         */
+        const verified = await refreshVerification()
+        if (!verified) {
+          set({ phase: 'needs-verification', busy: false })
+          return
+        }
+        set({ user: { ...user, emailVerified: true } })
+      }
+
       const profile = await readProfile(user.uid)
       set({ profile })
 
@@ -206,6 +240,26 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   setPhase(phase) {
     set({ phase })
+  },
+
+  /**
+   * Asks Firebase, never the cached flag.
+   *
+   * `emailVerified` on the in-memory user is a snapshot taken when the token
+   * was issued; clicking the link in another tab or on a phone does not update
+   * it here. `reload()` re-reads the account and `getIdToken(true)` forces a
+   * fresh token, so the value this returns is the server's answer rather than
+   * this tab's memory of it.
+   *
+   * On success it hands straight back to `resolve()`, which is what carries
+   * the person on to the questionnaire and then the app.
+   */
+  async recheckVerification() {
+    const verified = await refreshVerification()
+    const user = get().user
+    if (user) set({ user: { ...user, emailVerified: verified } })
+    if (verified) void get().resolve()
+    return verified
   },
 
   async adoptLocal() {

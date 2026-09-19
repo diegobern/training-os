@@ -835,6 +835,15 @@ export const es = {
   "howto.creditLink": "Ver atribuciones",
   "demo.routineName": "DEMO · Hipertrofia 2026",
   "demo.routineDescription": "Rutina de ejemplo generada por Training OS.",
+  "auth.verifyTitle": "Verifica tu email",
+  "auth.verifySub": "Hemos enviado un email de verificación a:",
+  "auth.verifyHint": "Abre el enlace del correo y esta pantalla continuará sola. Si no lo ves, mira en spam.",
+  "auth.resend": "Reenviar email",
+  "auth.resendIn": "Reenviar en {s} s",
+  "auth.resent": "Email reenviado",
+  "auth.iVerified": "Ya lo he verificado",
+  "auth.notVerifiedYet": "Firebase todavía no ve tu email como verificado. Revisa la bandeja de entrada y el spam.",
+  "auth.verifiedOk": "Email verificado",
 } as const
 
 export type Dict = Record<string, string>

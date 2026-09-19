@@ -11,6 +11,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  sendEmailVerification,
   sendPasswordResetEmail,
   EmailAuthProvider,
   reauthenticateWithCredential,
@@ -62,10 +63,12 @@ try {
     ? ok('display name is stored on the auth user')
     : no('display name is stored on the auth user')
 
-  // Training OS does not verify email addresses: the account is usable the
-  // moment it exists. What still has to be true is that sign-up never sends
-  // one on its own — that is asserted below, against the emulator's own list
-  // of issued codes.
+  auth.currentUser.emailVerified === false
+    ? ok('a new account is not verified')
+    : no('a new account is not verified')
+
+  await sendEmailVerification(auth.currentUser)
+  ok('verification email requested without error')
 
   /* ----------------------------------------------- duplicate email guard */
   try {
@@ -117,12 +120,32 @@ try {
   const res = await fetch(`http://${HOST}:9099/emulator/v1/projects/${PROJECT}/oobCodes`)
   const { oobCodes = [] } = await res.json()
   const kinds = oobCodes.map((c) => c.requestType)
+  kinds.includes('VERIFY_EMAIL')
+    ? ok('the verification email actually reached the auth service')
+    : no('the verification email actually reached the auth service')
   kinds.includes('PASSWORD_RESET')
     ? ok('the reset email actually reached the auth service')
     : no('the reset email actually reached the auth service')
-  kinds.includes('VERIFY_EMAIL')
-    ? no('no verification email is ever issued', 'the auth service issued a VERIFY_EMAIL code')
-    : ok('no verification email is ever issued')
+
+  /* ----------------------------------------------- verification is real */
+  const verifyLink = oobCodes.find((c) => c.requestType === 'VERIFY_EMAIL')
+  if (verifyLink) {
+    // Before the link is used, the flag must still be false — and it must
+    // stay false through a reload, or the gate would be provable by nothing.
+    await auth.currentUser.reload()
+    auth.currentUser.emailVerified === false
+      ? ok('reload() alone does not make an account verified')
+      : no('reload() alone does not make an account verified')
+
+    await fetch(verifyLink.oobLink)
+    await auth.currentUser.reload()
+    await auth.currentUser.getIdToken(true)
+    auth.currentUser.emailVerified
+      ? ok('emailVerified flips only after the link is used')
+      : no('emailVerified flips only after the link is used')
+  } else {
+    no('emailVerified flips only after the link is used', 'no verification link found')
+  }
 
   /* ------------------------------------------------------ password change */
   await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(email, password))

@@ -13,6 +13,7 @@ const Welcome = lazy(() => import('../../routes/auth/Welcome'))
 const SignUp = lazy(() => import('../../routes/auth/SignUp'))
 const Login = lazy(() => import('../../routes/auth/Login'))
 const ForgotPassword = lazy(() => import('../../routes/auth/ForgotPassword'))
+const VerifyEmail = lazy(() => import('../../routes/auth/VerifyEmail'))
 const UsernameSetup = lazy(() => import('../../routes/auth/UsernameSetup'))
 const Onboarding = lazy(() => import('../../routes/auth/Onboarding'))
 const OnboardingTopUp = lazy(() => import('../../routes/auth/OnboardingTopUp'))
@@ -149,6 +150,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       )}
       {phase === 'connection-error' && <ConnectionError />}
       {phase === 'migrating' && <MigrateLocalData />}
+      {phase === 'needs-verification' && <VerifyEmail />}
       {phase === 'needs-username' && <UsernameSetup />}
       {phase === 'onboarding' && (onboardingMode === 'update' ? <OnboardingTopUp /> : <Onboarding />)}
     </Suspense>
