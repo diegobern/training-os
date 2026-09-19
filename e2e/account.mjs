@@ -22,7 +22,6 @@ const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless
 const BASE = process.env.BASE ?? 'http://127.0.0.1:4190'
 const PROJECT = 'demo-training-os'
 const FS = `http://127.0.0.1:8080/v1/projects/${PROJECT}/databases/(default)/documents`
-const AUTH_EMU = `http://127.0.0.1:9099/emulator/v1/projects/${PROJECT}`
 
 const steps = []
 const ok = (m) => steps.push('PASS  ' + m)
@@ -69,40 +68,11 @@ async function signUp(page, who) {
   await f.nth(4).fill(who.pw)
   await page.getByRole('button', { name: /^Crear cuenta$/ }).click()
   await page.waitForTimeout(6000)
-  /*
-   * The verification gate, opened the way a person opens it: out of band.
-   *
-   * There is no skip button any more, so this is the only way through — which
-   * is the point. The link is fetched from the emulator's own list of issued
-   * codes, exactly as a mail client would fetch it, and then the app has to
-   * notice on its own.
-   */
-  await verifyEmailOf(page, who)
-
+  // Straight into onboarding: there is no verification step to get past.
   const start = page.getByRole('button', { name: /^EMPEZAR$/ })
   if (await start.count()) {
     await start.click()
     await page.waitForTimeout(3000)
-  }
-}
-
-/** Opens the verification link for this account and waits for the gate to go. */
-async function verifyEmailOf(page, who) {
-  const { oobCodes = [] } = await fetch(`${AUTH_EMU}/oobCodes`).then((r) => r.json())
-  const link = oobCodes
-    .filter((c) => c.requestType === 'VERIFY_EMAIL' && c.email === who.email)
-    .pop()
-  if (!link) throw new Error(`no se envió email de verificación a ${who.email}`)
-  await fetch(link.oobLink)
-
-  // The app polls, but the button makes the test deterministic.
-  const button = page.getByRole('button', { name: /Ya lo he verificado/i })
-  if (await button.count()) {
-    await button.click()
-    await page.waitForTimeout(5000)
-  }
-  if (/Verifica tu email/i.test(await text(page))) {
-    throw new Error('la puerta de verificación no se abre tras usar el enlace')
   }
 }
 

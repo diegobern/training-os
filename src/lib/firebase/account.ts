@@ -118,25 +118,20 @@ export interface SignUpInput {
   password: string
 }
 
-/**
- * Where the verification link lands.
+/*
+ * Email verification is not part of this product.
  *
- * Firebase's own handler applies the code and then bounces the browser to this
- * URL, so the last thing the person sees is our confirmation page rather than
- * a bare Google-hosted string. If the project is later pointed at a custom
- * action URL in the console, the same page receives `mode` and `oobCode`
- * directly and applies the code itself — it handles both arrivals.
+ * The address is still required to sign up — it is the login, and it is the
+ * only way back in after a forgotten password — but nothing is withheld until
+ * it is proven. No verification email is sent and no screen asks for one.
+ *
+ * The cost is worth stating plainly: a mistyped address means no password
+ * recovery, and nothing catches that any more. Everything else in the app is
+ * indifferent to it.
  */
-function verifyLanding() {
-  return {
-    url: `${window.location.origin}/auth/verificado`,
-    handleCodeInApp: false,
-  }
-}
 
 /**
- * Sign-up order matters: create auth user → send the verification email →
- * reserve username → create profile.
+ * Sign-up order matters: create auth user → reserve username → create profile.
  * If the username turns out to be taken, the account already exists and the
  * user stays signed in; the UI asks for another name and calls
  * `finishUsernameSetup`. Nothing is orphaned and nothing is rolled back behind
@@ -144,34 +139,12 @@ function verifyLanding() {
  */
 export async function signUp(input: SignUpInput): Promise<{ user: User; usernameTaken: boolean }> {
   const { auth } = await authOnly()
-  const { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } = await import('firebase/auth')
+  const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
 
   const cred = await createUserWithEmailAndPassword(auth, input.email.trim(), input.password)
   const user = cred.user
 
   await updateProfile(user, { displayName: input.displayName.trim() })
-
-  /*
-   * The verification email goes out FIRST, before any Firestore work.
-   *
-   * The auth listener puts the person on the verification gate the instant the
-   * account exists, so from that moment the only thing they are waiting for is
-   * the email. Reserving the username and writing the profile are Firestore
-   * calls that retry for a long time when the backend is slow or unreachable,
-   * and sending from behind them meant the gate could be on screen with no
-   * email ever sent — which is exactly what the auth-gate test caught.
-   *
-   * Not fatal, either. The account already exists; throwing here would show
-   * "sign-up failed" next to a real account, and the retry would then hit
-   * `email-already-in-use`. The gate has a Resend button, which is the right
-   * place to recover from a send that did not go through.
-   */
-  try {
-    await sendEmailVerification(user, verifyLanding())
-    log('account', 'verification email sent')
-  } catch (err) {
-    log('account', `verification email could not be sent: ${String(err)}`, 'warn')
-  }
 
   let usernameTaken = false
   let normalized = normalizeUsername(input.username)
@@ -259,38 +232,6 @@ export async function signOutUser(): Promise<void> {
   log('account', 'signed out')
 }
 
-/**
- * Sends the verification email again, for the message that never arrived.
- *
- * Firebase rate-limits this server-side; the screen adds its own cooldown so
- * the person is told to wait rather than being handed an opaque
- * `auth/too-many-requests`.
- */
-export async function resendVerification(): Promise<void> {
-  const { auth } = await authOnly()
-  const { sendEmailVerification } = await import('firebase/auth')
-  if (!auth.currentUser) throw new AccountError('no-user', 'Not signed in')
-  await sendEmailVerification(auth.currentUser, verifyLanding())
-  log('account', 'verification email resent')
-}
-
-/**
- * Asks Firebase for the real state — never trust a locally cached flag.
- *
- * `user.emailVerified` is whatever was true when this tab's token was minted.
- * The link is usually opened somewhere else entirely — another tab, a phone —
- * and nothing tells this tab about it. `reload()` re-reads the account from
- * the server and `getIdToken(true)` forces a new token, so both the property
- * and the claim inside the token agree with reality afterwards.
- */
-export async function refreshVerification(): Promise<boolean> {
-  const { auth } = await authOnly()
-  if (!auth.currentUser) return false
-  await auth.currentUser.reload()
-  await auth.currentUser.getIdToken(true)
-  return auth.currentUser.emailVerified
-}
-
 export async function sendPasswordReset(email: string): Promise<void> {
   const { auth } = await authOnly()
   const { sendPasswordResetEmail } = await import('firebase/auth')
@@ -371,18 +312,3 @@ export function authErrorKey(err: unknown): string {
   }
 }
 
-/**
- * Applies a verification code that arrived in the URL, for the case where the
- * project uses a custom action handler and the link comes straight here.
- *
- * `auth/invalid-action-code` also covers a code that was already used, which
- * is what happens when someone opens the mail twice or their mail client
- * pre-fetches the link. The caller treats an already-verified session as
- * success rather than an error, because for the person it is one.
- */
-export async function applyVerificationCode(oobCode: string): Promise<void> {
-  const { auth } = await authOnly()
-  const { applyActionCode } = await import('firebase/auth')
-  await applyActionCode(auth, oobCode)
-  if (auth.currentUser) await auth.currentUser.reload()
-}

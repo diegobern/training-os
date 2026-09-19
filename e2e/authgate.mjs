@@ -84,6 +84,42 @@ await page.waitForTimeout(400)
 await fields.nth(4).fill('TrainingOs2026')
 await page.waitForTimeout(500)
 ;!(await submit.isDisabled()) ? ok('a valid form enables submission') : fail('a valid form enables submission')
+
+/* ------------------------------------------------- the password reveal ---
+ * A password you cannot check is where sign-ups go to die: on a phone
+ * keyboard, with a manager filling one field and not the other, "they do not
+ * match" is usually a typo nobody can see.
+ */
+{
+  const eyes = page.getByRole('button', { name: /Mostrar contraseña|Ocultar contraseña/ })
+  const n = await eyes.count()
+  n === 2 ? ok('both password fields offer the reveal') : fail(`both password fields offer the reveal — found ${n}`)
+
+  await fields.nth(3).click()
+  await page.waitForTimeout(250)
+  ;(await fields.nth(3).getAttribute('type')) === 'password'
+    ? ok('the password starts hidden')
+    : fail('the password starts hidden')
+
+  await eyes.first().click()
+  await page.waitForTimeout(350)
+  ;(await fields.nth(3).getAttribute('type')) === 'text'
+    ? ok('tapping the eye reveals it')
+    : fail('tapping the eye reveals it')
+
+  // The keyboard must not close on a phone, which means focus must not move
+  // to the button.
+  const stillFocused = await page.evaluate(() => document.activeElement?.getAttribute('type'))
+  stillFocused === 'text'
+    ? ok('the field keeps focus, so the keyboard stays up')
+    : fail(`the field keeps focus — focus is on "${stillFocused}"`)
+
+  await fields.nth(2).click()
+  await page.waitForTimeout(350)
+  ;(await fields.nth(3).getAttribute('type')) === 'password'
+    ? ok('it hides itself again once you move on')
+    : fail('it hides itself again once you move on')
+}
 await page.screenshot({ path: `${SHOTS}/42-signup-valid.png` })
 
 // ------------------------------------- real sign-up against the Auth emulator
@@ -95,51 +131,18 @@ const blank = after.trim().length < 20
 steps.push('INFO  after sign-up the app shows: ' + after.slice(0, 160).replace(/\s+/g, ' '))
 await page.screenshot({ path: `${SHOTS}/43-after-signup.png` })
 
-// The verification gate. Sign-up must land here and must offer no way round.
-;/Verifica tu email/i.test(after)
-  ? ok('sign-up lands on the verification gate')
-  : fail('sign-up lands on the verification gate — ' + after.slice(0, 160).replace(/\s+/g, ' '))
-;!/Continuar sin verificar/i.test(after)
-  ? ok('the gate offers no way to skip verification')
-  : fail('the gate offers no way to skip verification — the skip button is back')
-;/Reenviar email|Reenviar en/i.test(after)
-  ? ok('the gate offers to resend the email')
-  : fail('the gate offers to resend the email')
-;!/PRÓXIMO ENTRENAMIENTO|Paso 1 de 7/i.test(after)
-  ? ok('nothing of the app is reachable before verifying')
-  : fail('nothing of the app is reachable before verifying — ' + after.slice(0, 160).replace(/\s+/g, ' '))
+// Email verification is not part of this product: the address is asked for,
+// never proven. Nothing may ask for it, and nothing may send it quietly.
+;!/Verifica tu email|Continuar sin verificar|Ya lo he verificado|Reenviar email/i.test(after)
+  ? ok('el registro no pide verificar el correo')
+  : fail('el registro no pide verificar el correo — ' + after.slice(0, 160).replace(/\s+/g, ' '))
 
-// The email really was sent, by the app, without anyone asking for it.
 const oob = await fetch(
   'http://127.0.0.1:9099/emulator/v1/projects/demo-training-os/oobCodes',
 ).then((r) => r.json()).catch(() => ({ oobCodes: [] }))
-const verifyCode = (oob.oobCodes ?? []).find((c) => c.requestType === 'VERIFY_EMAIL')
-verifyCode
-  ? ok('sign-up sent the verification email')
-  : fail('sign-up sent the verification email — the emulator issued no VERIFY_EMAIL code')
-
-/* ------------------------------------- verify for real, then watch it move on
- *
- * The link is opened out of band, exactly as it is in life: the person clicks
- * it in their mail client, not in this tab. Nothing tells this tab about it,
- * so what is being tested here is the recheck — that the app notices on its
- * own and stops gating.
- *
- * Firestore is unreachable in this sandbox, so the screen behind the gate is
- * the honest connection error rather than the questionnaire. That is fine:
- * what has to be proven is that the gate is *left*, and that it is left only
- * because the address was actually verified.
- */
-if (verifyCode) {
-  await fetch(verifyCode.oobLink)
-  await page.getByRole('button', { name: /Ya lo he verificado/i }).click()
-  await page.waitForTimeout(6000)
-  const past = await body()
-  !/Verifica tu email/i.test(past)
-    ? ok('verifying the address gets past the gate')
-    : fail('verifying the address gets past the gate — still on it: ' + past.slice(0, 160).replace(/\s+/g, ' '))
-  await page.screenshot({ path: `${SHOTS}/44-verified.png` })
-}
+;!(oob.oobCodes ?? []).some((c) => c.requestType === 'VERIFY_EMAIL')
+  ? ok('el registro no envía ningún correo de verificación')
+  : fail('el registro no envía ningún correo de verificación — el emulador emitió un código VERIFY_EMAIL')
 
 // The Auth user really was created: prove it by signing in against the
 // emulator's own REST endpoint, independently of the app.

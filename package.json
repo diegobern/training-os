@@ -21,6 +21,8 @@
     "catalog:enrich": "node scripts/catalog/enrich.mjs",
     "test:nav": "node e2e/nav-logo-shot.mjs",
     "test:cache": "node e2e/stale-cache.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "release:manifest": "node scripts/release-manifest.mjs",
     "test:onboarding": "node e2e/onboarding.mjs",
     "test:boot": "node e2e/boot-matrix.mjs",
     "test:sw": "node e2e/sw-offline.mjs",

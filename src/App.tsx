@@ -36,7 +36,6 @@ const SearchPage = lazy(() => import("./routes/SearchPage"));
 const More = lazy(() => import("./routes/More"));
 const Attributions = lazy(() => import("./routes/Attributions"));
 const Profile = lazy(() => import("./routes/Profile"));
-const EmailVerified = lazy(() => import("./routes/auth/EmailVerified"));
 
 function Fallback() {
   return (
@@ -186,21 +185,6 @@ export function App() {
       );
     }
     return <ErrorScreen message={error ?? "unknown"} />;
-  }
-
-  // Outside the auth gate. A verification link is opened in whatever browser
-  // the mail app hands over — usually one with no session — and answering a
-  // click on "verify my email" with a sign-up screen reads as a failure.
-  if (window.location.pathname === "/auth/verificado") {
-    // This branch returns before the auth gate, which is what normally retires
-    // the splash — so without this the confirmation page sits behind it until
-    // the safety timeout fires.
-    dismissBootMark();
-    return (
-      <Suspense fallback={<BootScreen />}>
-        <EmailVerified />
-      </Suspense>
-    );
   }
 
   return (

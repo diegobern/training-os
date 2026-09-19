@@ -64,8 +64,9 @@ Tiempo estimado: **15 minutos**. Coste: **0 €** salvo que actives Storage (ver
 
 ### Plantillas de email (recomendado)
 
-**Authentication → Templates**: ahí se editan el email de verificación y el de
-recuperar contraseña. Cambia al menos el nombre del remitente para que no llegue como
+**Authentication → Templates**: ahí se edita el email de recuperar contraseña — el
+único que Training OS envía; la plantilla de verificación no se usa. Cambia al menos
+el nombre del remitente para que no llegue como
 "noreply@tu-proyecto.firebaseapp.com" sin contexto. El idioma se ajusta en el desplegable
 de la esquina de esa misma pantalla.
 
@@ -286,10 +287,10 @@ detección de secretos de verdad en todo el proyecto.
 **`Missing or insufficient permissions`** — las reglas no se han publicado (paso 7), o
 estás intentando leer datos de otro usuario. Lo segundo es que las reglas funcionan.
 
-**El email de verificación no llega** — mira spam. El remitente por defecto acaba en
-`firebaseapp.com` y algunos proveedores lo filtran. La verificación es obligatoria,
-así que sin ese correo no se entra: la pantalla tiene un botón **Reenviar email**
-con un minuto de espera entre intentos.
+**El email de verificación no llega** — Training OS no envía ninguno. El correo se
+pide al registrarse porque es con lo que se inicia sesión y lo único que permite
+recuperar la contraseña, pero la app no verifica nada ni retiene nada por ello.
+La plantilla **Email address verification** de la consola no hace falta.
 
 **Las fotos no se sincronizan** — Storage no está activado (paso 5). Es el
 comportamiento esperado: las fotos se quedan en el dispositivo y el resto sí viaja.

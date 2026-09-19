@@ -19,4 +19,6 @@ firestore-debug.log
 ui-debug.log
 dist-local
 
+# El manifiesto se genera al empaquetar
+
 .env.localonly

@@ -2,14 +2,16 @@ import {
   forwardRef,
   useEffect,
   useRef,
+  useState,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
   type TextareaHTMLAttributes,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { IconCheck, IconChevronDown, IconX } from './Icon'
+import { IconCheck, IconChevronDown, IconEye, IconEyeOff, IconX } from './Icon'
 import { haptic, primeAudio } from '../../lib/feedback'
+import { useT } from '../../store/useApp'
 
 export function cx(...parts: (string | false | null | undefined)[]) {
   return parts.filter(Boolean).join(' ')
@@ -133,11 +135,52 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, hint, error, className, id, ...rest },
+  { label, hint, error, className, id, type, ...rest },
   ref,
 ) {
   const autoId = useRef(`f-${Math.random().toString(36).slice(2, 8)}`)
   const inputId = id ?? autoId.current
+
+  /**
+   * The reveal control, on every password field in the app without any of
+   * them asking for it.
+   *
+   * It lives here rather than in each screen because a password you cannot
+   * check is where sign-ups go to die: on a phone keyboard, with a password
+   * manager filling one field and not the other, "the two do not match" is
+   * usually a typo nobody can see.
+   *
+   * It starts hidden and goes back to hidden on blur — an unmasked password
+   * left on screen while someone puts the phone down is a worse problem than
+   * the one this solves.
+   */
+  const isPassword = type === 'password'
+  const [revealed, setRevealed] = useState(false)
+  const t = useT()
+
+  const input = (
+    <input
+      // `rest` is spread FIRST on purpose: the handler below has to win. Put
+      // the spread last and it silently replaces onBlur with undefined, and
+      // the field stays unmasked after you have moved on — which is exactly
+      // what the first version of this did.
+      {...rest}
+      ref={ref}
+      id={inputId}
+      type={isPassword && revealed ? 'text' : type}
+      className={cx(
+        'h-12 w-full rounded-xl border border-line bg-elevated px-3.5 text-body text-ink placeholder:text-faint/70 transition-colors focus:border-accent/60',
+        isPassword && 'pr-12',
+        error && 'border-down/60',
+        className,
+      )}
+      onBlur={(e) => {
+        if (isPassword) setRevealed(false)
+        rest.onBlur?.(e)
+      }}
+    />
+  )
+
   return (
     <div className="w-full">
       {label && (
@@ -145,16 +188,34 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
           {label}
         </label>
       )}
-      <input
-        ref={ref}
-        id={inputId}
-        className={cx(
-          'h-12 w-full rounded-xl border border-line bg-elevated px-3.5 text-body text-ink placeholder:text-faint/70 transition-colors focus:border-accent/60',
-          error && 'border-down/60',
-          className,
-        )}
-        {...rest}
-      />
+      {isPassword ? (
+        <div className="relative">
+          {input}
+          <button
+            type="button"
+            // Not focusable from the keyboard: tabbing through a form should
+            // go field to field, not field, eye, field.
+            tabIndex={-1}
+            aria-label={revealed ? t('common.hidePassword') : t('common.showPassword')}
+            aria-pressed={revealed}
+            // Pointer-down rather than click, so the field never loses focus
+            // and the keyboard does not close on a phone.
+            onMouseDown={(e) => {
+              e.preventDefault()
+              setRevealed((v) => !v)
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault()
+              setRevealed((v) => !v)
+            }}
+            className="press absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-faint hover:text-muted"
+          >
+            {revealed ? <IconEyeOff size={18} /> : <IconEye size={18} />}
+          </button>
+        </div>
+      ) : (
+        input
+      )}
       {hint && !error && <p className="mt-1.5 text-xs text-faint">{hint}</p>}
       {error && <p className="mt-1.5 text-xs text-down">{error}</p>}
     </div>

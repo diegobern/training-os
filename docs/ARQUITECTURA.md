@@ -279,74 +279,62 @@ La corrección va en el CSS (`.demo-plate`), no en los ficheros: la placa es
 oscura en los dos temas. No cambia el asset; cambia el fondo sobre el que se
 mira.
 
-## D28. La verificación del correo es obligatoria
+## D28. Sin verificación de correo
 
-El correo no solo se pide: hay que demostrarlo. `needs-verification` es una
-puerta, no un aviso, y **no existe ningún modo de saltársela**. Las únicas dos
-salidas de esa pantalla son *Reenviar email* y *Cerrar sesión*: quien escribió
-mal su dirección cierra sesión y se registra otra vez, no entra igualmente.
+El correo se pide al registrarse y sigue siendo obligatorio: es con lo que se
+inicia sesión y lo único que permite recuperar la contraseña. Lo que no existe
+es la **puerta**: no se envía ningún correo de verificación, no hay fase
+`needs-verification` y ninguna pantalla pregunta por ello. La cuenta funciona
+desde el instante en que existe.
 
-### Orden dentro de `resolve()`
+**El coste, dicho sin rodeos:** un correo mal escrito deja a esa persona sin
+forma de recuperar la contraseña, y ya no hay nada que lo detecte. Todo lo
+demás en la app es indiferente al asunto.
 
-La comprobación va **antes** de leer el perfil, antes de mirar de quién son los
-datos locales y antes de sincronizar un solo byte. El orden importa, no solo la
-presencia: más abajo, `resetLocalData()` borra los datos de este dispositivo
-cuando la cuenta es nueva o de otra persona. Ejecutar eso para una sesión que
-aún no ha demostrado su dirección sería destruir datos sobre la base de una
-afirmación sin verificar. Una sesión sin verificar hace exactamente una cosa:
-esperar.
+Esta decisión ha ido y vuelto: se quitó, se restauró como obligatoria, y se ha
+vuelto a quitar. El historial de git tiene las dos implementaciones completas,
+así que restaurarla es recuperar un commit, no reescribirla.
 
-### El recheck
+Qué no existe, y se ha borrado en vez de dejarse apagado:
 
-`user.emailVerified` es lo que era cierto cuando se emitió el token de esta
-pestaña. El enlace casi nunca se abre aquí —se abre en el móvil, o en otra
-pestaña— y nada se lo cuenta a esta. Por eso:
+| | |
+|---|---|
+| `src/routes/auth/VerifyEmail.tsx` | la pantalla de la puerta |
+| `src/routes/auth/EmailVerified.tsx` + `/auth/verificado` | la página de destino del enlace |
+| `firebase/email-verificacion.html` + su README | la plantilla del correo |
+| `e2e/verify-page.mjs` | la prueba de esa página |
+| `resendVerification`, `refreshVerification`, `applyVerificationCode` | en `account.ts` |
+| `needs-verification`, `recheckVerification`, `skipVerification` | en `useAuth.ts` |
+| `AuthUser.emailVerified` | estado que se escribía y no leía nadie |
+| 20 claves `auth.verify*`, `auth.resend*`, `verified.*` | en los dos idiomas |
 
-- `resolve()` pregunta al servidor (`reload()` + `getIdToken(true)`) antes de
-  enseñar la puerta, así una bandera caducada nunca bloquea a nadie;
-- la pantalla reintenta cada 5 s y también cada vez que la pestaña recupera el
-  foco, que es el caso habitual: verificas en la otra pestaña, vuelves, y ya ha
-  seguido sola.
+Quitar `/auth/verificado` es seguro porque **la recuperación de contraseña no
+la usa**: `sendPasswordResetEmail` se llama sin URL de continuación, así que
+ese correo lo resuelve la página de Firebase. Los enlaces de verificación que
+se enviaron mientras la puerta existía caducan solos.
 
-### El email se envía lo primero
+Lo asegura una prueba, no una intención: `e2e/authgate.mjs` se registra contra
+el emulador de Auth y comprueba que ninguna pantalla pide verificar **y** que
+el emulador no ha emitido ningún código `VERIFY_EMAIL`, así que un
+`sendEmailVerification` que se colara haría fallar la suite.
 
-Dentro de `signUp()`, `sendEmailVerification()` va justo después de crear la
-cuenta, **antes** de reservar el nombre de usuario y de escribir el perfil. El
-oyente de auth pone a la persona en la puerta en cuanto la cuenta existe, así
-que desde ese instante lo único que espera es el correo; las dos llamadas a
-Firestore reintentan durante mucho tiempo cuando el backend va lento, y enviar
-por detrás de ellas significaba que la puerta podía estar en pantalla sin que
-se hubiera enviado nada. Lo detectó `e2e/authgate.mjs`, no una revisión a ojo.
+## D28 bis. El ojo de la contraseña
 
-El envío no es fatal: la cuenta ya existe, así que un fallo se registra y se
-recupera desde el botón *Reenviar*, no lanzando "error al registrarse" junto a
-una cuenta que sí se creó.
+Vive en `TextField`, no en cada pantalla: cualquier campo con `type="password"`
+lo lleva, y son seis repartidos por registro, login y ajustes.
 
-### APIs de Firebase
+Tres detalles que no son estéticos:
 
-Las oficiales, sin atajos: `sendEmailVerification(user, { url })` para enviar,
-`applyActionCode(auth, oobCode)` en `/auth/verificado` cuando el enlace llega
-con código, y `reload()` + `getIdToken(true)` + `user.emailVerified` para
-comprobar. Nunca se confía en la bandera cacheada.
-
-### Qué NO existe
-
-`skipVerification` era un resto de la primera implementación —un botón
-*Continuar sin verificar*— y está **eliminado**, no recreado. Que no vuelva lo
-asegura una prueba: `e2e/authgate.mjs` falla si ese botón reaparece.
-
-### Flujo completo
-
-```
-REGISTRO
-  → sendEmailVerification()          (lo primero, antes de Firestore)
-  → puerta needs-verification        (sin salida salvo reenviar o salir)
-  → la persona abre el enlace        (normalmente en otro sitio)
-  → recheck: reload() + getIdToken(true) + emailVerified
-  → nombre de usuario, si la reserva falló al registrarse
-  → onboarding (7 pasos)
-  → app
-```
+- El botón **no toma el foco** (`preventDefault` en pointer-down y
+  `tabIndex={-1}`). Si lo tomara, en un móvil se cerraría el teclado cada vez
+  que quieres mirar lo que has escrito, y tabular por el formulario iría campo,
+  ojo, campo.
+- **Se vuelve a ocultar al salir del campo.** Una contraseña destapada en una
+  pantalla que alguien deja boca arriba es peor problema que el que esto
+  resuelve.
+- `{...rest}` se esparce **antes** del `onBlur`. Al revés lo sustituye por
+  `undefined` en silencio y el campo se queda destapado para siempre — que es
+  justo lo que hacía la primera versión.
 
 ## D29. Cobertura de ilustraciones: tres procedencias, dicha cada una
 
