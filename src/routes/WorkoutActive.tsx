@@ -157,9 +157,15 @@ export default function WorkoutActive() {
         </div>
       </header>
 
-      {/* ------------------------------------------------- exercise switcher */}
+      {/* ------------------------------------------------- exercise switcher
+          The add button is pinned OUTSIDE the scroller on purpose. It used to
+          be the last chip inside it, which meant that on a five-exercise day
+          it sat off the right edge — present, and invisible unless you
+          happened to swipe the row. It is also the one control here that is
+          not a navigation, so it reads as accent rather than as another chip. */}
       <div className="mx-auto w-full max-w-lg px-3 pt-3">
-        <div className="scroll-x">
+        <div className="flex items-center gap-2">
+        <div className="scroll-x min-w-0 flex-1">
           {session.exercises.map((ex, i) => {
             const done = ex.sets.filter((s) => s.completed).length
             const all = ex.sets.length
@@ -183,11 +189,13 @@ export default function WorkoutActive() {
               </button>
             )
           })}
+        </div>
           <button
             onClick={() => setPickerOpen(true)}
-            className="press flex shrink-0 items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-xs font-semibold text-faint"
+            aria-label={t('workout.addExercise')}
+            className="press flex shrink-0 items-center gap-1 rounded-full border border-accent/50 bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent"
           >
-            <IconPlus size={14} /> {t('workout.addExercise')}
+            <IconPlus size={15} /> {t('workout.addShort')}
           </button>
         </div>
       </div>
@@ -282,13 +290,25 @@ export default function WorkoutActive() {
             {/* A discreet way in, right under the sets. It opens a sheet — the
                 session screen stays mounted, so closing it returns to the very
                 set that was being typed. */}
-            <button
-              onClick={() => setHowTo(true)}
-              className="press mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-secondary font-semibold text-muted hover:text-ink"
-            >
-              <IconHelp size={16} />
-              {t('howto.button')}
-            </button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setHowTo(true)}
+                className="press flex items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-secondary font-semibold text-muted hover:text-ink"
+              >
+                <IconHelp size={16} />
+                {t('howto.button')}
+              </button>
+              {/* The second way in, where you are when you decide you want one
+                  more exercise: at the bottom of the sets you have just
+                  finished, not at the far end of a row you have to swipe. */}
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="press flex items-center justify-center gap-2 rounded-xl border border-line py-2.5 text-secondary font-semibold text-muted hover:text-ink"
+              >
+                <IconPlus size={16} />
+                {t('workout.addExercise')}
+              </button>
+            </div>
 
             {libraryExercise?.instructions && (
               <Card className="mt-3 px-3.5 py-3">

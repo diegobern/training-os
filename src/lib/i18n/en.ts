@@ -855,4 +855,5 @@ export const en = {
   "howto.targetCardio": "{rest}s rest",
   "howto.creditEk": "Illustration: Greg Priday (Everkinetic) · CC BY-SA 4.0",
   "attrib.summary2": "Another 116 come straight from Everkinetic, by Greg Priday, under the same licence. And 253 exercises with no drawing of their own show an equivalent movement's, always said on screen.",
+  "workout.addShort": "Add",
 } as const

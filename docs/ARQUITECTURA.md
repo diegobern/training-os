@@ -395,29 +395,66 @@ oscuro sobre blanco. Cada uno sobre el fondo del otro desaparece. La hoja elige
 la placa según de dónde venga el fichero: `.demo-plate` oscura para la primera,
 `.demo-paper` blanca para la segunda.
 
-## D30. La marca del menú es un WebP animado, no una tira con `steps()`
+## D30. La marca del menú: una tira de sprites movida por el compositor
 
-Giraba a tirones por dos motivos, y ninguno era el tamaño del fichero:
+Tres versiones, y las diferencias importan:
 
-1. **Doce fotogramas en 7,2 s son 1,7 fps**, en saltos de 30°. Eso no es una
-   animación, es un pase de diapositivas.
-2. **El bucle no cerraba.** La tira se sacaba muestreando la animación real con
-   un reloj de pared, y esa animación *suaviza* el giro y flota el tótem con
-   periodos que no dividen una vuelta: el último fotograma no encajaba con el
-   primero y saltaba una vez por vuelta.
+1. **12 fotogramas con `steps()` en 7,2 s.** Son 1,7 fps en saltos de 30°: un
+   pase de diapositivas. Y el bucle no cerraba, porque la tira salía de
+   muestrear la animación real con un reloj de pared y esa animación suaviza el
+   giro y flota el tótem con periodos que no dividen una vuelta.
+2. **WebP animado de 96 fotogramas.** Equiespaciados y con el bucle cerrado,
+   pero un GIF/WebP animado lo decodifica y lo temporiza el **hilo principal**:
+   en el móvil tartamudea bajo carga y **se para del todo mientras haces
+   scroll**, porque el scroll lo lleva el compositor y el hilo principal está
+   ocupado en otra cosa. Eso es exactamente lo que se reportó.
+3. **La actual: una tira de sprites movida con `transform`.** La animación vive
+   en el compositor, donde nada de lo que haga la app puede matarla de hambre.
+   Sigue girando a ritmo constante durante un scroll, durante un render y
+   durante cualquier otra cosa.
 
-Ahora el horneado **conduce** la escena en lugar de mirarla: el gancho
-`__logoBake` —que solo existe mientras el script lo instala— pone el componente
-en un plato giratorio puro y el script fija el ángulo de cada fotograma. Salen
-96 fotogramas exactamente equiespaciados, que se codifican como **WebP animado**
-(98 KB): un fichero que decodifica y temporiza el navegador, sin aritmética de
-`steps()` que equivocar.
+### Los números no son arbitrarios
 
-Un WebP animado no se puede pausar desde CSS, así que el modo sin animaciones
-**carga otro fichero** (`nav-logo-still.webp`, 1,5 KB) en vez de intentar parar
-el primero. No se precachea: son 100 KB que la pantalla de bienvenida no
-enseña, y se guardan la primera vez que la barra los dibuja de verdad.
+- **30 fps**, elegidos contra la pantalla: a 60 Hz cada fotograma dura
+  exactamente dos refrescos, así que ninguno se queda tres refrescos y el
+  siguiente dos —ese desajuste era el tirón que aún quedaba a 24 fps—. A 120 Hz
+  son exactamente cuatro.
+- **96 fotogramas en 3,2 s**, que dan esos 30 fps. Y 96 es el máximo que cabe:
+  WebP no admite más de 16383 px por lado y la tira son 144 px por fotograma;
+  120 serían 17280 px y sencillamente no codifica.
+- **144 px por fotograma**, para que a 52 px de CSS siga nítido en un móvil 3×.
 
-Lo comprueba `e2e/nav-logo-shot.mjs` midiendo la diferencia entre fotogramas
-consecutivos: si vuelve a haber pares idénticos, o un salto desproporcionado
-—la costura del bucle—, la prueba falla.
+### Dos detalles que salieron de mirarlo, no de razonarlo
+
+El primer horneado capturaba el fondo de la pantalla de bienvenida junto con el
+logo, así que el resultado era un cuadrado opaco dentro del botón lima. Ahora se
+captura con `omitBackground` y el fondo transparente, y la marca se apoya de
+verdad sobre el botón.
+
+Y en modo horneado se ocultan los anillos, la cuenta que orbita y el polvo: a 52
+píxeles son un garabato que costaba un tercio de los bytes del sprite y ensuciaba
+la marca en vez de darle detalle. De 309 KB a 174 KB, y más limpio.
+
+Sin animación (ajuste del usuario o `prefers-reduced-motion`) **se carga otro
+fichero** de 2 KB, no se pausa este: una tira parada se queda donde pillara, y
+mandar 174 KB de fotogramas a quien ha pedido que nada se mueva no tiene sentido.
+
+Lo comprueba `e2e/nav-logo-shot.mjs`, y una de sus pruebas **hace scroll
+mientras mide**: si la marca vuelve a congelarse durante el scroll, falla.
+
+## D31. Añadir un ejercicio en mitad del entrenamiento
+
+Estaba, y no se veía. Era el último chip de una fila con scroll horizontal, así
+que en un día de cinco ejercicios quedaba pasado el borde derecho de una
+pantalla de 375 px: presente en el DOM, invisible para la persona. Encima era
+punteado y gris, lo menos llamativo de la fila.
+
+Ahora hay dos accesos y **ninguno depende de deslizar nada**:
+
+- una pastilla en color de acento **fijada fuera del scroller**, a la derecha de
+  la fila de ejercicios, siempre en pantalla;
+- un botón etiquetado al final de las series, que es donde estás cuando decides
+  que quieres otro ejercicio.
+
+`e2e/catalog-ui.mjs` mide la caja de los dos y falla si alguno se sale del
+viewport.

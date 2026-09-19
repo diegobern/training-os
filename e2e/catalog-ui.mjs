@@ -191,6 +191,24 @@ if (only(2))
   const folded = (await body(page)).match(/(\d+)\s+ejercicios/)
   check(folded && Number(folded[1]) > 0, 'biblioteca — buscar sin tildes encuentra "bíceps"', folded ? folded[1] : 'ninguno')
 
+  /*
+   * The page still scrolls, and the title still gets out of the way.
+   *
+   * Cheap to assert and expensive to discover in production: a sheet that
+   * forgets to release `body { overflow: hidden }` on close leaves the whole
+   * app frozen, and nothing else in this suite would notice.
+   */
+  await page.getByPlaceholder('Buscar').fill('')
+  await page.waitForTimeout(1200)
+  const before = await page.evaluate(() => ({ y: window.scrollY, h: document.documentElement.scrollHeight }))
+  await page.mouse.wheel(0, 500)
+  await page.waitForTimeout(600)
+  const moved = await page.evaluate(() => window.scrollY)
+  check(before.h > 900 && moved > 100, `biblioteca — la página scrollea (${before.y} → ${moved} de ${before.h})`, JSON.stringify(before))
+
+  const overflow = await page.evaluate(() => getComputedStyle(document.body).overflow)
+  check(overflow !== 'hidden', 'biblioteca — nada ha dejado el scroll del body bloqueado', overflow)
+
   check(errors.length === 0, 'biblioteca — sin errores ni imágenes rotas', errors.slice(0, 2).join(' | '))
   await close()
 }
@@ -447,6 +465,27 @@ if (only(6))
   const n = await inputs.count()
   check(n > 0, 'entreno — hay series que registrar', `campos=${n}`)
 
+  /*
+   * Adding an exercise mid-workout has to be FINDABLE.
+   *
+   * It used to be the last chip inside a horizontally scrolling row, so on a
+   * five-exercise day it sat past the right edge of a 375px screen: present in
+   * the DOM, invisible to the person. Both entry points are asserted to be
+   * inside the viewport without scrolling anything.
+   */
+  const vp = page.viewportSize()
+  const addButtons = page.getByRole('button', { name: /Añadir ejercicio/ })
+  const addCount = await addButtons.count()
+  check(addCount >= 2, `entreno — hay más de una forma de añadir un ejercicio (${addCount})`, String(addCount))
+  const boxes = []
+  for (let i = 0; i < addCount; i++) boxes.push(await addButtons.nth(i).boundingBox())
+  const onScreen = boxes.filter((b) => b && b.x >= 0 && b.x + b.width <= vp.width && b.y >= 0 && b.y <= vp.height)
+  check(
+    onScreen.length === addCount,
+    'entreno — ninguna de ellas queda fuera de la pantalla',
+    JSON.stringify(boxes.map((b) => (b ? `${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.width)}px` : 'sin caja'))),
+  )
+
   if (n >= 2) {
     await inputs.nth(0).fill('62.5')
     await inputs.nth(1).fill('9')
@@ -462,6 +501,9 @@ if (only(6))
 
     await page.getByRole('button', { name: /Cerrar y seguir/ }).click()
     await page.waitForTimeout(1200)
+
+    const afterSheet = await page.evaluate(() => getComputedStyle(document.body).overflow)
+    check(afterSheet !== 'hidden', 'entreno — cerrar la hoja devuelve el scroll', afterSheet)
 
     const weight = await inputs.nth(0).inputValue()
     const reps = await inputs.nth(1).inputValue()

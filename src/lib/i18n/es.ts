@@ -855,6 +855,7 @@ export const es = {
   "howto.targetCardio": "{rest}s de descanso",
   "howto.creditEk": "Ilustración: Greg Priday (Everkinetic) · CC BY-SA 4.0",
   "attrib.summary2": "Otras 116 provienen directamente de Everkinetic, de Greg Priday, bajo la misma licencia. Y 253 ejercicios sin dibujo propio muestran el de un movimiento equivalente, siempre indicado en pantalla.",
+  "workout.addShort": "Añadir",
 } as const
 
 export type Dict = Record<string, string>

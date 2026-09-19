@@ -29,9 +29,20 @@ const BASE = process.env.BASE || 'http://127.0.0.1:4320'
 const TMP = '/tmp/nav-frames'
 const OUT = 'public/brand'
 
-/** 24 fps over 4 s: the eye stops seeing steps somewhere around 20. */
+/**
+ * 96 frames over 3.2 s — exactly 30 fps, and the numbers are not arbitrary.
+ *
+ * 30 fps is chosen against the screen rather than by feel: a 60 Hz display
+ * holds each frame for exactly two refreshes, so no frame lasts three
+ * refreshes and the next two, which is the judder that was still there at 24.
+ * On a 120 Hz phone it is exactly four refreshes. Either way, even.
+ *
+ * And 96 is the largest frame count that fits: WebP cannot exceed 16383 px in
+ * any dimension, and the strip is 144 px per frame — 120 frames would be
+ * 17280 px tall and simply fails to encode.
+ */
 const FRAMES = Number(process.env.FRAMES || 96)
-const PERIOD_MS = Number(process.env.PERIOD || 4000)
+const PERIOD_MS = Number(process.env.PERIOD || 3200)
 /** Rendered at 144 so it stays sharp on a 3× phone at 52 CSS pixels. */
 const SIZE = 144
 
@@ -57,6 +68,22 @@ await page.addInitScript(() => {
 await page.goto(BASE, { waitUntil: 'networkidle' })
 await page.waitForTimeout(6000)
 
+/*
+ * Transparent frames, so the lime tile shows through.
+ *
+ * The first bake screenshotted the welcome screen as it is, background and
+ * all, and the result was an opaque dark square sitting inside the round lime
+ * button. The renderer is already created with `alpha: true`; what was opaque
+ * was the page behind it.
+ */
+await page.addStyleTag({
+  content: `
+    html, body, #root, #root * { background: transparent !important; box-shadow: none !important; }
+    body > *:not(#root) { display: none !important; }
+  `,
+})
+await page.waitForTimeout(400)
+
 const canvas = page.locator('canvas').first()
 if (!(await canvas.count())) {
   console.error('no hay canvas 3D en la pantalla de bienvenida')
@@ -80,7 +107,7 @@ for (let i = 0; i < FRAMES; i++) {
   // Two frames of grace: one for the rAF that reads the new angle, one for the
   // compositor to put it on the screen before the screenshot is taken.
   await page.waitForTimeout(40)
-  await page.screenshot({ path: `${TMP}/f${String(i).padStart(3, '0')}.png`, clip })
+  await page.screenshot({ path: `${TMP}/f${String(i).padStart(3, '0')}.png`, clip, omitBackground: true })
 }
 await browser.close()
 
@@ -92,14 +119,18 @@ execSync(
   { stdio: 'inherit', shell: '/bin/bash' },
 )
 
-// Animated WebP rather than a sprite strip: the browser decodes and times it,
-// so there is no `steps()` timing to get wrong, and consecutive frames of a
-// turning object compress against each other.
-execSync(
-  `ffmpeg -y -loglevel error -framerate ${(1000 / delay).toFixed(3)} -i ${TMP}/r_f%03d.png ` +
-    `-vcodec libwebp_anim -lossless 0 -q:v 62 -compression_level 6 -loop 0 -an -vsync 0 ${OUT}/nav-logo.webp`,
-  { stdio: 'inherit' },
-)
+/*
+ * A sprite strip animated by CSS, not an animated image.
+ *
+ * An animated WebP is decoded and timed on the main thread, so on a phone it
+ * stutters under load and stops outright while the page is being scrolled —
+ * scrolling is handled by the compositor and the main thread is busy
+ * elsewhere. A `transform` animation over a strip runs on the compositor too,
+ * which means it keeps turning at a steady rate no matter what the app is
+ * doing. Same frames, same size, and it cannot be starved.
+ */
+execSync(`cd ${TMP} && convert $(ls r_f*.png | sort) -append strip.png`, { stdio: 'inherit', shell: '/bin/bash' })
+execSync(`convert ${TMP}/strip.png -define webp:lossless=false -quality 82 ${OUT}/nav-logo.webp`, { stdio: 'inherit' })
 
 // The still, for reduced motion and for the data-motion='off' setting. A
 // chosen pose, not whichever frame the animation happened to stop on.
@@ -111,3 +142,4 @@ for (const f of ['nav-logo.webp', 'nav-logo-still.webp']) {
   console.log(`${f.padEnd(20)} ${(statSync(p).size / 1024).toFixed(1)} KB`)
 }
 console.log(`${FRAMES} fotogramas · ${PERIOD_MS}ms por vuelta · ${(1000 / delay).toFixed(1)} fps`)
+console.log(`la tira mide ${SIZE} × ${SIZE * FRAMES} px — el CSS usa height: ${FRAMES * 100}%`)

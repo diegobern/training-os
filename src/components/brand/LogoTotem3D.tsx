@@ -518,14 +518,16 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
        */
       const bake = (window as unknown as { __logoBake?: { angle: number } }).__logoBake
       if (bake) {
+        // Just the totem. The rings, the orbiting bead and the dust are worth
+        // it on a hero the size of a hand; at 52 pixels in a tab bar they are
+        // a faint scribble that costs a third of the sprite's bytes and makes
+        // the mark look dirty rather than detailed.
+        ringGroup.visible = false
+        nodeGroup.visible = false
+        dust.visible = false
         totem.rotation.set(-0.17, bake.angle - 0.55, 0.04)
         totem.position.y = 0
-        ringGroup.rotation.set(0, -(bake.angle - 0.55) * 1.5, 0.2)
-        ringA.rotation.z = bake.angle
-        ringB.rotation.z = -bake.angle * 0.68
-        nodeGroup.position.set(Math.cos(bake.angle * 3) * 1.86, Math.sin(bake.angle * 3) * 1.86, 0)
         groove.material.opacity = dark ? 0.72 : 0.58
-        dust.rotation.set(0, 0, 0)
         camera.position.set(0, 0, camera.position.z)
         camera.lookAt(0, 0, 0)
         renderer.render(scene, camera)

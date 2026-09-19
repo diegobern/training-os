@@ -49,11 +49,20 @@ const mark = page.locator('.nav-logo3d')
 check(await mark.count() > 0, 'la marca del menú está en pantalla')
 
 const src = await mark.locator('img').getAttribute('src')
-check(src === '/brand/nav-logo.webp', 'con animaciones activas usa el fichero animado', String(src))
+check(src === '/brand/nav-logo.webp', 'con animaciones activas usa la tira', String(src))
 
 const natural = await mark.locator('img').evaluate((i) => ({ w: i.naturalWidth, h: i.naturalHeight, ok: i.complete && i.naturalWidth > 0 }))
 check(natural.ok, 'la imagen carga de verdad', JSON.stringify(natural))
-check(natural.w === natural.h, 'es un fotograma cuadrado, no una tira apilada', JSON.stringify(natural))
+check(natural.h === natural.w * 96, 'la tira tiene exactamente 96 fotogramas', JSON.stringify(natural))
+
+// The whole point of a strip over an animated image: the compositor runs it,
+// so it cannot be starved by the main thread. Assert it is actually there.
+const anim = await mark.locator('img').evaluate((i) => {
+  const s = getComputedStyle(i)
+  return { name: s.animationName, duration: s.animationDuration, timing: s.animationTimingFunction }
+})
+check(anim.name === 'nav-logo-spin', 'la anima el CSS, no el decodificador de imágenes', JSON.stringify(anim))
+check(anim.duration === '3.2s' && /steps\(96/.test(anim.timing), 'exactamente 96 pasos en 3,2 s — 30 fps', JSON.stringify(anim))
 
 /* --- how much does it actually move, frame to frame ---------------------- */
 const box = await mark.boundingBox()
@@ -85,6 +94,35 @@ check(still <= 2, `casi ningún par de fotogramas es idéntico (${still} de ${us
 // And no single pair should jump far more than the rest — that is the seam.
 check(max < min * 12 + 0.01, 'ningún salto desproporcionado: el bucle cierra', `min=${min.toFixed(4)} max=${max.toFixed(4)}`)
 check(failed404.length === 0, 'sin 404 en /brand/', failed404.join(' '))
+
+/* --- does it keep turning WHILE the page is being scrolled? --------------
+ *
+ * This is the failure that was reported, and the reason the animated image
+ * was thrown away: scrolling belongs to the compositor, and an image whose
+ * frames are advanced by the main thread simply stops for as long as the
+ * finger is moving. A transform animation does not.
+ */
+{
+  await page.goto(`${BASE}/library`, { waitUntil: 'commit' })
+  await page.waitForTimeout(3500)
+  const box2 = await page.locator('.nav-logo3d').boundingBox()
+  const during = []
+  for (let i = 0; i < 10; i++) {
+    await page.screenshot({ path: `${TMP}/s${String(i).padStart(2, '0')}.png`, clip: box2 })
+    await page.mouse.wheel(0, 160)
+    await page.waitForTimeout(90)
+  }
+  const dd = []
+  for (let i = 1; i < 10; i++) {
+    const raw = execSync(`compare -metric MAE "${TMP}/s${String(i - 1).padStart(2, '0')}.png" "${TMP}/s${String(i).padStart(2, '0')}.png" null: 2>&1 || true`).toString()
+    const m = raw.match(/\(([0-9.]+)\)/)
+    dd.push(m ? Number(m[1]) : NaN)
+  }
+  const frozen = dd.filter((d) => Number.isFinite(d) && d < 0.0008).length
+  during.push(...dd)
+  check(frozen === 0, `sigue girando mientras se hace scroll (${frozen} pares congelados de ${dd.length})`, JSON.stringify(dd.map((d) => d.toFixed(4))))
+  await page.screenshot({ path: `${SHOTS}/nav-durante-scroll.png`, clip: box2 })
+}
 
 /* --- and with motion turned off ------------------------------------------ */
 await page.evaluate(async () => {

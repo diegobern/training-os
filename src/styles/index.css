@@ -343,23 +343,51 @@
 }
 
 /*
-   An animated WebP, decoded and timed by the browser.
+   A sprite strip scrubbed by a transform, deliberately — not an animated
+   image, and not a twelve-frame flip-book.
 
-   It used to be a twelve-frame strip scrubbed with `steps(12)` over 7.2s —
-   1.7 frames a second, in 30° jumps, with a first and last frame that did not
-   meet. That is what read as stuttering. There is no animation here at all now;
-   the movement lives in the file, at 24 fps, and the still variant is a
-   different file chosen in `CenterMark` rather than a paused one.
+   Three versions of this have shipped and the differences matter:
+
+   · 12 frames stepped over 7.2s is 1.7 fps in 30° jumps. A slideshow.
+   · An animated WebP is decoded and timed on the MAIN thread, so it stutters
+     under load and stops outright while the page is being scrolled — scrolling
+     belongs to the compositor and the main thread is busy elsewhere.
+   · This: 96 frames over 3.2s is exactly 30 fps, and a `transform` animation
+     is handed to the compositor, where nothing the app does can starve it. It
+     keeps turning at a steady rate mid-scroll, mid-render, mid-anything.
+
+   30 fps is chosen against the screen, not by feel: at 60 Hz every frame lasts
+   exactly two refreshes, so no frame is held for three and the next for two —
+   which is the judder that was still there at 24 fps.
 */
 .nav-logo3d img {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
   width: 100%;
+}
+
+.nav-logo3d .spin {
+  /* 96 frames stacked, so the strip is 96 times the frame height. */
+  height: 9600%;
+  animation: nav-logo-spin 3.2s steps(96) infinite;
+  will-change: transform;
+}
+
+.nav-logo3d .still {
   height: 100%;
   object-fit: contain;
-  /* Promoted once, so scrolling the app never re-rasterises the tile. */
-  transform: translateZ(0);
 }
+
+@keyframes nav-logo-spin {
+  from { transform: translate3d(0, 0, 0); }
+  /* One strip height: the 96th step lands back on the first frame, so the
+     loop closes with nothing to see. */
+  to { transform: translate3d(0, -100%, 0); }
+}
+
+/* Motion off loads the still file instead — an animated strip cannot be
+   paused on a chosen frame, only stopped wherever it happened to be. */
 
 /* -----------------------------------------------------------------------
    Exercise illustration plate

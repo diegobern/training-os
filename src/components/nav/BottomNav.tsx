@@ -21,11 +21,9 @@ const ITEMS = [
  * as an animated WebP rather than a live canvas — see that script for why a
  * permanent WebGL context in the tab bar was the wrong trade.
  *
- * An animated image, not a sprite strip stepped by CSS. The strip was twelve
- * frames played at under two per second, which is a flip-book, and its first
- * and last frames did not meet, so it jumped once every turn. This is 96
- * frames at 24 fps, timed and decoded by the browser, with nothing for the
- * stylesheet to get wrong.
+ * A sprite strip scrubbed by a compositor transform — see `.nav-logo3d` in
+ * index.css for why that beats both the twelve-frame flip-book it replaced and
+ * the animated WebP that replaced that.
  *
  * The flat icon is the fallback and is rendered only if the image fails to
  * load. Drawing both and stacking them looked fine in a still and wrong in
@@ -41,18 +39,20 @@ function CenterMark({ Icon }: { Icon: (p: { size?: number; strokeWidth?: number 
 
   if (failed) return <Icon size={24} strokeWidth={2} />
 
-  // An animated WebP cannot be paused from CSS, so the choice is made here:
-  // a different file, not a stopped animation.
+  // A different file rather than a stopped animation: a strip halted by CSS
+  // freezes wherever it was, and 2 KB is also a kinder thing to send someone
+  // who has asked for no motion than 174 KB of frames they will never see.
   const still = systemReduced || !animations
 
   return (
     <span className="nav-logo3d">
       <img
+        className={still ? 'still' : 'spin'}
         src={still ? '/brand/nav-logo-still.webp' : '/brand/nav-logo.webp'}
         alt=""
         aria-hidden="true"
         width={144}
-        height={144}
+        height={still ? 144 : 13824}
         decoding="async"
         onError={() => setFailed(true)}
       />
