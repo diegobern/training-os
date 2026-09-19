@@ -466,3 +466,52 @@ Ahora hay dos accesos y **ninguno depende de deslizar nada**:
 
 `e2e/catalog-ui.mjs` mide la caja de los dos y falla si alguno se sale del
 viewport.
+
+## D32. El cuestionario es de la cuenta, no del teléfono
+
+`settings` no es un almacén sincronizado, así que `resetLocalData()` —que vacía
+el dispositivo cuando se entra con una cuenta distinta— lo dejaba intacto. Y
+ahí vive `onboardingVersion`.
+
+Consecuencia: crear una segunda cuenta en un móvil que ya había pasado el
+cuestionario heredaba el «ya respondido» del anterior. **Nunca se le preguntaba
+nada**, y además arrancaba con los objetivos semanales y los descansos de otra
+persona. Se reportó como «me has eliminado el formulario», y no era eso: el
+formulario estaba, pero la condición que lo dispara ya venía marcada.
+
+`resetLocalData()` limpia ahora lo que produjo el cuestionario
+—`onboardingVersion`, `trainingProfile`, `weeklySetTargets`,
+`defaultRestSeconds`— y **solo eso**: el tema y el idioma son preferencias del
+dispositivo, no datos de nadie, y se respetan.
+
+Lo cubren siete pruebas unitarias contra una IndexedDB real
+(`fake-indexeddb`), que ejecutan la función de verdad en lugar de repetir su
+lógica. Una de ellas comprueba lo contrario: que si no había nada que limpiar,
+no se escribe nada.
+
+## D33. El logo de bienvenida: tiempo, no fotogramas
+
+`spin += 0.0118` se sumaba **por fotograma**, no por segundo. Es decir, la
+velocidad del logo era la frecuencia de refresco de la pantalla: al doble en un
+móvil de 120 Hz, y más lento en cuanto se perdía un fotograma. Todo lo demás de
+la animación ya iba por tiempo (`t`), así que el giro y el balanceo además se
+desfasaban entre sí.
+
+Ahora se integra contra segundos, con el delta acotado a 50 ms para que volver
+a la pestaña al cabo de un minuto no teleporte el objeto media vuelta. Y el
+amortiguado del empujón del dedo usa una vida media en segundos, no un factor
+por fotograma.
+
+De paso, una vuelta pasa de ~8,9 s a ~4,8 s.
+
+### El destello
+
+Un bisel pulido no se ilumina de forma uniforme al girar: engancha la luz un
+instante, justo cuando la cara pasa de canto y el ángulo rasante es máximo.
+`sin(yaw)` vale ±1 en esos dos momentos y 0 cuando la cara está de frente, así
+que elevarlo a la 14 da un destello corto y duro dos veces por vuelta y nada
+entre medias. La emisión del rayo monta sobre la misma curva a un tercio de
+fuerza, para que la marca palpite con el destello en vez de ignorarlo.
+
+Cuesta una multiplicación por fotograma. Es el tipo de detalle que separa un
+objeto con material de una foto girando.

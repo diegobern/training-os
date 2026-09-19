@@ -51,7 +51,7 @@ import {
   takeBatch,
   setQueueListener,
 } from './queue'
-import type { ProgressPhoto } from '../db/schema'
+import { DEFAULT_WEEKLY_SET_TARGETS, defaultSettings, type ProgressPhoto } from '../db/schema'
 
 /* ------------------------------------------------------------------ status */
 
@@ -139,6 +139,31 @@ export async function resetLocalData(uid: string | null): Promise<void> {
   for (const store of SYNCED_STORES) await setSyncState(lastPullKey(store), null)
   await setSyncState(TOMBSTONE_PULL_KEY, null)
   await setSyncState(OWNER_KEY, uid)
+
+  /*
+   * The questionnaire belongs to the ACCOUNT, not to the phone.
+   *
+   * `settings` is not a synced store, so it survives this reset — which is
+   * right for the theme and the language, and wrong for everything the
+   * questionnaire produced. Without this, signing up on a device that had
+   * already been through onboarding meant the new account inherited the last
+   * person's "already answered" flag: it was never asked, and it silently
+   * started out with someone else's weekly set targets and rest times.
+   *
+   * Cleared here rather than at the call site so that every path that rebinds
+   * this device to a different account gets it.
+   */
+  const settings = await readSettings()
+  if (settings.onboardingVersion || settings.trainingProfile) {
+    await writeSettings({
+      onboardingVersion: 0,
+      trainingProfile: null,
+      weeklySetTargets: { ...DEFAULT_WEEKLY_SET_TARGETS },
+      defaultRestSeconds: defaultSettings().defaultRestSeconds,
+    })
+    log('sync', 'personalisation cleared: this device now belongs to another account')
+  }
+
   notify(...(SYNCED_STORES as StoreName[]))
   log('sync', `local copy cleared, now bound to ${uid ?? 'no account'}`)
 }

@@ -214,6 +214,7 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
     const rake = new DirectionalLight(0xffffff, dark ? 1.15 : 1.35)
     rake.position.set(-1.2, 3.4, 6.5)
     scene.add(rake)
+    const rakeBase = rake.intensity
 
     const fill = new DirectionalLight(0x9fb6d8, dark ? 0.7 : 1.0)
     fill.position.set(-3, -4, 3)
@@ -283,6 +284,11 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
         envMapIntensity: 0.8,
       }),
     )
+    // Held so the frame loop can ride the glint on it without reaching back
+    // through the mesh every frame.
+    const boltMat = bolt.material as MeshPhysicalMaterial
+    const boltEmissive = boltMat.emissiveIntensity
+
     bolt.scale.setScalar(0.9)
     bolt.rotation.set(MathUtils.degToRad(-4), MathUtils.degToRad(6), MathUtils.degToRad(-2))
     // Well proud of the face: the gap is what lets the key light throw a real
@@ -472,6 +478,13 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
     /* -------------------------------------------------------------- the loop */
     let raf = 0
     let spin = 0
+    /**
+     * Radians per second. One revolution in about 5.2s — noticeably livelier
+     * than the 8.9s it used to take, and still calm enough to watch while the
+     * welcome screen loads rather than something that demands attention.
+     */
+    const SPIN_RATE = 1.21
+    let lastSpinAt = 0
     const start = performance.now()
     let visible = true
 
@@ -534,11 +547,47 @@ export default function LogoTotem3D({ still = false, className, onReady }: LogoT
         return
       }
 
+      /*
+       * The turntable, integrated against TIME rather than counted in frames.
+       *
+       * `spin += 0.0118` per rAF tick meant the logo's speed was whatever the
+       * screen's refresh rate happened to be: twice as fast on a 120 Hz phone,
+       * slower the moment a frame was dropped. Everything else here already
+       * ran on `t`, so the spin and the drift were also sliding out of phase
+       * with each other. Seconds fix all of it.
+       *
+       * `dt` is clamped: coming back to a tab after a minute must not teleport
+       * the object through half a turn.
+       */
+      const dt = Math.min(0.05, lastSpinAt ? (now - lastSpinAt) / 1000 : 1 / 60)
+      lastSpinAt = now
+
+      spin += (SPIN_RATE + flick) * dt
+      // Framerate-independent decay: the same half-life in seconds whatever
+      // the screen is doing.
+      flick *= Math.pow(0.0025, dt)
+
       // Eased turntable: slow through the face, quick across the edge. This is
       // where the thickness is visible, so it should not blur past.
-      spin += 0.0118 + flick
-      flick *= 0.90
       const eased = spin - 0.34 * Math.sin(2 * spin)
+
+      /*
+       * The glint.
+       *
+       * A polished bevel does not light up evenly as it turns: it catches the
+       * light for an instant, exactly as the face swings edge-on and the
+       * grazing angle is at its sharpest. `sin(yaw)` is ±1 at those two
+       * moments and 0 when the face is square to the camera, so raising it to
+       * a high power gives a short, hard flash twice a revolution and nothing
+       * in between — the detail that reads as a real material rather than a
+       * spinning picture.
+       *
+       * The bolt's own emission rides the same curve at a fraction of the
+       * strength, so the mark pulses with the flash instead of ignoring it.
+       */
+      const grazing = Math.pow(Math.abs(Math.sin(eased - 0.55)), 14)
+      rake.intensity = rakeBase * (1 + grazing * 5.5)
+      boltMat.emissiveIntensity = boltEmissive * (1 + grazing * 1.5)
 
       totem.rotation.y = eased - 0.55
       totem.rotation.x = Math.sin(t * 0.46) * 0.15 - 0.17

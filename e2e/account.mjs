@@ -68,7 +68,20 @@ async function signUp(page, who) {
   await f.nth(4).fill(who.pw)
   await page.getByRole('button', { name: /^Crear cuenta$/ }).click()
   await page.waitForTimeout(6000)
-  // Straight into onboarding: there is no verification step to get past.
+
+  /*
+   * Straight into the questionnaire — there is no verification step to get
+   * past, and there must not be a skipped questionnaire either.
+   *
+   * This is asserted on every sign-up in this file, which is the point: the
+   * second account is created on a device that has ALREADY been through
+   * onboarding as somebody else, and it was silently inheriting their answers.
+   */
+  const body = await text(page)
+  if (!/Paso 1 de 7|Sobre ti/.test(body)) {
+    throw new Error(`${who.user}: el cuestionario no aparece al crear la cuenta — ${body.replace(/\s+/g, ' ').slice(0, 160)}`)
+  }
+
   const start = page.getByRole('button', { name: /^EMPEZAR$/ })
   if (await start.count()) {
     await start.click()

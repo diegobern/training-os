@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto'
 /* Plain-node unit tests for the training maths. Bundled with esbuild, run with node. */
 import { estimate1RM, aggregateSets, isLogged } from '../src/lib/training/metrics'
 import { barbellLadder, nextWeightUp, snapToAvailable, prevWeightDown } from '../src/lib/training/weights'
@@ -597,6 +598,54 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   // screen rather than a missing translation.
   const blank = [...esKeys].filter((k) => !String((es as Record<string, string>)[k]).trim())
   eq(blank.join(',') || 'none', 'none', 'i18n: no translation is empty')
+}
+
+/* ------------------------------------------- the questionnaire is the account's */
+
+/**
+ * Signing in on a phone that already belongs to someone else must NOT inherit
+ * their answers.
+ *
+ * `settings` is not a synced store, so `resetLocalData` used to leave
+ * `onboardingVersion` behind: create a second account on the same phone and it
+ * was never asked the questionnaire, and it silently started life with the
+ * first person's weekly set targets and rest times. Exactly what was reported
+ * as "you deleted the form".
+ *
+ * Runs against a real IndexedDB implementation (fake-indexeddb), so this is
+ * the actual function the app calls, not a re-statement of its logic.
+ */
+{
+  const { writeSettings, readSettings } = await import('../src/lib/db/database')
+  const { resetLocalData } = await import('../src/lib/sync/engine')
+
+  await writeSettings({
+    onboardingVersion: 1,
+    trainingProfile: { mainGoal: 'strength', daysPerWeek: 3 },
+    defaultRestSeconds: 180,
+    weeklySetTargets: { chest: 22 },
+    theme: 'dark',
+    language: 'en',
+  })
+
+  await resetLocalData('otro-usuario')
+  const after = await readSettings()
+
+  eq(after.onboardingVersion, 0, 'reset: la cuenta nueva vuelve a tener que responder el cuestionario')
+  eq(after.trainingProfile, null, 'reset: no hereda el perfil de entrenamiento del anterior')
+  eq(after.defaultRestSeconds, 120, 'reset: los descansos vuelven al valor por defecto')
+  eq(after.weeklySetTargets.chest !== 22, true, 'reset: no hereda los objetivos semanales del anterior')
+
+  // Device preferences are NOT someone else's data — they are this phone's.
+  eq(after.theme, 'dark', 'reset: el tema es del dispositivo y se respeta')
+  eq(after.language, 'en', 'reset: el idioma es del dispositivo y se respeta')
+
+  // And a device that had never onboarded is left alone entirely.
+  await writeSettings({ onboardingVersion: 0, trainingProfile: null })
+  const before = await readSettings()
+  await resetLocalData('otro-mas')
+  const untouched = await readSettings()
+  eq(untouched.updatedAt, before.updatedAt, 'reset: si no había nada que limpiar, no se escribe nada')
 }
 
 /* --------------------------------------------------------------- report */
