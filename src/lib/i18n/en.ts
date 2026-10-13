@@ -411,6 +411,9 @@ export const en = {
   'install.later': 'Not now',
   'install.iosHint': 'On iPhone: Share → Add to Home Screen.',
 
+  // Only ever shown inside the Android app.
+  'native.pressBackAgain': 'Press back again to exit',
+
   'muscle.chest': 'Chest',
   'muscle.back': 'Back',
   'muscle.shoulders': 'Shoulders',

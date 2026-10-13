@@ -18,7 +18,56 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 dist-local
+dist-test
 
 # El manifiesto se genera al empaquetar
 
+# Configuración local sin Firebase: nunca entra en git.
 .env.localonly
+
+# =============================================================================
+# Android / Capacitor
+# =============================================================================
+# Nada de lo que hay aquí debe entrar nunca en git.
+
+# --- Firma: es LO MÁS IMPORTANTE de esta lista --------------------------------
+# Perder el almacén de claves significa no poder volver a actualizar la app en
+# Google Play. Filtrarlo significa que otro puede publicar en tu nombre.
+*.jks
+*.keystore
+*.p12
+*.pepk
+android/keystore.properties
+android/app/*.jks
+android/app/*.keystore
+# Claves de servicio de la API de Google Play Developer (subidas automáticas).
+play-service-account*.json
+google-play-service-account*.json
+# Credenciales del SDK nativo de Firebase, si algún día se añaden.
+android/app/google-services.json
+firebase-adminsdk*.json
+service-account*.json
+
+# --- Artefactos de compilación ------------------------------------------------
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/.idea/
+android/local.properties
+*.apk
+*.aab
+*.aar
+
+# --- Generado por `npx cap sync` ----------------------------------------------
+# Copias del build web dentro del proyecto Android. Se regeneran solas y
+# duplicarían 37 MB en cada commit.
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+android/capacitor-cordova-android-plugins/
+# Nota: android/capacitor.settings.gradle y android/app/capacitor.build.gradle
+# SÍ se versionan. Los regenera `npx cap sync`, pero son los que declaran qué
+# plugins entran en el build: sin ellos, un clon recién hecho no compila hasta
+# que alguien ejecuta un sync.

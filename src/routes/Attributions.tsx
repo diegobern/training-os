@@ -6,6 +6,7 @@ import { loadAttributions } from '../lib/catalog/store'
 import { fold } from '../lib/catalog/resolve'
 import type { MediaAttribution } from '../lib/catalog/types'
 import { useT } from '../store/useApp'
+import { ExternalLink } from '../components/ui/ExternalLink'
 
 /**
  * The credits screen CC BY-SA 4.0 requires.
@@ -52,15 +53,15 @@ export default function Attributions() {
         <p className="text-secondary leading-relaxed text-muted">{t('attrib.summary')}</p>
         <p className="mt-2 text-secondary leading-relaxed text-muted">{t('attrib.summary2')}</p>
         <div className="mt-3 flex flex-col gap-1">
-          <a className="text-secondary font-semibold text-accent" href="https://github.com/bryllim/workout-guide" target="_blank" rel="noreferrer noopener">
+          <ExternalLink className="text-secondary font-semibold text-accent" href="https://github.com/bryllim/workout-guide">
             Workout Guide — Bryl Lim
-          </a>
-          <a className="text-secondary font-semibold text-accent" href="https://github.com/everkinetic/data" target="_blank" rel="noreferrer noopener">
+          </ExternalLink>
+          <ExternalLink className="text-secondary font-semibold text-accent" href="https://github.com/everkinetic/data">
             Everkinetic
-          </a>
-          <a className="text-secondary font-semibold text-accent" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer noopener">
+          </ExternalLink>
+          <ExternalLink className="text-secondary font-semibold text-accent" href="https://creativecommons.org/licenses/by-sa/4.0/">
             CC BY-SA 4.0
-          </a>
+          </ExternalLink>
         </div>
         <p className="mt-3 text-caption leading-relaxed text-faint">{t('attrib.noChanges')}</p>
         <p className="mt-2 text-caption leading-relaxed text-faint">{t('attrib.codeSeparate')}</p>
@@ -96,17 +97,17 @@ export default function Attributions() {
                   </p>
                 )}
                 <div className="mt-1.5 flex flex-wrap gap-x-3">
-                  <a className="text-caption font-semibold text-accent" href={e.sourceUrl} target="_blank" rel="noreferrer noopener">
+                  <ExternalLink className="text-caption font-semibold text-accent" href={e.sourceUrl}>
                     {e.source}
-                  </a>
+                  </ExternalLink>
                   {e.originalSourceUrl && (
-                    <a className="text-caption font-semibold text-accent" href={e.originalSourceUrl} target="_blank" rel="noreferrer noopener">
+                    <ExternalLink className="text-caption font-semibold text-accent" href={e.originalSourceUrl}>
                       {e.originalSource}
-                    </a>
+                    </ExternalLink>
                   )}
-                  <a className="text-caption font-semibold text-accent" href={e.licenseUrl} target="_blank" rel="noreferrer noopener">
+                  <ExternalLink className="text-caption font-semibold text-accent" href={e.licenseUrl}>
                     {e.license}
-                  </a>
+                  </ExternalLink>
                 </div>
               </li>
             ))}

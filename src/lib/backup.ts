@@ -13,6 +13,7 @@ import type {
 import { isLogged } from './training/metrics'
 import { enqueueMany } from './sync/queue'
 import type { SyncedStore } from './firebase/paths'
+import { shareTextFile } from './native/chrome'
 
 export const BACKUP_FORMAT = 'training-os-backup'
 export const BACKUP_VERSION = 1
@@ -117,7 +118,12 @@ export async function buildBackup(includePhotos = false): Promise<BackupFile> {
   return file
 }
 
-function download(filename: string, content: BlobPart, type: string) {
+async function download(filename: string, content: string, type: string) {
+  // Android no tiene descargas dentro del WebView; ahí el fichero se entrega
+  // por el menú de compartir del sistema. En web esto devuelve false y sigue
+  // el camino de siempre.
+  if (await shareTextFile(filename, content)) return
+
   const blob = new Blob([content], { type })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -137,7 +143,7 @@ function stamp() {
 
 export async function exportJson(includePhotos = false): Promise<number> {
   const file = await buildBackup(includePhotos)
-  download(`training-os-${stamp()}.json`, JSON.stringify(file, null, 2), 'application/json')
+  await download(`training-os-${stamp()}.json`, JSON.stringify(file, null, 2), 'application/json')
   log('backup', `exported ${Object.values(file.counts).reduce((a, b) => a + b, 0)} records`)
   return Object.values(file.counts).reduce((a, b) => a + b, 0)
 }
@@ -206,7 +212,7 @@ export async function exportCsv(): Promise<number> {
     }
   }
 
-  download(`training-os-sets-${stamp()}.csv`, rows.join('\n'), 'text/csv;charset=utf-8')
+  await download(`training-os-sets-${stamp()}.csv`, rows.join('\n'), 'text/csv;charset=utf-8')
   log('backup', `exported ${count} set rows to CSV`)
   return count
 }

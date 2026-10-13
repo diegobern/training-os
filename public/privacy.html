@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Política de privacidad · Training OS</title>
+    <meta name="description" content="Qué datos recoge Training OS, para qué, y qué derechos tienes sobre ellos." />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" href="/favicon.svg" />
+    <style>
+      :root {
+        --ink: #0a0b0d;
+        --paper: #f4f5f7;
+        --muted: #5b6069;
+        --line: #dfe2e7;
+        --accent: #6f8f12;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --ink: #f2f3f5;
+          --paper: #0a0b0d;
+          --muted: #9aa0a9;
+          --line: #23262b;
+          --accent: #cdff4f;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 2.5rem 1.25rem 4rem;
+        background: var(--paper);
+        color: var(--ink);
+        font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      main { max-width: 42rem; margin: 0 auto; }
+      .mark { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2rem; }
+      .mark svg { width: 34px; height: 34px; }
+      .mark b { font-size: 1.05rem; letter-spacing: -0.01em; }
+      h1 { font-size: 1.7rem; line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 0.5rem; }
+      h2 { font-size: 1.15rem; letter-spacing: -0.01em; margin: 2.25rem 0 0.6rem; }
+      p, li { color: var(--muted); }
+      p { margin: 0 0 0.9rem; }
+      ol, ul { margin: 0 0 0.9rem; padding-left: 1.25rem; }
+      li { margin-bottom: 0.35rem; }
+      strong { color: var(--ink); }
+      hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
+      .lang { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+      a { color: var(--accent); }
+      .note { border: 1px solid var(--line); border-radius: 0.9rem; padding: 1rem 1.1rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#0A0B0D" />
+          <path d="M40.6 6.4 14.9 32.5h11.3L24.4 57.6 50.1 30.2H38.1Z" fill="#CDFF4F" />
+        </svg>
+        <b>Training OS</b>
+      </div>
+
+      <!--
+        ======================================================================
+        PLANTILLA — HAY QUE COMPLETAR TRES COSAS ANTES DE PUBLICAR
+        ======================================================================
+        Busca la palabra COMPLETAR en este fichero. Son:
+          1. El nombre del responsable del tratamiento (persona o empresa).
+          2. El correo de contacto (el mismo que la ficha de Google Play).
+          3. El país o región desde el que operas.
+        Google Play exige que esta página sea pública, accesible sin instalar
+        la app y sin iniciar sesión, y que la URL esté en la ficha de la app.
+        Ver docs/GOOGLE-PLAY-CHECKLIST.md.
+      -->
+
+      <p class="lang">Español</p>
+      <h1>Política de privacidad</h1>
+      <p><strong>Training OS</strong> (<code>com.trainingos.app</code>) · Última actualización: COMPLETAR (fecha de publicación)</p>
+      <p>
+        Responsable del tratamiento: <strong>COMPLETAR (nombre o razón social)</strong>, con domicilio en
+        <strong>COMPLETAR (país o región)</strong>. Contacto:
+        <a href="mailto:soporte@ejemplo.com">COMPLETAR (correo de contacto)</a>.
+      </p>
+
+      <h2>Qué datos se recogen</h2>
+      <ul>
+        <li><strong>Cuenta:</strong> tu dirección de correo electrónico y tu nombre de usuario. La contraseña la gestiona Firebase Authentication y nunca se almacena en claro; Training OS no puede leerla.</li>
+        <li><strong>Entrenamiento:</strong> rutinas, ejercicios, series, repeticiones, pesos, duraciones, historial de sesiones, récords personales y marcas conseguidas.</li>
+        <li><strong>Cuestionario inicial:</strong> tus respuestas sobre objetivo, experiencia, días disponibles y material, que se usan para proponerte una rutina.</li>
+        <li><strong>Cuerpo:</strong> peso corporal y medidas, si decides registrarlos.</li>
+        <li><strong>Fotos:</strong> fotos de progreso y foto de perfil, si decides subirlas.</li>
+        <li><strong>Ajustes:</strong> idioma, tema, unidades y preferencias de la aplicación.</li>
+      </ul>
+
+      <h2>Qué datos NO se recogen</h2>
+      <ul>
+        <li>Ubicación, de ningún tipo.</li>
+        <li>Contactos, agenda, llamadas, mensajes o calendario.</li>
+        <li>Identificadores de publicidad. La aplicación no muestra anuncios.</li>
+        <li>Datos de salud del sistema. Training OS no se integra con Health Connect ni con ninguna otra plataforma de salud.</li>
+        <li>Grabaciones de pantalla, pulsaciones o telemetría de uso.</li>
+      </ul>
+
+      <h2>Para qué se usan</h2>
+      <p>
+        Únicamente para que la aplicación funcione: guardar tu entrenamiento, mostrarte tu progreso y
+        sincronizar tus datos entre los dispositivos en los que inicies sesión. No se usan para crear
+        perfiles publicitarios, no se venden y no se comparten con terceros con fines comerciales.
+      </p>
+
+      <h2>Dónde se guardan</h2>
+      <p>
+        En Google Firebase (Authentication, Cloud Firestore y Cloud Storage), que actúa como encargado
+        del tratamiento. El acceso está restringido por reglas de seguridad del servidor que sólo
+        permiten leer y escribir los datos de la cuenta autenticada: nadie más, incluido otro usuario
+        de la aplicación, puede acceder a ellos. Todo el tráfico viaja cifrado por HTTPS.
+      </p>
+      <p>
+        La aplicación guarda además una copia local en tu dispositivo para poder funcionar sin
+        conexión. Esa copia se borra al cerrar sesión y al eliminar la cuenta.
+      </p>
+
+      <h2>Cuánto tiempo</h2>
+      <p>
+        Mientras tengas la cuenta abierta. Cuando la eliminas, los datos se borran de inmediato y de
+        forma irreversible.
+      </p>
+
+      <h2>Tus derechos</h2>
+      <ul>
+        <li><strong>Acceso y portabilidad:</strong> puedes exportar todos tus datos desde <em>Ajustes → Datos → Exportar copia de seguridad</em>.</li>
+        <li><strong>Rectificación:</strong> puedes editar o borrar cualquier dato desde la propia aplicación.</li>
+        <li><strong>Supresión:</strong> puedes eliminar tu cuenta y todos tus datos desde <em>Ajustes → Cuenta → Eliminar cuenta</em>, o siguiendo las instrucciones de <a href="/account-deletion.html">esta página</a>.</li>
+        <li><strong>Reclamación:</strong> si crees que tus datos no se tratan correctamente, puedes dirigirte a la autoridad de protección de datos de tu país.</li>
+      </ul>
+
+      <h2>Menores</h2>
+      <p>
+        Training OS no está dirigida a menores de 16 años y no recoge datos de forma consciente de
+        personas de esa edad.
+      </p>
+
+      <h2>Cambios</h2>
+      <p>
+        Si esta política cambia, se publicará aquí con una fecha nueva de actualización. Los cambios
+        relevantes se avisarán también dentro de la aplicación.
+      </p>
+
+      <hr />
+
+      <p class="lang">English</p>
+      <h1>Privacy policy</h1>
+      <p><strong>Training OS</strong> (<code>com.trainingos.app</code>) · Last updated: COMPLETAR (publication date)</p>
+      <p>
+        Data controller: <strong>COMPLETAR (name or company)</strong>, based in
+        <strong>COMPLETAR (country or region)</strong>. Contact:
+        <a href="mailto:soporte@ejemplo.com">COMPLETAR (contact email)</a>.
+      </p>
+
+      <h2>What is collected</h2>
+      <ul>
+        <li><strong>Account:</strong> your email address and username. Your password is handled by Firebase Authentication and never stored in plain text; Training OS cannot read it.</li>
+        <li><strong>Training:</strong> routines, exercises, sets, reps, weights, durations, session history, personal records and milestones.</li>
+        <li><strong>Onboarding questionnaire:</strong> your answers about goal, experience, available days and equipment, used to propose a routine.</li>
+        <li><strong>Body:</strong> body weight and measurements, if you choose to log them.</li>
+        <li><strong>Photos:</strong> progress photos and profile picture, if you choose to upload them.</li>
+        <li><strong>Settings:</strong> language, theme, units and app preferences.</li>
+      </ul>
+
+      <h2>What is NOT collected</h2>
+      <ul>
+        <li>Location, of any kind.</li>
+        <li>Contacts, calls, messages or calendar.</li>
+        <li>Advertising identifiers. The app shows no ads.</li>
+        <li>System health data. Training OS does not integrate with Health Connect or any health platform.</li>
+        <li>Screen recordings, keystrokes or usage telemetry.</li>
+      </ul>
+
+      <h2>What it is used for</h2>
+      <p>
+        Only to make the app work: storing your training, showing your progress and syncing your data
+        across the devices you sign in on. It is not used for advertising profiles, it is not sold and
+        it is not shared with third parties for commercial purposes.
+      </p>
+
+      <h2>Where it is stored</h2>
+      <p>
+        On Google Firebase (Authentication, Cloud Firestore and Cloud Storage), acting as data
+        processor. Access is restricted by server-side security rules that only allow reading and
+        writing the authenticated account's own data — nobody else, including other users of the app,
+        can reach it. All traffic is encrypted over HTTPS.
+      </p>
+      <p>
+        The app also keeps a local copy on your device so it works offline. That copy is cleared when
+        you sign out and when you delete your account.
+      </p>
+
+      <h2>How long</h2>
+      <p>For as long as your account exists. When you delete it, the data is removed immediately and irreversibly.</p>
+
+      <h2>Your rights</h2>
+      <ul>
+        <li><strong>Access and portability:</strong> export all your data from <em>Settings → Data → Export backup</em>.</li>
+        <li><strong>Rectification:</strong> edit or delete any data from within the app.</li>
+        <li><strong>Erasure:</strong> delete your account and all your data from <em>Settings → Account → Delete account</em>, or by following <a href="/account-deletion.html">these instructions</a>.</li>
+        <li><strong>Complaint:</strong> you may contact your country's data protection authority.</li>
+      </ul>
+
+      <h2>Children</h2>
+      <p>Training OS is not directed at children under 16 and does not knowingly collect their data.</p>
+
+      <h2>Changes</h2>
+      <p>If this policy changes, it will be published here with a new update date. Material changes will also be announced inside the app.</p>
+    </main>
+  </body>
+</html>

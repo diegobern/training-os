@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TRAINING OS — colores nativos.
+
+  Estos tres primeros los referencia `styles.xml`, que Capacitor genera
+  apuntando a ellos pero sin definirlos: sin este fichero el proyecto NO
+  COMPILA. Los valores son los mismos tokens de marca que usa la web
+  (`src/styles/index.css`), para que la envoltura nativa y la aplicación no se
+  contradigan.
+-->
+<resources>
+    <!-- Tinta de marca: el negro azulado del logotipo. -->
+    <color name="colorPrimary">#0A0B0D</color>
+    <color name="colorPrimaryDark">#0A0B0D</color>
+    <!-- Verde rayo. Es el acento de toda la aplicación. -->
+    <color name="colorAccent">#CDFF4F</color>
+
+    <!-- Fondo del icono adaptativo y de la pantalla de arranque. -->
+    <color name="brandInk">#0A0B0D</color>
+    <color name="brandBolt">#CDFF4F</color>
+</resources>

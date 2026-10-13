@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from '../ui/primitives'
 import { useT } from '../../store/useApp'
+import { isNativeAndroid } from '../../lib/native/platform'
 
 /**
  * Registering the service worker is what kicks off the precache, and the
@@ -30,9 +31,34 @@ function useAfterLoad(delay: number) {
 }
 
 export function UpdatePrompt() {
-  // Mounting the inner component is what calls useRegisterSW, so gating the
-  // mount is what gates the registration.
-  return useAfterLoad(2500) ? <UpdatePromptInner /> : null
+  const ready = useAfterLoad(2500)
+
+  /*
+   * Dentro de la app de Android NO se registra el service worker. A
+   * propósito, y es importante entender por qué.
+   *
+   * En Capacitor la app se sirve desde `https://localhost` y los ficheros
+   * salen del propio APK. Un service worker con precaché se quedaría con una
+   * copia de esos ficheros en Cache Storage. Cuando Google Play instalara una
+   * actualización, el APK traería ficheros nuevos **pero el service worker
+   * seguiría sirviendo los viejos**, y con `registerType: 'prompt'` esperaría
+   * a que el usuario pulsara un botón de "Actualizar" que quizá no vea nunca.
+   * Resultado: una app actualizada que sigue ejecutando la versión anterior,
+   * sin que nada falle de forma visible.
+   *
+   * Este proyecto ya se comió esa clase de fallo una vez en web, con la tira
+   * de sprites del logotipo servida en CacheFirst bajo un nombre que no
+   * cambiaba. No hay ninguna razón para volver a pasar por ahí.
+   *
+   * Y no se pierde nada: en Android el catálogo, las ilustraciones y el código
+   * ya viajan dentro del APK, así que funciona sin conexión sin necesidad de
+   * caché alguna. La web mantiene su PWA exactamente igual que hasta ahora.
+   */
+  if (isNativeAndroid()) return null
+
+  // Montar el componente interno es lo que llama a useRegisterSW, así que
+  // controlar el montaje es controlar el registro.
+  return ready ? <UpdatePromptInner /> : null
 }
 
 function UpdatePromptInner() {

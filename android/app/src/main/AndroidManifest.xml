@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TRAINING OS — manifiesto de Android.
+
+  PERMISOS: hay exactamente uno, INTERNET, y está justificado abajo. Cada
+  permiso que se añada aquí aparece en la ficha de Google Play y hay que
+  declararlo en el formulario de Seguridad de los datos, así que la lista se
+  mantiene en el mínimo real. Ver docs/GOOGLE-PLAY-DATA-SAFETY.md.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+
+    <!--
+      ===================================================================
+      PERMISOS — uno, y por qué
+      ===================================================================
+
+      INTERNET
+        Para qué: hablar con Firebase Authentication, Cloud Firestore y Cloud
+        Storage. Es lo que permite iniciar sesión, sincronizar el entrenamiento
+        entre dispositivos y guardar las fotos de progreso.
+        Sin él: la app funcionaría en local pero no habría cuenta ni copia en
+        la nube. No es opcional.
+        Es un permiso "normal": no se pide al usuario en tiempo de ejecución y
+        no aparece como permiso peligroso en la ficha de Play.
+
+      ===================================================================
+      PERMISOS QUE NO SE PIDEN, Y POR QUÉ NO
+      ===================================================================
+
+      ACCESS_NETWORK_STATE
+        No hace falta. El estado de la conexión se lee desde el WebView con
+        `navigator.onLine`, que es lo que ya usa el motor de sincronización.
+
+      CAMERA / READ_MEDIA_IMAGES
+        No hacen falta. Las fotos de progreso se eligen con `<input type="file"
+        accept="image/*">`, que abre el selector del sistema. El selector
+        entrega el fichero ya elegido por el usuario; la app nunca accede a la
+        galería por su cuenta, así que no hay nada que pedir.
+
+      POST_NOTIFICATIONS
+        No se pide. El temporizador de descanso funciona con una marca de
+        tiempo absoluta, así que al volver a la app muestra siempre el tiempo
+        correcto aunque Android haya congelado el WebView. Avisar con una
+        notificación sería una mejora, pero exigiría este permiso; la decisión
+        y cómo revertirla están en docs/ANDROID-SETUP.md.
+
+      FOREGROUND_SERVICE / WAKE_LOCK
+        No hacen falta, por lo mismo: nada tiene que seguir ejecutándose con la
+        pantalla apagada.
+
+      ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION
+        Training OS no usa la ubicación.
+
+      Health Connect (android.permission.health.*)
+        No se integra. Requiere su propia declaración de política de datos
+        sanitarios ante Google y una revisión aparte; la app no lee ni escribe
+        datos de salud del sistema.
+
+      com.android.vending.BILLING
+        No se pide. No hay compras dentro de la aplicación, ni suscripciones,
+        ni publicidad.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

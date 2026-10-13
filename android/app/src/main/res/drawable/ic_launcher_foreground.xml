@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Capa frontal del icono adaptativo: el rayo de Training OS.
+
+  El lienzo de un icono adaptativo son 108dp, pero el sistema puede recortar
+  hasta dejar sólo los 66dp centrales (el resto se reserva para el recorte y
+  para la animación de pulsación del lanzador). El rayo mide 58dp de alto y
+  está centrado en (54, 54), así que cae entero dentro de esa zona segura en
+  cualquier máscara: círculo, cuadrado redondeado o gota.
+
+  El trazado es exactamente el de `public/favicon.svg`, en su sistema de
+  coordenadas original de 64x64; el grupo lo escala y lo centra. Si algún día
+  cambia el logotipo, se cambia en los dos sitios o en ninguno.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.133"
+        android:scaleY="1.133"
+        android:translateX="17.2"
+        android:translateY="17.7">
+        <path
+            android:fillColor="#CDFF4F"
+            android:pathData="M40.6 6.4 14.9 32.5h11.3L24.4 57.6 50.1 30.2H38.1Z" />
+    </group>
+</vector>

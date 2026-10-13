@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copia de seguridad automática — Android 11 y anteriores.
+
+  Training OS NO participa en la copia automática de Google
+  (`android:allowBackup="false"` en el manifiesto), así que este fichero sólo
+  está aquí para dejar la decisión escrita y para que no haya dudas si alguien
+  vuelve a activarla.
+
+  Dos razones para no participar:
+
+  1. Los datos de entrenamiento del usuario ya se sincronizan con su cuenta de
+     Firebase. Restaurarlos también desde una copia del sistema significaría
+     dos orígenes de verdad para la misma información, que es exactamente lo
+     que este proyecto evita en todas partes.
+
+  2. La copia arrastraría la base IndexedDB del WebView, que contiene datos de
+     la cuenta que estaba dentro cuando se hizo la copia. Restaurada en otro
+     móvil con otra sesión, sería el entrenamiento de una persona apareciendo
+     en la cuenta de otra.
+-->
+<full-backup-content>
+    <exclude domain="root" />
+    <exclude domain="file" />
+    <exclude domain="database" />
+    <exclude domain="sharedpref" />
+    <exclude domain="external" />
+</full-backup-content>

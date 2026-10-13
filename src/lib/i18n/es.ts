@@ -411,6 +411,9 @@ export const es = {
   'install.later': 'Ahora no',
   'install.iosHint': 'En iPhone: Compartir → Añadir a pantalla de inicio.',
 
+  // Sólo se ven dentro de la app de Android.
+  'native.pressBackAgain': 'Pulsa atrás otra vez para salir',
+
   'muscle.chest': 'Pecho',
   'muscle.back': 'Espalda',
   'muscle.shoulders': 'Hombros',

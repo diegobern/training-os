@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ sustituyó `fullBackupContent` por estas dos secciones, que
+  separan la copia en la nube de la transferencia directa entre dos móviles.
+  Training OS excluye todo en ambas, por los mismos motivos que explica
+  `backup_rules.xml`: los datos viven en la cuenta del usuario, no en una copia
+  del sistema.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

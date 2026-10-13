@@ -648,6 +648,88 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   eq(untouched.updatedAt, before.updatedAt, 'reset: si no había nada que limpiar, no se escribe nada')
 }
 
+/* ------------------------------------------------- pila de descartables */
+/*
+ * El botón "atrás" de Android tiene que cerrar lo último que se abrió, y sólo
+ * eso. La pila es lo que lo decide, así que se prueba de verdad en lugar de
+ * confiar en que el orden salga bien.
+ */
+{
+  const { pushDismissable, dismissTop, hasDismissable, resetDismissStack } = await import(
+    '../src/lib/ui/dismissStack'
+  )
+
+  resetDismissStack()
+  eq(hasDismissable(), false, 'descartables: sin nada abierto, no hay nada que cerrar')
+  eq(dismissTop(), false, 'descartables: cerrar sin nada abierto no hace nada y lo dice')
+
+  const closed: string[] = []
+  const releaseA = pushDismissable(() => closed.push('a'))
+  const releaseB = pushDismissable(() => closed.push('b'))
+
+  eq(hasDismissable(), true, 'descartables: con dos hojas abiertas hay algo que cerrar')
+  eq(dismissTop(), true, 'descartables: cerrar devuelve true cuando había algo')
+  eq(closed.join(','), 'b', 'descartables: se cierra la de arriba, no la de abajo')
+
+  // El componente cerrado es quien se desapunta, al desmontarse.
+  releaseB()
+  dismissTop()
+  eq(closed.join(','), 'b,a', 'descartables: la siguiente pulsación cierra la de abajo')
+
+  releaseA()
+  eq(hasDismissable(), false, 'descartables: al cerrarse todo, la pila queda vacía')
+
+  // Desapuntar dos veces es un caso real: React puede ejecutar la limpieza de
+  // un efecto y luego desmontar el componente.
+  releaseA()
+  eq(hasDismissable(), false, 'descartables: desapuntar dos veces no rompe la pila')
+
+  // Y el orden se mantiene aunque se desapunte por el medio.
+  resetDismissStack()
+  const order: string[] = []
+  const r1 = pushDismissable(() => order.push('1'))
+  const r2 = pushDismissable(() => order.push('2'))
+  pushDismissable(() => order.push('3'))
+  r2()
+  dismissTop()
+  eq(order.join(','), '3', 'descartables: quitar uno del medio no altera quién está arriba')
+  r1()
+  resetDismissStack()
+}
+
+/* ----------------------------------------------------- detección de plataforma */
+/*
+ * `isNativeAndroid()` decide si se registra el service worker, si se abre un
+ * enlace fuera de la app y si se escucha el botón físico. Si devolviera `true`
+ * por error en un navegador, la web se quedaría sin actualizaciones.
+ */
+{
+  const { isNative, platform, isNativeAndroid } = await import('../src/lib/native/platform')
+  const w = globalThis as unknown as { Capacitor?: unknown }
+  const original = w.Capacitor
+
+  delete w.Capacitor
+  eq(isNative(), false, 'plataforma: sin el global de Capacitor, no es nativo')
+  eq(platform(), 'web', 'plataforma: sin el global de Capacitor, es web')
+  eq(isNativeAndroid(), false, 'plataforma: un navegador nunca es Android nativo')
+
+  // Un objeto Capacitor presente pero que dice que NO es nativo: es el caso
+  // real de la web cuando alguien sirve el bundle con el puente cargado.
+  w.Capacitor = { isNativePlatform: () => false, getPlatform: () => 'web' }
+  eq(isNativeAndroid(), false, 'plataforma: Capacitor en modo web sigue siendo web')
+
+  w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'android' }
+  eq(isNative(), true, 'plataforma: dentro del APK sí es nativo')
+  eq(platform(), 'android', 'plataforma: dentro del APK la plataforma es android')
+  eq(isNativeAndroid(), true, 'plataforma: dentro del APK isNativeAndroid es true')
+
+  w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' }
+  eq(isNativeAndroid(), false, 'plataforma: iOS es nativo pero no es Android')
+
+  if (original === undefined) delete w.Capacitor
+  else w.Capacitor = original
+}
+
 /* --------------------------------------------------------------- report */
 
 console.log(results.join('\n'))

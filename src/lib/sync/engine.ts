@@ -27,6 +27,7 @@ import {
   SCHEMA_VERSION,
   SYNCED_STORES,
   SYNC_FIELD,
+  avatarStoragePath,
   photoStoragePath,
   tombstoneCollection,
   userCollection,
@@ -584,16 +585,84 @@ export async function applyRemoteSettings(profile: UserProfile): Promise<void> {
 
 /* --------------------------------------------------------- account deletion */
 
-/** Removes every remote document for this user before the auth record goes. */
+/**
+ * Borra los ficheros del usuario en Cloud Storage: las fotos de progreso y la
+ * foto de perfil.
+ *
+ * Se hace recorriendo los documentos de `photos` en Firestore y borrando la
+ * ruta que cada uno declara, **no** listando la carpeta. Listar exigiría
+ * permiso de lectura sobre el prefijo `users/{uid}/photos`, que
+ * `storage.rules` no concede a propósito: las reglas autorizan por fichero.
+ * Recorrer los documentos usa el permiso que sí existe y además borra
+ * exactamente lo que hay, sin depender de que la carpeta se pueda listar.
+ *
+ * Los fallos individuales no detienen el borrado. Un objeto que ya no está —
+ * porque la subida nunca terminó, o porque se borró antes — devuelve
+ * `storage/object-not-found`, y eso no es un problema: el objetivo es que no
+ * quede nada, y no queda.
+ *
+ * Devuelve cuántos ficheros se han borrado de verdad.
+ */
+async function wipeRemoteStorage(uid: string, photoDocs: Record<string, unknown>[]): Promise<number> {
+  const services = await getFirebase()
+  if (!services) return 0
+  const { ref, deleteObject } = await import('firebase/storage')
+
+  const paths = new Set<string>()
+  for (const photo of photoDocs) {
+    const declared = typeof photo.storagePath === 'string' ? photo.storagePath : null
+    const id = typeof photo.id === 'string' ? photo.id : null
+    // `storagePath` es lo que dice el documento; la ruta derivada del id es la
+    // que se usó al subir. Se intentan las dos porque un documento antiguo
+    // puede no tener el campo, y borrar de más aquí no rompe nada.
+    if (declared) paths.add(declared)
+    if (id) paths.add(photoStoragePath(uid, id))
+  }
+  paths.add(avatarStoragePath(uid))
+
+  let removed = 0
+  for (const path of paths) {
+    try {
+      await deleteObject(ref(services.storage, path))
+      removed += 1
+    } catch (err) {
+      const code = (err as { code?: string }).code
+      if (code !== 'storage/object-not-found') {
+        log('sync', `could not delete ${path}: ${String(err)}`, 'warn')
+      }
+    }
+  }
+  return removed
+}
+
+/**
+ * Removes every remote document for this user before the auth record goes.
+ *
+ * También borra sus ficheros en Cloud Storage. Sin esa parte, eliminar la
+ * cuenta dejaba las fotos de progreso huérfanas en el bucket para siempre:
+ * inaccesibles, porque las reglas las atan a un uid que ya no existe, pero
+ * ahí. Google Play exige que eliminar la cuenta elimine todos los datos del
+ * usuario, y "casi todos" no cuenta.
+ *
+ * El orden importa: primero los ficheros, porque son los documentos de
+ * `photos` los que dicen dónde están. Borrar los documentos antes dejaría los
+ * ficheros sin forma de encontrarlos.
+ */
 export async function wipeRemoteData(uid: string): Promise<number> {
   const services = await getFirebase()
   if (!services) return 0
-  const { collection, getDocs, writeBatch, doc } = await import('firebase/firestore')
+  const { collection, getDocs, writeBatch } = await import('firebase/firestore')
   const fs = services.db
   let removed = 0
 
+  const photoSnap = await getDocs(collection(fs, userCollection(uid, 'photos')))
+  const files = await wipeRemoteStorage(
+    uid,
+    photoSnap.docs.map((d) => d.data() as Record<string, unknown>),
+  )
+
   for (const store of [...SYNCED_STORES]) {
-    const snap = await getDocs(collection(fs, userCollection(uid, store)))
+    const snap = store === 'photos' ? photoSnap : await getDocs(collection(fs, userCollection(uid, store)))
     for (let i = 0; i < snap.docs.length; i += 400) {
       const batch = writeBatch(fs)
       for (const d of snap.docs.slice(i, i + 400)) batch.delete(d.ref)
@@ -609,8 +678,7 @@ export async function wipeRemoteData(uid: string): Promise<number> {
     await batch.commit()
   }
 
-  void doc
-  log('sync', `removed ${removed} remote documents for ${uid}`, 'warn')
+  log('sync', `removed ${removed} remote documents and ${files} stored files for ${uid}`, 'warn')
   return removed
 }
 

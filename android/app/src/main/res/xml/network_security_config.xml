@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TRAINING OS — política de red.
+
+  Una sola regla y sin excepciones: nada de HTTP en claro, nunca, en ningún
+  dominio. Training OS sólo habla con Firebase, y Firebase es HTTPS. Si algún
+  día una petición se escribiera por error con `http://`, esta configuración
+  hace que falle de forma visible en lugar de viajar sin cifrar.
+
+  Deliberadamente NO existe un bloque `<domain-config cleartextTrafficPermitted="true">`
+  ni un `usesCleartextTraffic="true"` en el manifiesto. Tampoco se confía en
+  ninguna autoridad de certificación añadida por el usuario: eso es lo que
+  permite interceptar el tráfico con un proxy, y en una app publicada no tiene
+  sentido.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

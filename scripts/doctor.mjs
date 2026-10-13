@@ -23,8 +23,75 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const MANIFEST = join(ROOT, 'release', 'FILES.json')
 
 /* Solo donde un fichero olvidado puede romper el build o el comportamiento. */
-const WATCHED = ['src', 'e2e', 'tests', 'scripts', 'public', 'firebase']
-const SKIP = new Set(['node_modules', 'dist', 'dist-local', '.git', '.vite'])
+const WATCHED = ['src', 'e2e', 'tests', 'scripts', 'public', 'firebase', 'android']
+
+/*
+ * Carpetas en las que este script no entra nunca.
+ *
+ * Las tres primeras son obvias. Las de Android lo son menos y son igual de
+ * importantes: todo eso lo regeneran Gradle y `npx cap sync`, no está en el
+ * manifiesto porque no está en git, y borrarlo obligaría a re-sincronizar el
+ * proyecto nativo cada vez que alguien ejecuta el doctor.
+ */
+const SKIP = new Set([
+  'node_modules',
+  'dist',
+  'dist-local',
+  '.git',
+  '.vite',
+  // Android
+  'build',
+  '.gradle',
+  '.idea',
+  'captures',
+  // android/app/src/main/assets/public — la copia del build web dentro del
+  // APK. El `public/` de la raíz sí se vigila: es una raíz de WATCHED y se
+  // recorre directamente, sin pasar por este filtro de nombres.
+  'public',
+  'capacitor-cordova-android-plugins',
+])
+
+/*
+ * Ficheros que este script NO BORRA JAMÁS, ni con --fix, aunque no estén en el
+ * manifiesto. Son precisamente los que nunca están en git: tus variables de
+ * entorno y tus claves de firma. Borrar cualquiera de ellos sería,
+ * respectivamente, dejar la app sin Firebase y perder para siempre la
+ * capacidad de actualizar la app en Google Play.
+ *
+ * La comprobación es por nombre y por extensión, así que da igual dónde
+ * aparezcan.
+ */
+const NEVER_DELETE_NAMES = new Set([
+  '.env',
+  '.env.local',
+  '.env.localonly',
+  '.env.production',
+  'keystore.properties',
+  'local.properties',
+  'google-services.json',
+])
+const NEVER_DELETE_EXTENSIONS = ['.jks', '.keystore', '.p12', '.pepk']
+
+/*
+ * Ficheros que genera `npx cap sync` y que, por diseño, no están en git.
+ * No "sobran": desaparecen y vuelven solos en cada sincronización.
+ */
+const GENERATED = [
+  'android/app/src/main/assets/capacitor.config.json',
+  'android/app/src/main/assets/capacitor.plugins.json',
+  'android/app/src/main/res/xml/config.xml',
+]
+
+function isGenerated(relPath) {
+  return GENERATED.includes(relPath)
+}
+
+function isProtected(relPath) {
+  const name = relPath.split('/').pop() ?? ''
+  if (NEVER_DELETE_NAMES.has(name)) return true
+  if (name.startsWith('.env.')) return true
+  return NEVER_DELETE_EXTENSIONS.some((ext) => name.endsWith(ext))
+}
 
 if (!existsSync(MANIFEST)) {
   console.error('No encuentro release/FILES.json.')
@@ -53,7 +120,7 @@ for (const d of WATCHED) {
   if (existsSync(full)) walk(full, onDisk)
 }
 
-const extra = onDisk.filter((f) => !manifest.has(f)).sort()
+const extra = onDisk.filter((f) => !manifest.has(f) && !isProtected(f) && !isGenerated(f)).sort()
 const fix = process.argv.includes('--fix')
 
 if (extra.length === 0) {

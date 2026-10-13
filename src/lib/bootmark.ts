@@ -12,6 +12,8 @@
  * the app is showing — including the checking placeholder — is better than a
  * screen that appears frozen.
  */
+import { hideNativeSplash } from './native/chrome'
+
 const FALLBACK_MS = 6000
 
 let done = false
@@ -19,6 +21,19 @@ let done = false
 export function dismissBootMark(): void {
   if (done) return
   done = true
+  /*
+   * En Android hay una segunda marca encima de ésta: la pantalla de arranque
+   * del sistema, que está configurada para quedarse hasta que alguien la
+   * retire. Se retira aquí, en el mismo instante y por la misma razón, para
+   * que no haya dos logotipos desvaneciéndose uno detrás de otro. En web no
+   * hace nada.
+   *
+   * Éste es también el único punto que hay que mantener: cualquier sitio que
+   * ya llamara a `dismissBootMark` — el fin del arranque, la pantalla de
+   * error, la red de seguridad de abajo — retira ahora las dos marcas sin
+   * saber que existe la segunda.
+   */
+  void hideNativeSplash()
   const el = document.getElementById('boot-mark')
   if (!el) return
   el.style.opacity = '0'

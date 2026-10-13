@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Tema base. `DayNight` para que la ventana nativa siga el modo del
+      sistema igual que lo hace la aplicación web: si el móvil está en oscuro,
+      el fondo que asoma bajo el WebView mientras arranca también lo está, y
+      no hay un flash blanco.
+    -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--
+      Tema de la aplicación ya arrancada.
+
+      Barras de estado y de navegación transparentes: la interfaz se dibuja de
+      borde a borde y el CSS ya reserva el hueco con `env(safe-area-inset-*)`,
+      que se usa en 19 sitios de `src/`. Con targetSdk 36 Android impone el
+      modo edge-to-edge de todas formas, así que declararlo aquí es decir en
+      voz alta lo que va a pasar, no añadir nada nuevo.
+
+      El color de los iconos de esas barras (claros u oscuros) NO se fija aquí:
+      depende del tema que el usuario haya elegido dentro de Training OS, y lo
+      ajusta en caliente `src/lib/native/statusBar.ts`.
+    -->
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@color/brandInk</item>
+    </style>
+
+    <!--
+      Pantalla de arranque.
+
+      Se usa `Theme.SplashScreen` de androidx.core:core-splashscreen, que es
+      lo que el plugin de Capacitor instala con `installSplashScreen()`. Esas
+      tres propiedades son las que el sistema entiende de forma nativa en
+      Android 12+ y que la biblioteca imita en versiones anteriores, así que
+      el arranque se ve igual desde Android 7 hasta Android 16.
+
+      `postSplashScreenTheme` es la pieza importante: es lo que evita el
+      parpadeo entre el logo y la interfaz, porque el cambio de tema ocurre
+      dentro del mismo fotograma en que la ventana deja de estar en modo
+      arranque.
+    -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brandInk</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>
+</resources>

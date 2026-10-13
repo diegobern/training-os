@@ -7,6 +7,7 @@ import { Toaster } from "./components/ui/Toaster";
 import { Button, Skeleton } from "./components/ui/primitives";
 import { IconAlert, IconOffline } from "./components/ui/Icon";
 import { UpdatePrompt } from "./components/layout/UpdatePrompt";
+import { NativeShell } from "./components/layout/NativeShell";
 import { CelebrationLayer } from "./components/workout/CelebrationLayer";
 import { AuthGate } from "./components/auth/AuthGate";
 import { SyncBanner } from "./components/layout/SyncBanner";
@@ -197,6 +198,8 @@ export function App() {
           offline app and no update channel. Registration is not an
           account-level concern. */}
       <UpdatePrompt />
+      {/* Botón físico de "atrás" y teclado de Android. En web no hace nada. */}
+      <NativeShell />
       <AuthGate>
         <ScrollToTop />
         <OfflineBanner />

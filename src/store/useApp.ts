@@ -10,6 +10,7 @@ import { seedLibraryIfEmpty } from '../lib/db/repo.exercises'
 import { migrateFavoritesOnce } from '../lib/db/repo.prefs'
 import { defaultSettings, type Settings, type ThemeMode } from '../lib/db/schema'
 import { LOCALES, makeT, type TFn } from '../lib/i18n'
+import { applyNativeChrome } from '../lib/native/chrome'
 
 export type AppPhase = 'booting' | 'ready' | 'error'
 
@@ -37,6 +38,10 @@ function applyTheme(mode: ThemeMode) {
   root.setAttribute('data-theme', resolved)
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.setAttribute('content', resolved === 'light' ? '#F4F5F7' : '#0A0B0D')
+  // El equivalente nativo de `theme-color`: en Android la barra de estado es
+  // transparente y se ve el fondo de la app detrás, así que los iconos del
+  // sistema tienen que cambiar de color con el tema. En web no hace nada.
+  void applyNativeChrome(resolved)
   // Mirrored where a script in the document head can read it synchronously.
   // The real setting lives in IndexedDB, which cannot be read before the first
   // paint, so without this a dark-mode user gets a white flash on every launch.

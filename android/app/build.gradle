@@ -1,0 +1,134 @@
+import groovy.json.JsonSlurper
+
+apply plugin: 'com.android.application'
+
+/*
+ * ---------------------------------------------------------------------------
+ * Versión
+ * ---------------------------------------------------------------------------
+ * `versionName` sale de package.json para que la web y la app de Android nunca
+ * digan versiones distintas: se cambia en un sitio.
+ *
+ * `versionCode` es otra cosa: es el número entero que usa Google Play para
+ * saber qué build es más nueva, y TIENE que subir en cada subida a Play aunque
+ * el nombre de versión no cambie. Vive en android/gradle.properties.
+ */
+def webPackage = new JsonSlurper().parse(rootProject.file('../package.json'))
+def trainingOsVersionName = webPackage.version
+def trainingOsVersionCode = (project.findProperty('trainingOsVersionCode') ?: '1') as Integer
+
+/*
+ * ---------------------------------------------------------------------------
+ * Firma de la release
+ * ---------------------------------------------------------------------------
+ * La configuración se lee de android/keystore.properties, que NO está en git
+ * (ver .gitignore) y que cada quien crea en su máquina siguiendo
+ * docs/ANDROID-SIGNING.md.
+ *
+ * Si el fichero no existe — que es el caso en cualquier clon recién hecho y en
+ * integración continua sin secretos — el build sigue funcionando: sólo que la
+ * variante `release` queda sin firmar. Eso permite compilar y revisar el
+ * proyecto sin tener el almacén de claves, y hace imposible que una clave
+ * acabe dentro del repositorio por descuido.
+ */
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+def hasReleaseSigning = false
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+    hasReleaseSigning = keystoreProperties['storeFile'] != null
+}
+
+android {
+    namespace = "com.trainingos.app"
+    compileSdk = rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.trainingos.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode trainingOsVersionCode
+        versionName trainingOsVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // El WebView sólo es inspeccionable desde Chrome DevTools en debug.
+            // En release se queda cerrado (ver capacitor.config.ts).
+            debuggable true
+        }
+        release {
+            /*
+             * minifyEnabled se queda en false a propósito.
+             *
+             * Casi todo el peso de esta app es JavaScript y recursos web, que
+             * R8 ni toca: ya van minimizados por Vite. Lo poco que hay de Java
+             * es el puente de Capacitor, que carga sus plugins por reflexión —
+             * justo el patrón que R8 rompe en silencio y que sólo se
+             * manifiesta en producción, con un plugin que "no existe".
+             *
+             * Es decir: ganancia despreciable a cambio de una clase de fallo
+             * difícil de diagnosticar. Si algún día interesa activarlo, hay que
+             * añadir las reglas `-keep` de Capacitor en proguard-rules.pro y
+             * probar la release en un dispositivo real, no sólo compilarla.
+             */
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+/*
+ * Training OS no usa notificaciones push ni ningún servicio de Google Play que
+ * necesite google-services.json: Firebase se consume desde el WebView con el
+ * SDK de JavaScript, no con el SDK nativo. Este bloque viene de la plantilla
+ * de Capacitor y se deja por si algún día se añade, pero hoy no aplica.
+ */
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

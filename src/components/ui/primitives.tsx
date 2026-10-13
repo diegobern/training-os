@@ -11,6 +11,7 @@ import {
 import { createPortal } from 'react-dom'
 import { IconCheck, IconChevronDown, IconEye, IconEyeOff, IconX } from './Icon'
 import { haptic, primeAudio } from '../../lib/feedback'
+import { pushDismissable } from '../../lib/ui/dismissStack'
 import { useT } from '../../store/useApp'
 
 export function cx(...parts: (string | false | null | undefined)[]) {
@@ -410,19 +411,34 @@ export function Sheet({
   footer?: ReactNode
   size?: 'auto' | 'full'
 }) {
+  /*
+   * `onClose` casi siempre llega como una función anónima escrita en el JSX,
+   * así que cambia de identidad en cada render. Guardarla en una referencia y
+   * dejar el efecto dependiendo sólo de `open` evita que la hoja se
+   * desapunte y se vuelva a apuntar en la pila de descartables cada vez que
+   * el componente de arriba se repinta — lo que, con dos hojas abiertas, haría
+   * que el botón "atrás" cerrara la de abajo.
+   */
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') closeRef.current()
     }
     document.addEventListener('keydown', onKey)
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    // El botón físico de Android cierra esta hoja antes que nada, igual que
+    // Escape. Ver src/lib/ui/dismissStack.ts.
+    const release = pushDismissable(() => closeRef.current())
     return () => {
+      release()
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prev
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 

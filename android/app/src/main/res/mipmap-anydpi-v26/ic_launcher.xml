@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/brandInk" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <!--
+      Icono monocromo para los "iconos temáticos" de Android 13+: cuando el
+      usuario activa el tema del sistema, el lanzador pinta esta silueta con
+      los colores de su fondo de pantalla. Sin esta línea, Training OS sería
+      de los pocos iconos que se quedan fuera del tema.
+    -->
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>

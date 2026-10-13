@@ -7,7 +7,7 @@ import { useAuth } from '../../store/useAuth'
 import { useSyncStatus } from '../../store/useSync'
 import { missingFirebaseKeys } from '../../lib/firebase/config'
 import { authErrorKey, changePassword, deleteAccount } from '../../lib/firebase/account'
-import { syncNow, wipeRemoteData } from '../../lib/sync/engine'
+import { resetLocalData, syncNow, wipeRemoteData } from '../../lib/sync/engine'
 import { checkPassword } from '../../lib/firebase/paths'
 import { fmtDate } from '../../lib/dates'
 import { toast } from '../../store/useToast'
@@ -197,6 +197,15 @@ export function AccountSection() {
               try {
                 await wipeRemoteData(user.uid)
                 await deleteAccount(deletePassword)
+                /*
+                 * Y la copia local. Sin esto, el entrenamiento de una cuenta
+                 * que acaba de eliminarse seguiría en IndexedDB de este móvil
+                 * hasta que alguien entrara con otra cuenta. No es un fallo de
+                 * datos — `resetLocalData` detecta el cambio de dueño al
+                 * siguiente inicio de sesión — pero "elimina mi cuenta" tiene
+                 * que significar que no queda nada, también aquí.
+                 */
+                await resetLocalData(null)
                 toast(t('account.deleted'), 'success')
               } catch (err) {
                 setError(t(authErrorKey(err)))

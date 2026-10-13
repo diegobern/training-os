@@ -51,6 +51,21 @@ export default defineConfig({
         globIgnores: [
           '**/LogoTotem3D-*.js',
           '**/index.esm-*.js',
+          // El puente de Capacitor. En el navegador no se pide nunca —
+          // `isNativeAndroid()` devuelve false y el import dinámico no llega a
+          // ejecutarse — así que precacharlo sería descargar en cada primera
+          // visita un código que esa visita no puede usar. Dentro del APK no
+          // hace falta caché de ningún tipo: el fichero está en el paquete.
+          '**/native-*.js',
+          // Las dos páginas legales. Se sirven desde el mismo dominio porque
+          // Google Play exige que sean públicas y accesibles sin instalar la
+          // app, pero no forman parte de la aplicación: precacharlas serían
+          // 17KB en la primera visita de todo el mundo para un texto que casi
+          // nadie abre, y además una copia cacheada de una política de
+          // privacidad puede quedarse desactualizada, que es justo lo que no
+          // interesa en un documento legal.
+          'privacy.html',
+          'account-deletion.html',
           'exercise-media/**',
           'catalog/**',
         ],
@@ -129,6 +144,30 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
+        /*
+         * Los trozos de Capacitor se llaman `native-*.js`, vengan de donde
+         * vengan. No es cosmética: es lo que permite dejarlos fuera del
+         * precaché del service worker (ver `globIgnores` arriba) sin tener
+         * que adivinar nombres. Por defecto salían como `web-*.js` e
+         * `index-*.js`, indistinguibles del resto.
+         *
+         * Se hace renombrando el trozo y NO con `manualChunks`. Forzar un
+         * `manualChunks: { native: [...] }` parecía lo natural, pero Rollup
+         * metía ahí dentro el ayudante de precarga de Vite, y con eso el
+         * trozo pasaba a ser una dependencia ESTÁTICA del bundle principal:
+         * todos los navegadores descargaban y ejecutaban Capacitor en cada
+         * visita, que es exactamente lo contrario de lo que se pretendía.
+         * Lo detectó `e2e/android-shell.mjs`.
+         */
+        chunkFileNames(chunk) {
+          // `moduleIds` y no `modules`: en el momento en que Rollup decide el
+          // nombre del fichero, el trozo todavía no está renderizado y
+          // `modules` no existe.
+          const fromCapacitor = (chunk.moduleIds ?? []).some((id) =>
+            id.includes('node_modules/@capacitor/'),
+          )
+          return fromCapacitor ? 'assets/native-[hash].js' : 'assets/[name]-[hash].js'
+        },
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           dnd: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/modifiers', '@dnd-kit/utilities'],
