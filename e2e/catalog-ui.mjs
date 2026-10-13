@@ -12,8 +12,8 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
-const SHOTS = '/tmp/claude-0/-home-claude/838cb47a-cff1-59a2-93c1-94bc17e6b5ce/scratchpad/shots'
+import { CHROMIUM_EXE as EXE, SHOTS_DIR } from './chromium.mjs'
+const SHOTS = SHOTS_DIR
 const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 
 const out = []
@@ -447,19 +447,20 @@ if (only(6))
   const { page, errors, close } = await openApp()
   await skipOnboarding(page)
 
-  // Demo data gives a routine with real exercises to train.
-  await page.goto(`${BASE}/settings`, { waitUntil: 'commit' })
-  await page.waitForTimeout(2500)
-  await page.getByRole('button', { name: /Cargar datos DEMO/i }).click()
-  await page.waitForTimeout(8000)
-  const demoTxt = await body(page)
-  check(!/Hypertrophy/.test(demoTxt) || demoTxt.includes('Hipertrofia'), 'demo — la rutina de ejemplo llega en español', demoTxt.slice(0, 160))
-
-  // The workout screen asks which day; there is no generic "start".
+  // The app has no sample data any more: the workout is built the way a
+  // person builds one — a free workout, and an exercise from the picker.
   await page.goto(`${BASE}/workout`, { waitUntil: 'commit' })
   await page.waitForTimeout(3000)
-  await page.locator('button').filter({ hasText: /ejercicios · .* series/ }).first().click()
-  await page.waitForTimeout(4000)
+  await page.getByRole('button', { name: /Entrenamiento libre/ }).first().click()
+  await page.waitForTimeout(3000)
+  const freeTxt = await body(page)
+  check(freeTxt.includes('Entrenamiento libre') && !/Free workout/.test(freeTxt), 'entreno — el entrenamiento libre llega en español', freeTxt.slice(0, 160))
+  await page.getByRole('button', { name: /Añadir ejercicio/ }).first().click()
+  await page.waitForTimeout(2500)
+  await page.getByPlaceholder('Buscar').fill('press inclinado mancuernas')
+  await page.waitForTimeout(2200)
+  await sheetRows(page).first().click()
+  await page.waitForTimeout(3000)
 
   const inputs = page.locator('input[inputmode="decimal"], input[inputmode="numeric"]')
   const n = await inputs.count()

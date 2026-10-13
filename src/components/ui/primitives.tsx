@@ -478,8 +478,10 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel,
   destructive,
+  busy,
   onConfirm,
   onCancel,
+  children,
 }: {
   open: boolean
   title: string
@@ -487,17 +489,22 @@ export function ConfirmDialog({
   confirmLabel: string
   cancelLabel: string
   destructive?: boolean
+  /** Disables the confirm button while the action it started is still running. */
+  busy?: boolean
   onConfirm: () => void
   onCancel: () => void
+  /** Extra content between the body and the buttons, e.g. a summary of what is about to happen. */
+  children?: ReactNode
 }) {
   return (
     <Sheet open={open} onClose={onCancel} title={title}>
       {body && <p className="text-body text-muted">{body}</p>}
+      {children}
       <div className="mt-5 flex gap-2">
         <Button full variant="secondary" onClick={onCancel}>
           {cancelLabel}
         </Button>
-        <Button full variant={destructive ? 'danger' : 'primary'} onClick={onConfirm}>
+        <Button full variant={destructive ? 'danger' : 'primary'} onClick={onConfirm} disabled={busy}>
           {confirmLabel}
         </Button>
       </div>

@@ -107,11 +107,6 @@ export default function Routines() {
                         {t('routines.active')}
                       </span>
                     )}
-                    {r.demo && (
-                      <span className="shrink-0 rounded-full bg-info/15 px-2 py-0.5 text-2xs font-bold tracking-wide text-info">
-                        {t('common.demo')}
-                      </span>
-                    )}
                   </div>
                   <p className="mt-1 text-xs text-faint">
                     {t('routines.dayCount', { n: r.days.length })} ·{' '}

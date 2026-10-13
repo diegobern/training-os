@@ -16,7 +16,7 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
+import { CHROMIUM_EXE as EXE } from './chromium.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 
 const out = []

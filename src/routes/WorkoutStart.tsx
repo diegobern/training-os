@@ -10,6 +10,7 @@ import { useT, useApp } from '../store/useApp'
 import { useWorkout } from '../store/useWorkout'
 import { estimateDurationMinutes } from '../lib/training/stats'
 import { fmtDuration } from '../lib/format'
+import { useElapsed } from '../hooks/useElapsed'
 
 export default function WorkoutStart() {
   const t = useT()
@@ -20,6 +21,9 @@ export default function WorkoutStart() {
   const discard = useWorkout((s) => s.discard)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const [starting, setStarting] = useState(false)
+  // Was computed once per render, so the card showed the time it was opened
+  // at and then stood still. The shared hook keeps it running.
+  const elapsed = useElapsed(session?.startedAt, session?.pausedMs ?? 0)
 
   const { data } = useLiveQuery(
     async () => {
@@ -47,7 +51,6 @@ export default function WorkoutStart() {
   }
 
   if (session) {
-    const elapsed = Math.round((Date.now() - session.startedAt - session.pausedMs) / 1000)
     return (
       <Page title={t('workout.title')}>
         <Card className="border-accent/40 bg-accent/[0.07] p-5">

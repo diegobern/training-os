@@ -5,8 +5,8 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
-const SHOTS = '/tmp/claude-0/-home-claude/838cb47a-cff1-59a2-93c1-94bc17e6b5ce/scratchpad/shots'
+import { CHROMIUM_EXE as EXE, SHOTS_DIR } from './chromium.mjs'
+const SHOTS = SHOTS_DIR
 const BASE = 'http://127.0.0.1:4330'
 const steps = []
 const errors = []

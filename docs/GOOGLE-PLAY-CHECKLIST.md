@@ -49,8 +49,10 @@ está marcado con ⬜ tienes que hacerlo tú, casi todo en Play Console.
   menores; la política de privacidad declara que no lo está.
 - ⬜ **Declaración de anuncios**: **no contiene anuncios**.
 - ⬜ **Compras en la aplicación**: **ninguna**.
-- ⬜ **Permisos de uso sensible**: ninguno que declarar. La app sólo pide
-  `INTERNET`, que es un permiso normal.
+- ⬜ **Permisos de uso sensible**: ninguno que declarar. La app pide `INTERNET`
+  (permiso normal) y `POST_NOTIFICATIONS` (el aviso de entrenamiento en curso;
+  no es de uso sensible ni requiere declaración aparte). No hay servicio en
+  primer plano, así que **no** hay que declarar `FOREGROUND_SERVICE_HEALTH`.
 - ⬜ **Datos de contacto del desarrollador** verificados en la cuenta de Play.
 
 ---

@@ -294,6 +294,102 @@ const mediaKeys = new Set(Object.keys(media.entries))
   check(illustrated >= 660, `cobertura — al menos 660 ejercicios con ilustración (hay ${illustrated})`, String(illustrated))
 }
 
+/* ------------------------------------------------ instrucciones en español */
+/*
+ * The step-by-step instructions translated into Spanish, checked on the file
+ * that ships. Every rule here is one of the promises written down in
+ * docs/GLOSARIO-INSTRUCCIONES-ES.md, and the glossary itself is read from
+ * scripts/catalog/es-glossary.mjs so the two cannot drift apart.
+ */
+{
+  const { applyTranslations, englishFingerprint, readTranslations } = await import('../scripts/catalog/es-instructions.mjs')
+  const { GLOSSARY, TIP_EN, TIP_ES, englishLeaks, meaningfulSteps } = await import('../scripts/catalog/es-glossary.mjs')
+
+  const all = Object.entries(instructions)
+  const withSteps = all.filter(([, e]) => meaningfulSteps(e.en).length > 0)
+  const translated = all.filter(([, e]) => e.esStatus !== 'missing')
+  const ids = (list) => list.slice(0, 5).map(([id]) => id).join(', ')
+
+  const untranslated = withSteps.filter(([, e]) => e.esStatus === 'missing' || !Array.isArray(e.es))
+  check(
+    untranslated.length === 0,
+    `instrucciones ES — toda ficha con pasos en inglés está traducida (${withSteps.length - untranslated.length} de ${withSteps.length})`,
+    ids(untranslated),
+  )
+  check(
+    translated.every(([, e]) => e.esStatus === 'machine' || e.esStatus === 'reviewed'),
+    'instrucciones ES — las traducidas declaran un estado válido (machine o reviewed)',
+  )
+  const invented = all.filter(([, e]) => meaningfulSteps(e.en).length === 0 && (e.es !== null || e.esStatus !== 'missing'))
+  check(invented.length === 0, 'instrucciones ES — ninguna ficha sin pasos en inglés tiene pasos inventados en español', ids(invented))
+  const emptyButMarked = translated.filter(([, e]) => !Array.isArray(e.es) || e.es.length === 0)
+  check(emptyButMarked.length === 0, 'instrucciones ES — nada marcado como traducido está vacío', ids(emptyButMarked))
+
+  const stepCount = translated.filter(([, e]) => e.es.length !== meaningfulSteps(e.en).length)
+  check(stepCount.length === 0, 'instrucciones ES — mismo número de pasos que el original en todas', ids(stepCount))
+  const blank = translated.filter(([, e]) => e.es.some((s) => typeof s !== 'string' || s.trim() === ''))
+  check(blank.length === 0, 'instrucciones ES — ningún paso vacío', ids(blank))
+  const same = translated.filter(([, e]) => {
+    const en = meaningfulSteps(e.en)
+    return e.es.some((s, i) => s.trim() === en[i]?.trim())
+  })
+  check(same.length === 0, 'instrucciones ES — ningún paso se ha quedado igual que el inglés', ids(same))
+  const leaks = translated
+    .map(([id, e]) => [id, [...new Set(e.es.flatMap((s) => englishLeaks(s)))]])
+    .filter(([, words]) => words.length > 0)
+  check(
+    leaks.length === 0,
+    'instrucciones ES — no se ha colado inglés sin traducir',
+    leaks.slice(0, 5).map(([id, w]) => `${id}: ${w.join(', ')}`).join(' · '),
+  )
+  const html = translated.filter(([, e]) => e.es.some((s) => /[<>]/.test(s)))
+  check(html.length === 0, 'instrucciones ES — sin restos de HTML', ids(html))
+  const tips = translated.filter(([, e]) => {
+    const en = meaningfulSteps(e.en).join('\n').match(TIP_EN)?.length ?? 0
+    const es = e.es.join('\n').match(TIP_ES)?.length ?? 0
+    return en !== es
+  })
+  check(tips.length === 0, 'instrucciones ES — cada «Tip» del original es un «Consejo:» dentro del paso', ids(tips))
+
+  for (const rule of GLOSSARY.filter((r) => r.strict)) {
+    const applies = translated.filter(([, e]) => rule.en.test(meaningfulSteps(e.en).join('\n')))
+    const broken = applies.filter(([, e]) => !rule.es.test(e.es.join('\n')))
+    check(broken.length === 0, `instrucciones ES — glosario «${rule.id}» (${applies.length} fichas)`, ids(broken))
+  }
+
+  const lowerAfterLabel = translated.filter(([, e]) =>
+    e.es.some((s) => /(?<!\p{L})(Consejos?|Nota|Precaución|Variantes?):\s+\p{Ll}/u.test(s)),
+  )
+  check(lowerAfterLabel.length === 0, 'instrucciones ES — mayúscula tras «Consejo:», «Nota:» y «Precaución:»', ids(lowerAfterLabel))
+  const accentSolo = translated.filter(([, e]) => e.es.some((s) => /(?<!\p{L})[sS]ólo(?!\p{L})/u.test(s)))
+  check(accentSolo.length === 0, 'instrucciones ES — «solo» sin tilde, como el resto de la interfaz', ids(accentSolo))
+  const ratio = translated.filter(([, e]) => {
+    const r = e.es.join(' ').length / Math.max(1, meaningfulSteps(e.en).join(' ').length)
+    return r < 0.7 || r > 1.9
+  })
+  check(ratio.length === 0, 'instrucciones ES — ninguna traducción es sospechosamente corta o larga', ids(ratio))
+
+  const cues = all.filter(([, e]) => e.cueEn || e.cueEs)
+  check(
+    cues.every(([, e]) => e.cueEn && e.cueEs),
+    `instrucciones ES — las ${cues.length} claves de ejecución propias siguen siendo bilingües`,
+  )
+
+  // The shipped file is exactly what the source of truth produces. A hand
+  // edit to public/catalog/v2/instructions.json — or an English original that
+  // changed under a translation — shows up here.
+  const source = readTranslations()
+  const stale = Object.entries(source).filter(([id, t]) => instructions[id] && t.en !== englishFingerprint(instructions[id].en))
+  check(stale.length === 0, 'instrucciones ES — ninguna traducción está desfasada respecto a su original', ids(stale))
+  const orphan = Object.keys(source).filter((id) => !(id in instructions))
+  check(orphan.length === 0, 'instrucciones ES — la fuente de traducciones no tiene fichas huérfanas', orphan.slice(0, 5).join(', '))
+  const regenerated = applyTranslations(instructions, source).instructions
+  check(
+    JSON.stringify(regenerated) === JSON.stringify(instructions),
+    'instrucciones ES — el catálogo publicado es exactamente lo que genera scripts/catalog/instructions-es.json',
+  )
+}
+
 console.log(out.join('\n'))
 console.log(`\n${pass} passed, ${fail} failed`)
 if (fail > 0) process.exit(1)

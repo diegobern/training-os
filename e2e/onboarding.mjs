@@ -9,8 +9,8 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
-const SHOTS = '/tmp/claude-0/-home-claude/838cb47a-cff1-59a2-93c1-94bc17e6b5ce/scratchpad/shots'
+import { CHROMIUM_EXE as EXE, E2E_TMP, SHOTS_DIR } from './chromium.mjs'
+const SHOTS = SHOTS_DIR
 /**
  * Run against the LOCAL-ONLY build. Firestore is unreachable from this
  * sandbox, and the questionnaire is deliberately no longer an account
@@ -37,7 +37,7 @@ const check = (cond, m, d) => (cond ? ok(m) : fail(m, d))
  * database and would report a resume failure that is entirely the test's own
  * doing. A persistent profile is the only way to close the app for real.
  */
-const PROFILE = `/tmp/ob-profile-${Date.now()}`
+const PROFILE = `${E2E_TMP}/ob-profile-${Date.now()}`
 
 async function openApp() {
   const ctx = await chromium.launchPersistentContext(PROFILE, {

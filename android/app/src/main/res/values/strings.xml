@@ -4,4 +4,13 @@
     <string name="title_activity_main">Training OS</string>
     <string name="package_name">com.trainingos.app</string>
     <string name="custom_url_scheme">com.trainingos.app</string>
+
+    <!--
+      El canal del aviso de entrenamiento en curso. Es lo que se ve en Ajustes
+      del sistema → Notificaciones → Training OS, así que va en el idioma del
+      teléfono (values-es/ para español). El título y el texto de la propia
+      notificación llegan desde la app, en el idioma de la app.
+    -->
+    <string name="workout_channel_name">Workout in progress</string>
+    <string name="workout_channel_description">Shows the running time of your workout on the lock screen while it lasts.</string>
 </resources>

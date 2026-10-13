@@ -196,11 +196,100 @@ check(
   'la política de red no permite HTTP en claro en ningún dominio',
 )
 
+/*
+ * Mínimo privilegio: exactamente estos permisos, ni uno más. POST_NOTIFICATIONS
+ * es para el aviso de «entrenamiento en curso» de la pantalla de bloqueo
+ * (WorkoutNotificationPlugin.java); cualquier otro que aparezca hace fallar
+ * esta comprobación hasta que alguien lo justifique y la actualice.
+ */
+const EXPECTED_PERMISSIONS = ['android.permission.INTERNET', 'android.permission.POST_NOTIFICATIONS']
 const permissions = [...manifest.matchAll(/<uses-permission[^>]*android:name="([^"]+)"/g)].map((m) => m[1])
 check(
-  permissions.length === 1 && permissions[0] === 'android.permission.INTERNET',
-  'un único permiso, INTERNET',
+  JSON.stringify([...permissions].sort()) === JSON.stringify(EXPECTED_PERMISSIONS),
+  'exactamente dos permisos: INTERNET y POST_NOTIFICATIONS',
   permissions.join(', '),
+)
+
+// Cada permiso que se pide lleva su justificación escrita en el propio
+// manifiesto, con el formato de las demás: el nombre y debajo «Para qué:».
+const manifestWithComments = readFileSync(join(MAIN, 'AndroidManifest.xml'), 'utf8')
+const unjustified = permissions.filter(
+  (p) => !new RegExp(`\\n\\s+${p.split('.').pop()}\\s*\\n\\s+Para qué:`).test(manifestWithComments),
+)
+check(unjustified.length === 0, 'cada permiso pedido está justificado en el manifiesto', unjustified.join(', '))
+
+check(
+  !/<service\b/.test(manifest) && !/FOREGROUND_SERVICE/.test(manifest),
+  'ningún servicio en primer plano: el cronómetro del aviso lo pinta el sistema',
+)
+
+/* ------------------------------------------- 4. el plugin nativo propio */
+
+const JAVA = join(MAIN, 'java/com/trainingos/app')
+const javaFiles = walk(JAVA).filter((f) => extname(f) === '.java')
+
+// Una referencia `R.drawable.x` en Java que no existe no la caza el XML de
+// arriba y sólo aparece al compilar.
+const javaMissing = []
+for (const f of javaFiles) {
+  for (const m of readFileSync(f, 'utf8').matchAll(/(?<![\w.])R\.(\w+)\.(\w+)/g)) {
+    const [, kind, name] = m
+    if (!(kind in defined)) continue
+    if (!defined[kind].has(name)) javaMissing.push(`${basename(f)} → R.${kind}.${name}`)
+  }
+}
+check(javaMissing.length === 0, 'las referencias a recursos desde Java resuelven', javaMissing.join('\n      '))
+
+const mainActivity = readFileSync(join(JAVA, 'MainActivity.java'), 'utf8')
+const registerAt = mainActivity.indexOf('registerPlugin(WorkoutNotificationPlugin.class)')
+const superAt = mainActivity.indexOf('super.onCreate(')
+check(
+  registerAt !== -1 && superAt !== -1 && registerAt < superAt,
+  'MainActivity registra WorkoutNotificationPlugin antes de super.onCreate',
+)
+
+const pluginSrc = readFileSync(join(JAVA, 'WorkoutNotificationPlugin.java'), 'utf8')
+// El aviso se construye en WorkoutNotice.java; lo que sigue mira todo el Java propio.
+const nativeSrc = javaFiles.map((f) => readFileSync(f, 'utf8')).join('\n')
+const nativeName = pluginSrc.match(/@CapacitorPlugin\(\s*name\s*=\s*"([^"]+)"/)?.[1]
+const jsName = readFileSync(join(ROOT, 'src/lib/native/workoutNotification.ts'), 'utf8').match(
+  /registerPlugin<\w+>\('([^']+)'\)/,
+)?.[1]
+check(
+  !!nativeName && nativeName === jsName,
+  `el plugin se llama igual en Java y en TypeScript (${nativeName} / ${jsName})`,
+)
+check(
+  /Manifest\.permission\.POST_NOTIFICATIONS/.test(pluginSrc),
+  'el plugin declara el permiso que pide en tiempo de ejecución',
+)
+const builderNeeds = ['setUsesChronometer(true)', 'setWhen(', 'setOngoing(true)', 'VISIBILITY_PUBLIC', 'setContentIntent(', 'setDeleteIntent(']
+const builderMissing = builderNeeds.filter((s) => !nativeSrc.includes(s))
+check(
+  builderMissing.length === 0,
+  'el aviso lleva cronómetro del sistema, es persistente, se ve en la pantalla de bloqueo y abre la app',
+  builderMissing.join(', '),
+)
+check(
+  /PendingIntent\.FLAG_IMMUTABLE/.test(nativeSrc) && !/FLAG_MUTABLE\b/.test(nativeSrc) && !/startForeground/.test(nativeSrc),
+  'los PendingIntent son inmutables y no se arranca ningún servicio',
+)
+// Si se descarta deslizando, un receptor propio lo vuelve a poner: tiene que
+// existir, estar declarado y no estar expuesto a otras apps.
+const receiver = manifest.match(/<receiver\b[^>]*android:name="\.WorkoutNoticeDismissedReceiver"[^>]*>/)?.[0] ?? ''
+check(
+  /android:exported="false"/.test(receiver) && existsSync(join(JAVA, 'WorkoutNoticeDismissedReceiver.java')),
+  'el receptor que repone el aviso descartado está declarado y no se exporta',
+  receiver || 'no declarado',
+)
+
+// El canal de notificaciones se ve en los ajustes del sistema, en su idioma.
+const channelStrings = (dir) =>
+  [...readFileSync(join(RES, dir, 'strings.xml'), 'utf8').matchAll(/<string\s+name="(workout_channel_\w+)"/g)].map((m) => m[1]).sort()
+check(
+  channelStrings('values').length > 0 && JSON.stringify(channelStrings('values')) === JSON.stringify(channelStrings('values-es')),
+  'el canal del aviso tiene sus textos en inglés y en español',
+  `${channelStrings('values')} / ${channelStrings('values-es')}`,
 )
 
 const gradle = readFileSync(join(ROOT, 'android/app/build.gradle'), 'utf8')

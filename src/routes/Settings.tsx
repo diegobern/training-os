@@ -19,7 +19,6 @@ import { useApp, useT } from '../store/useApp'
 import { useAuth } from '../store/useAuth'
 import { MUSCLE_GROUPS, type Language, type ThemeMode, type Units } from '../lib/db/schema'
 import { exportCsv, exportJson, importBackup, wipeEverything, type ImportMode } from '../lib/backup'
-import { clearDemoData, loadDemoData } from '../lib/db/demo'
 import { getLogs, requestPersistentStorage, storageInfo, subscribeLogs } from '../lib/db/database'
 import { pushSettings } from '../lib/sync/engine'
 import { toast } from '../store/useToast'
@@ -63,7 +62,6 @@ export default function Settings() {
   const [importOpen, setImportOpen] = useState(false)
   const [includePhotos, setIncludePhotos] = useState(false)
   const [confirmWipe, setConfirmWipe] = useState(false)
-  const [confirmClearDemo, setConfirmClearDemo] = useState(false)
   const [busy, setBusy] = useState(false)
   const [storage, setStorage] = useState<{ usage: number | null; quota: number | null; persisted: boolean }>({
     usage: null,
@@ -377,33 +375,6 @@ export default function Settings() {
             {t('settings.import')}
           </Button>
         </Card>
-
-        <h3 className="label-micro mb-2 mt-lg">{t('settings.demoData')}</h3>
-        <Card className="space-y-2.5 p-4">
-          <p className="text-caption leading-relaxed text-faint">{t('settings.demoHint')}</p>
-          {settings.demoDataPresent ? (
-            <Button full variant="danger" disabled={busy} onClick={() => setConfirmClearDemo(true)}>
-              {t('settings.clearDemo')}
-            </Button>
-          ) : (
-            <Button
-              full
-              variant="secondary"
-              disabled={busy}
-              onClick={async () => {
-                setBusy(true)
-                try {
-                  const n = await loadDemoData()
-                  toast(`${t('data.demoLoaded')} · ${n}`, 'success')
-                } finally {
-                  setBusy(false)
-                }
-              }}
-            >
-              {t('settings.loadDemo')}
-            </Button>
-          )}
-        </Card>
       </Section>
 
       <Section id="about" title={t('settings.sectionAbout')}>
@@ -511,26 +482,6 @@ export default function Settings() {
           ))}
         </div>
       </Sheet>
-
-      <ConfirmDialog
-        open={confirmClearDemo}
-        title={t('settings.clearDemo')}
-        body={t('common.deleteConfirm')}
-        confirmLabel={t('common.delete')}
-        cancelLabel={t('common.cancel')}
-        destructive
-        onCancel={() => setConfirmClearDemo(false)}
-        onConfirm={async () => {
-          setConfirmClearDemo(false)
-          setBusy(true)
-          try {
-            await clearDemoData()
-            toast(t('data.demoCleared'), 'success')
-          } finally {
-            setBusy(false)
-          }
-        }}
-      />
 
       <ConfirmDialog
         open={confirmWipe}

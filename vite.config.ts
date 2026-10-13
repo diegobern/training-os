@@ -2,10 +2,33 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
+import { createHash } from 'node:crypto'
+import { readFileSync, readdirSync } from 'node:fs'
+
+/**
+ * A fingerprint of every published catalog file, keyed `v2/instructions` and
+ * so on. See `loadFile` in src/lib/catalog/store.ts for why it exists: the
+ * app keeps each file in IndexedDB and the service worker serves /catalog/
+ * CacheFirst, so a file whose content changes without a new catalog version —
+ * the Spanish instructions being filled in — would otherwise never reach a
+ * phone that had already opened it once.
+ */
+function catalogRevisions(): Record<string, string> {
+  const dir = fileURLToPath(new URL('./public/catalog/', import.meta.url))
+  const out: Record<string, string> = {}
+  for (const version of readdirSync(dir).filter((d) => /^v\d+$/.test(d))) {
+    for (const file of readdirSync(dir + version).filter((f) => f.endsWith('.json'))) {
+      const hash = createHash('sha256').update(readFileSync(`${dir}${version}/${file}`)).digest('hex')
+      out[`${version}/${file.replace(/\.json$/, '')}`] = hash.slice(0, 12)
+    }
+  }
+  return out
+}
 
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '1.0.0'),
+    __CATALOG_REVISIONS__: JSON.stringify(catalogRevisions()),
   },
   plugins: [
     react(),

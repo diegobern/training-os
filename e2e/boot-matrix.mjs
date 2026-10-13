@@ -7,10 +7,25 @@
  * logo with no error — it either starts, or it says why and offers a way out.
  */
 import { chromium } from 'playwright'
-import { execSync } from 'node:child_process'
+import { cpSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
+import { CHROMIUM_EXE as EXE, E2E_TMP } from './chromium.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:4310'
+
+/*
+ * Scenarios 5–7 swap the deployed build underneath a running server:
+ * `<E2E_TMP>/deploy/live` is what the server on BASE serves, and A, B and C
+ * are three builds — A an older one whose database is still v2, B the
+ * current one, C a later deploy of the same code. `deploy('B')` is what used
+ * to be `rm -rf /tmp/deploy/live && cp -r /tmp/deploy/B /tmp/deploy/live`,
+ * done with node instead of a shell so it also runs where there is no `rm`.
+ */
+const DEPLOY = join(E2E_TMP, 'deploy')
+function deploy(name) {
+  rmSync(join(DEPLOY, 'live'), { recursive: true, force: true })
+  cpSync(join(DEPLOY, name), join(DEPLOY, 'live'), { recursive: true })
+}
 
 const out = []
 let failures = 0
@@ -113,14 +128,14 @@ async function assertNeverStuck(page, label) {
 {
   // The production failure. An older client holds the previous database
   // version open while a new one tries to upgrade.
-  execSync('rm -rf /tmp/deploy/live && cp -r /tmp/deploy/A /tmp/deploy/live')
+  deploy('A')
   await new Promise((r) => setTimeout(r, 1000))
-  const profile = `/tmp/bm-blk-${Date.now()}`
+  const profile = `${E2E_TMP}/bm-blk-${Date.now()}`
   const { ctx, page, close } = await ctxFor({ profile })
   await page.goto(BASE, { waitUntil: 'networkidle' })
   await page.waitForTimeout(4000)
 
-  execSync('rm -rf /tmp/deploy/live && cp -r /tmp/deploy/B /tmp/deploy/live')
+  deploy('B')
   await new Promise((r) => setTimeout(r, 1000))
 
   const tab2 = await ctx.newPage()
@@ -139,15 +154,15 @@ async function assertNeverStuck(page, label) {
 
 /* ------------------------------------------------- 6. deploy upgrade, both fixed */
 {
-  execSync('rm -rf /tmp/deploy/live && cp -r /tmp/deploy/B /tmp/deploy/live')
+  deploy('B')
   await new Promise((r) => setTimeout(r, 1000))
-  const profile = `/tmp/bm-up-${Date.now()}`
+  const profile = `${E2E_TMP}/bm-up-${Date.now()}`
   let first = await ctxFor({ profile })
   await first.page.goto(BASE, { waitUntil: 'networkidle' })
   await first.page.waitForTimeout(6000)
   await first.close()
 
-  execSync('rm -rf /tmp/deploy/live && cp -r /tmp/deploy/C /tmp/deploy/live')
+  deploy('C')
   await new Promise((r) => setTimeout(r, 1000))
   const { page, close } = await ctxFor({ profile })
   await page.goto(BASE, { waitUntil: 'commit' })
@@ -159,7 +174,7 @@ async function assertNeverStuck(page, label) {
 
 /* ------------------------------------------------- 7. a thrown render */
 {
-  execSync('rm -rf /tmp/deploy/live && cp -r /tmp/deploy/B /tmp/deploy/live')
+  deploy('B')
   await new Promise((r) => setTimeout(r, 800))
   const { page, close } = await ctxFor()
   // Break IndexedDB before any app code runs: open() throws, so boot cannot

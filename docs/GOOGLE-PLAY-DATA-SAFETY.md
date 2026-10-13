@@ -160,7 +160,8 @@ Se declaran como no recogidos, y el código lo respalda:
 
 Se puede comprobar: `package.json` no contiene `firebase/analytics`,
 `@capacitor/device`, `@capacitor-community/admob` ni ningún SDK publicitario, y
-`AndroidManifest.xml` declara un único permiso, `INTERNET`.
+`AndroidManifest.xml` declara dos permisos, `INTERNET` y `POST_NOTIFICATIONS`
+(ver la sección 5). Ninguno de los dos recoge datos.
 
 ---
 
@@ -193,15 +194,27 @@ como destinatario de una cesión. Google Play distingue expresamente entre
 
 ## 5. Permisos declarados
 
-Uno:
+Dos:
 
 | Permiso | Nivel | Por qué |
 | --- | --- | --- |
 | `android.permission.INTERNET` | Normal | Hablar con Firebase Auth, Firestore y Storage. |
+| `android.permission.POST_NOTIFICATIONS` | Tiempo de ejecución (Android 13+) | Un único aviso: «entrenamiento en curso» en la pantalla de bloqueo, con el cronómetro, mientras haya un entrenamiento abierto. |
 
-No hay permisos peligrosos, así que la app no muestra ningún diálogo de permiso
-en tiempo de ejecución. La lista completa de lo que **no** se pide, y por qué,
-está comentada dentro de `android/app/src/main/AndroidManifest.xml`.
+`POST_NOTIFICATIONS` **no recoge ni comparte ningún dato**: el aviso se publica
+desde el propio teléfono con lo que ya está en él (la hora de inicio, el nombre
+del día y las series hechas) y no sale de él. No hay notificaciones push, ni
+recordatorios, ni Firebase Cloud Messaging. Por eso no añade nada a la sección 2.
+
+Cuándo se pide: la primera vez que se empieza un entrenamiento, nunca al abrir
+la app. Si la persona lo deniega no se vuelve a preguntar y la app funciona
+exactamente igual, sin el aviso. Por debajo de Android 13 este permiso no
+existe y no aparece ningún diálogo.
+
+La justificación de cada permiso, y la lista de lo que **no** se pide y por qué
+(entre otros, `FOREGROUND_SERVICE`: el cronómetro del aviso lo pinta el sistema
+y no hace falta ningún servicio en primer plano), está comentada dentro de
+`android/app/src/main/AndroidManifest.xml`.
 
 ---
 

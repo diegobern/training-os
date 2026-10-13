@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { isNativeAndroid } from '../../lib/native/platform'
+import { hideWorkoutNotice, onWorkoutNoticeTap, showWorkoutNotice } from '../../lib/native/workoutNotification'
 import { dismissTop } from '../../lib/ui/dismissStack'
+import { sessionProgress } from '../../lib/training/sessionProgress'
 import { useWorkout } from '../../store/useWorkout'
-import { useT } from '../../store/useApp'
+import { useApp, useT } from '../../store/useApp'
 import { toast } from '../../store/useToast'
 
 /**
@@ -108,6 +110,49 @@ export function NativeShell() {
       }
     })()
   }, [location.pathname])
+
+  /* ------------------------------- aviso de entrenamiento en curso */
+  const session = useWorkout((s) => s.session)
+  const loaded = useWorkout((s) => s.loaded)
+  const excludeWarmups = useApp((s) => s.settings.excludeWarmupsFromStats)
+  const notice = useMemo(() => {
+    if (!session) return null
+    const p = sessionProgress(session, excludeWarmups)
+    return {
+      // La misma cuenta que el cronómetro de la app (useElapsed): inicio más
+      // lo que haya estado en pausa.
+      startedAt: Math.round(session.startedAt + session.pausedMs),
+      title: t('workout.notifTitle'),
+      body: `${session.dayName} · ${t('workout.progress', { done: p.doneSets, total: p.totalSets })}`,
+    }
+  }, [session, excludeWarmups, t])
+
+  useEffect(() => {
+    if (!isNativeAndroid()) return
+    // Hasta que no se ha leído la sesión guardada no se sabe si hay
+    // entrenamiento; retirar el aviso antes de saberlo lo haría parpadear en
+    // cada arranque.
+    if (!loaded) return
+    // Sin entrenamiento — terminado, descartado o que nunca lo hubo — el aviso
+    // se retira. Con él, se publica o se actualiza: es la misma notificación.
+    if (notice) void showWorkoutNotice(notice)
+    else void hideWorkoutNotice()
+  }, [loaded, notice?.startedAt, notice?.title, notice?.body])
+
+  // React Router entrega un `navigate` nuevo en cada cambio de ruta. Pasarlo
+  // por una referencia deja el oyente puesto una sola vez, en lugar de
+  // quitarlo y volverlo a poner — dos llamadas al nativo — en cada pantalla.
+  const navigateRef = useRef(navigate)
+  navigateRef.current = navigate
+
+  useEffect(() => {
+    if (!isNativeAndroid()) return
+    // Tocar el aviso trae aquí. Si la app estaba cerrada, el toque llega en
+    // cuanto el plugin tiene a alguien escuchando, antes incluso de que la
+    // sesión se haya leído: por eso se navega siempre y es la propia pantalla
+    // de la sesión la que manda a /workout si ya no hay ninguna.
+    return onWorkoutNoticeTap(() => navigateRef.current('/workout/active'))
+  }, [])
 
   return null
 }

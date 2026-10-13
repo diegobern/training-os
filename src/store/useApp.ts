@@ -8,6 +8,7 @@ import {
 } from '../lib/db/database'
 import { seedLibraryIfEmpty } from '../lib/db/repo.exercises'
 import { migrateFavoritesOnce } from '../lib/db/repo.prefs'
+import { purgeSampleDataOnce } from '../lib/db/sampleData'
 import { defaultSettings, type Settings, type ThemeMode } from '../lib/db/schema'
 import { LOCALES, makeT, type TFn } from '../lib/i18n'
 import { applyNativeChrome } from '../lib/native/chrome'
@@ -66,6 +67,10 @@ export const useApp = create<AppState>((set, get) => ({
 
   async init() {
     try {
+      // Before the first screen, so nobody who once loaded the old sample data
+      // sees it again for even a frame. After the first launch this is a
+      // single read; it never throws.
+      await purgeSampleDataOnce()
       const settings = await readSettings()
       await seedLibraryIfEmpty(settings.language)
       applyTheme(settings.theme)

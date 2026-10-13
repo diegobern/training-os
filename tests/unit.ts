@@ -648,6 +648,108 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   eq(untouched.updatedAt, before.updatedAt, 'reset: si no había nada que limpiar, no se escribe nada')
 }
 
+/* ------------------------------------------- datos de ejemplo: fuera */
+/*
+ * The old "Load DEMO data" button is gone, but whoever pressed it still has
+ * its records. The start-up purge removes them — and only them: a session,
+ * a routine and a body weight the person logged must survive untouched.
+ */
+{
+  const { getDB, writeSettings } = await import('../src/lib/db/database')
+  const { commitCompletedSession, makeSet } = await import('../src/lib/db/repo.sessions')
+  const { makeRoutine, saveRoutine } = await import('../src/lib/db/repo.routines')
+  const { addBodyweight } = await import('../src/lib/db/repo.body')
+  const { purgeSampleData, purgeSampleDataOnce, isSampleRecord } = await import('../src/lib/db/sampleData')
+  const db = await getDB()
+
+  const finished = (id: string, demo: boolean): WorkoutSession => {
+    const set = { ...makeSet('working'), weight: 60, reps: 8, completed: true, completedAt: 1 }
+    return {
+      id,
+      routineId: null,
+      routineName: '',
+      dayId: null,
+      dayName: 'Día',
+      status: 'completed',
+      startedAt: 1_700_000_000_000,
+      endedAt: 1_700_000_900_000,
+      durationSec: 900,
+      pausedMs: 0,
+      pausedAt: null,
+      notes: '',
+      exercises: [
+        {
+          id: `${id}-ex`,
+          exerciseId: 'lib-barbell-bench-press',
+          name: 'Press de banca',
+          muscleGroup: 'chest',
+          order: 0,
+          targetSets: 1,
+          repMin: 6,
+          repMax: 10,
+          rirTarget: null,
+          rpeTarget: null,
+          restSeconds: 120,
+          sets: [set],
+          sessionNote: '',
+        },
+      ],
+      demo,
+      createdAt: 1,
+      updatedAt: 1,
+      deletedAt: null,
+    }
+  }
+
+  await commitCompletedSession(finished('ses-sample', true))
+  await commitCompletedSession(finished('ses-mine', false))
+  const sampleRoutine = await saveRoutine(makeRoutine('Rutina de ejemplo'))
+  await db.put('routines', { ...sampleRoutine, demo: true })
+  const myRoutine = await saveRoutine(makeRoutine('Mi rutina'))
+  await addBodyweight(80, '2026-10-01', '')
+  await addBodyweight(81, '2026-10-02', '')
+  const [bw1] = await db.getAllFromIndex('bodyweight', 'by-date', '2026-10-01')
+  await db.put('bodyweight', { ...bw1, demo: true })
+  await writeSettings({ demoDataPresent: true })
+
+  const removed = await purgeSampleData()
+  eq(removed >= 4, true, `ejemplo: se borran los datos de ejemplo (${removed})`)
+  eq(await db.get('sessions', 'ses-sample'), undefined, 'ejemplo: la sesión de ejemplo desaparece')
+  eq(
+    (await db.getAllFromIndex('exerciseLogs', 'by-session', 'ses-sample')).length,
+    0,
+    'ejemplo: y los registros que salieron de ella',
+  )
+  eq(await db.get('routines', sampleRoutine.id), undefined, 'ejemplo: la rutina de ejemplo desaparece')
+  eq(await db.get('bodyweight', bw1.id), undefined, 'ejemplo: el peso de ejemplo desaparece')
+  eq((await db.get('sessions', 'ses-mine'))?.id, 'ses-mine', 'ejemplo: la sesión de la persona se queda')
+  eq(
+    (await db.getAllFromIndex('exerciseLogs', 'by-session', 'ses-mine')).length,
+    1,
+    'ejemplo: con sus registros',
+  )
+  eq((await db.get('routines', myRoutine.id))?.name, 'Mi rutina', 'ejemplo: la rutina de la persona se queda')
+  eq((await db.getAllFromIndex('bodyweight', 'by-date', '2026-10-02')).length, 1, 'ejemplo: su peso también')
+  const queue = await db.getAll('syncQueue')
+  eq(
+    queue.some((q) => q.id === 'sessions:ses-sample' && q.op === 'delete'),
+    true,
+    'ejemplo: el borrado se encola para la cuenta, no sólo para el móvil',
+  )
+  eq((await db.get('settings', 'app'))?.demoDataPresent ?? false, false, 'ejemplo: el dispositivo deja de creer que tiene datos de ejemplo')
+
+  // Once per device: the second launch does not scan again.
+  await purgeSampleDataOnce()
+  const late = await saveRoutine(makeRoutine('Llegó tarde'))
+  await db.put('routines', { ...late, demo: true })
+  await purgeSampleDataOnce()
+  eq((await db.get('routines', late.id))?.id, late.id, 'ejemplo: la pasada de arranque se hace una sola vez')
+  await purgeSampleData()
+
+  eq(isSampleRecord({ demo: true }), true, 'ejemplo: un registro marcado como ejemplo se reconoce')
+  eq(isSampleRecord({ demo: false }) || isSampleRecord({ demo: 'true' }) || isSampleRecord(null), false, 'ejemplo: nada más se toma por ejemplo')
+}
+
 /* ------------------------------------------------- pila de descartables */
 /*
  * El botón "atrás" de Android tiene que cerrar lo último que se abrió, y sólo
@@ -728,6 +830,279 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
 
   if (original === undefined) delete w.Capacitor
   else w.Capacitor = original
+}
+
+/* -------------------------------------- catálogo: copia en caché vigente */
+/*
+ * Filling in the Spanish instructions changed the content of
+ * instructions.json without changing its format or the catalog version. A
+ * phone holding the old copy in IndexedDB must fetch the new one; a phone
+ * whose copy is the same file must not fetch anything.
+ */
+{
+  const { cachedRowIsCurrent, catalogRevision, CATALOG_VERSION } = await import('../src/lib/catalog/store')
+  const revs = { [`v${CATALOG_VERSION}/instructions`]: 'aaa111', [`v${CATALOG_VERSION}/exercises`]: 'bbb222' }
+  eq(catalogRevision('instructions', revs), 'aaa111', 'catálogo: la huella se busca por versión y fichero')
+  eq(catalogRevision('media-index', revs), null, 'catálogo: un fichero sin huella no tiene revisión')
+  eq(cachedRowIsCurrent({ version: CATALOG_VERSION, rev: 'aaa111' }, 'aaa111'), true, 'catálogo: misma huella → se usa la copia, sin red')
+  eq(cachedRowIsCurrent({ version: CATALOG_VERSION, rev: 'old000' }, 'aaa111'), false, 'catálogo: contenido nuevo → se vuelve a pedir')
+  eq(
+    cachedRowIsCurrent({ version: CATALOG_VERSION }, 'aaa111'),
+    false,
+    'catálogo: una copia guardada antes de existir las huellas se renueva una vez',
+  )
+  eq(cachedRowIsCurrent({ version: CATALOG_VERSION - 1, rev: 'aaa111' }, 'aaa111'), false, 'catálogo: otra versión del catálogo nunca vale')
+  eq(cachedRowIsCurrent({ version: CATALOG_VERSION }, null), true, 'catálogo: sin huella en el build manda sólo la versión, como antes')
+  eq(cachedRowIsCurrent(undefined, 'aaa111'), false, 'catálogo: sin copia, se pide')
+}
+
+/* --------------------------------------------------- cronómetro del entreno */
+/*
+ * The one formula behind the session header, the bar that follows the workout
+ * around the app and the lock-screen notification. It must also agree with
+ * the duration `finishSession` stores, or the summary would contradict the
+ * clock the person has been watching.
+ */
+{
+  const { elapsedSeconds } = await import('../src/hooks/useElapsed')
+  eq(elapsedSeconds(10_000, 4_000, 1_000), 5, 'cronómetro: descuenta el tiempo en pausa')
+  eq(elapsedSeconds(10_000, undefined, 0), 0, 'cronómetro: sin sesión marca cero')
+  eq(elapsedSeconds(1_000, 5_000, 0), 0, 'cronómetro: un reloj que va hacia atrás no da tiempo negativo')
+  eq(elapsedSeconds(1_499, 0.0001, 0), 1, 'cronómetro: redondea al segundo más cercano (abajo)')
+  eq(elapsedSeconds(2_500, 1_000, 0), 2, 'cronómetro: redondea al segundo más cercano (arriba)')
+  const start = 1_700_000_000_000
+  const now = start + 3 * 3600_000 + 17_400
+  eq(
+    elapsedSeconds(now, start, 60_000),
+    Math.max(0, Math.round((now - start - 60_000) / 1000)),
+    'cronómetro: misma cuenta que la duración que guarda finishSession',
+  )
+}
+
+/* ------------------------------------------- resumen antes de finalizar */
+{
+  const { sessionProgress } = await import('../src/lib/training/sessionProgress')
+  const set = (patch: Partial<SetEntry>): SetEntry => ({
+    id: Math.random().toString(36).slice(2),
+    type: 'working',
+    weight: null,
+    reps: null,
+    rir: null,
+    rpe: null,
+    completed: false,
+    completedAt: null,
+    note: '',
+    ...patch,
+  })
+  const exercise = (exerciseId: string, sets: SetEntry[]) => ({
+    id: exerciseId,
+    exerciseId,
+    name: exerciseId,
+    muscleGroup: 'chest' as const,
+    order: 0,
+    targetSets: sets.length,
+    repMin: 8,
+    repMax: 12,
+    rirTarget: null,
+    rpeTarget: null,
+    restSeconds: 90,
+    sets,
+    sessionNote: '',
+  })
+  const session = (exercises: ReturnType<typeof exercise>[]): WorkoutSession => ({
+    id: 's1',
+    routineId: null,
+    routineName: '',
+    dayId: null,
+    dayName: 'Push',
+    status: 'active',
+    startedAt: 0,
+    endedAt: null,
+    durationSec: 0,
+    pausedMs: 0,
+    pausedAt: null,
+    notes: '',
+    exercises,
+    demo: false,
+    createdAt: 0,
+    updatedAt: 0,
+    deletedAt: null,
+  })
+
+  const mixed = session([
+    exercise('bench', [
+      set({ type: 'warmup', weight: 40, reps: 10, completed: true }),
+      set({ weight: 80, reps: 8, completed: true }),
+      set({ weight: 80, reps: null }),
+    ]),
+    exercise('fly', [set({})]),
+  ])
+  eq(
+    sessionProgress(mixed, true),
+    { doneSets: 1, totalSets: 3, loggedExercises: 1, totalExercises: 2, anyLogged: true },
+    'resumen: cuenta como la cabecera, sin calentamiento si el ajuste lo pide',
+  )
+  eq(
+    sessionProgress(mixed, false),
+    { doneSets: 2, totalSets: 4, loggedExercises: 1, totalExercises: 2, anyLogged: true },
+    'resumen: con el calentamiento dentro si el ajuste no lo excluye',
+  )
+
+  // Ticked but without reps: it counts as done in the header, but finishing
+  // would save nothing — which is exactly the case for the discard dialog.
+  const tickedEmpty = session([exercise('bench', [set({ weight: 80, completed: true })])])
+  eq(sessionProgress(tickedEmpty, true).doneSets, 1, 'resumen: una serie marcada sin reps cuenta como hecha')
+  eq(sessionProgress(tickedEmpty, true).anyLogged, false, 'resumen: pero no hay nada que guardar, así que se ofrece descartar')
+  eq(
+    sessionProgress(session([]), true),
+    { doneSets: 0, totalSets: 0, loggedExercises: 0, totalExercises: 0, anyLogged: false },
+    'resumen: una sesión vacía no tiene nada que guardar',
+  )
+}
+
+/* ------------------------------------------ aviso de la pantalla de bloqueo */
+/*
+ * The JavaScript half of the Android notification, against a fake native
+ * side shaped exactly like the one Capacitor injects into the WebView:
+ * `androidBridge`, `PluginHeaders`, `nativePromise` and `nativeCallback`. The
+ * real @capacitor/core is what talks to it, so these exercise the same code
+ * path the APK runs. The Java half is checked by scripts/android and on a
+ * device.
+ */
+{
+  type Call = { method: string; options: Record<string, unknown> }
+  const g = globalThis as unknown as Record<string, unknown>
+  const saved = { Capacitor: g.Capacitor, androidBridge: g.androidBridge, localStorage: g.localStorage }
+
+  const store = new Map<string, string>()
+  g.localStorage = {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => void store.set(k, v),
+    removeItem: (k: string) => void store.delete(k),
+  }
+
+  const calls: Call[] = []
+  const scenario = { permission: 'prompt', afterRequest: 'granted', failStart: false }
+  let tap: ((data: unknown) => void) | null = null
+
+  // Before anything imports @capacitor/core: it reads these once, on load.
+  g.androidBridge = { postMessage: () => {} }
+  g.Capacitor = {
+    isNativePlatform: () => true,
+    getPlatform: () => 'android',
+    Plugins: {},
+    PluginHeaders: [
+      {
+        name: 'WorkoutNotification',
+        methods: [
+          { name: 'start', rtype: 'promise' },
+          { name: 'stop', rtype: 'promise' },
+          { name: 'checkPermissions', rtype: 'promise' },
+          { name: 'requestPermissions', rtype: 'promise' },
+          { name: 'addListener', rtype: 'callback' },
+          { name: 'removeListener', rtype: 'promise' },
+        ],
+      },
+    ],
+    nativePromise: async (plugin: string, method: string, options: Record<string, unknown> = {}) => {
+      if (plugin !== 'WorkoutNotification') throw new Error('no native ' + plugin)
+      calls.push({ method, options })
+      if (method === 'checkPermissions') return { display: scenario.permission }
+      if (method === 'requestPermissions') {
+        scenario.permission = scenario.afterRequest
+        return { display: scenario.permission }
+      }
+      if (method === 'start') {
+        if (scenario.failStart) throw new Error('el plugin ha fallado')
+        return { shown: true }
+      }
+      return {}
+    },
+    nativeCallback: (plugin: string, method: string, options: Record<string, unknown>, cb: (data: unknown) => void) => {
+      calls.push({ method, options })
+      if (plugin === 'WorkoutNotification' && method === 'addListener' && options.eventName === 'open') tap = cb
+      return 'cb-1'
+    },
+  }
+
+  const notice = await import('../src/lib/native/workoutNotification')
+  const methods = () => calls.map((c) => c.method)
+  const payload = { startedAt: 1_700_000_000_000, title: 'Entrenamiento en curso', body: 'Push · 0 de 3 series' }
+
+  await notice.showWorkoutNotice(payload)
+  eq(
+    methods(),
+    ['checkPermissions', 'requestPermissions', 'start'],
+    'aviso: el primer entrenamiento pide permiso y, concedido, publica el aviso',
+  )
+  eq(calls[2]?.options, payload, 'aviso: llega al nativo la hora de inicio, el título y el texto, tal cual')
+
+  calls.length = 0
+  await notice.showWorkoutNotice({ ...payload, body: 'Push · 1 de 3 series' })
+  eq(methods(), ['checkPermissions', 'start'], 'aviso: con permiso ya concedido no se vuelve a preguntar')
+
+  calls.length = 0
+  await notice.hideWorkoutNotice()
+  eq(methods(), ['stop'], 'aviso: terminar o descartar lo retira')
+
+  // Denied: never asked again, never shown, and nothing thrown at the caller.
+  scenario.permission = 'denied'
+  calls.length = 0
+  let threw = false
+  await notice.showWorkoutNotice(payload).catch(() => (threw = true))
+  eq(methods(), ['checkPermissions'], 'aviso: con el permiso denegado no se publica nada')
+  eq(threw, false, 'aviso: el permiso denegado no rompe nada')
+
+  // A second fresh install would ask; one that has already asked does not.
+  scenario.permission = 'prompt'
+  calls.length = 0
+  await notice.showWorkoutNotice(payload)
+  eq(methods(), ['checkPermissions'], 'aviso: el permiso se pide UNA vez, no en cada entrenamiento')
+
+  // The plugin failing must not reach the workout.
+  scenario.permission = 'granted'
+  scenario.failStart = true
+  threw = false
+  await notice.showWorkoutNotice(payload).catch(() => (threw = true))
+  eq(threw, false, 'aviso: si el plugin falla, el entrenamiento ni se entera')
+  scenario.failStart = false
+
+  // Order: a show still waiting must not land after the hide that follows it.
+  calls.length = 0
+  void notice.showWorkoutNotice(payload)
+  await notice.hideWorkoutNotice()
+  eq(methods().at(-1), 'stop', 'aviso: las llamadas van en fila; un stop nunca queda antes que su start')
+
+  let tapped = 0
+  const off = notice.onWorkoutNoticeTap(() => tapped++)
+  await new Promise((r) => setTimeout(r, 20))
+  const emit = tap as ((data: unknown) => void) | null
+  emit?.({})
+  eq(tapped, 1, 'aviso: tocar la notificación llega a quien escucha')
+  off()
+
+  if (saved.Capacitor === undefined) delete g.Capacitor
+  else g.Capacitor = saved.Capacitor
+  if (saved.androidBridge === undefined) delete g.androidBridge
+  else g.androidBridge = saved.androidBridge
+  if (saved.localStorage === undefined) delete g.localStorage
+  else g.localStorage = saved.localStorage
+}
+
+/* ------------------------------------------------- aviso: en web, nada */
+{
+  // Without the Capacitor global (a browser) the same calls are no-ops and do
+  // not even reach for the bridge.
+  const g = globalThis as unknown as Record<string, unknown>
+  const had = g.Capacitor
+  delete g.Capacitor
+  const { isNativeAndroid } = await import('../src/lib/native/platform')
+  const notice = await import('../src/lib/native/workoutNotification')
+  let threw = false
+  await notice.showWorkoutNotice({ startedAt: 1, title: 't', body: 'b' }).catch(() => (threw = true))
+  await notice.hideWorkoutNotice().catch(() => (threw = true))
+  eq(isNativeAndroid() === false && threw === false, true, 'aviso: en el navegador es un no-op silencioso')
+  if (had !== undefined) g.Capacitor = had
 }
 
 /* --------------------------------------------------------------- report */

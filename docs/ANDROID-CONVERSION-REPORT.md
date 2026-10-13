@@ -6,6 +6,16 @@ funcionando exactamente igual.
 
 Fecha: 21 de septiembre de 2026.
 
+> **Actualización del 13 de octubre de 2026 (v2).** Este informe describe la
+> conversión tal como se entregó y se conserva como estaba. Desde entonces:
+> la app pide un segundo permiso, `POST_NOTIFICATIONS`, para el aviso de
+> «entrenamiento en curso» de la pantalla de bloqueo (plugin propio
+> `WorkoutNotificationPlugin.java`, sin servicio en primer plano); hay un
+> cronómetro del entrenamiento visible en toda la app, una confirmación antes
+> de finalizar, las instrucciones de los ejercicios en español y ya no existen
+> los datos de ejemplo. Lo vigente sobre permisos está en el manifiesto,
+> `docs/ANDROID-SETUP.md` y `docs/GOOGLE-PLAY-DATA-SAFETY.md`.
+
 ---
 
 ## BASELINE

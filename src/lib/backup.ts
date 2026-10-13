@@ -174,7 +174,6 @@ export async function exportCsv(): Promise<number> {
     'rir',
     'rpe',
     'volume_kg',
-    'demo',
   ]
   const rows: string[] = [header.join(',')]
   let count = 0
@@ -203,7 +202,6 @@ export async function exportCsv(): Promise<number> {
             set.rir ?? '',
             set.rpe ?? '',
             (set.weight ?? 0) * (set.reps ?? 0),
-            s.demo ? 'yes' : 'no',
           ]
             .map(csvEscape)
             .join(','),

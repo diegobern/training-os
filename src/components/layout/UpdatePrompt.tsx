@@ -77,7 +77,9 @@ function UpdatePromptInner() {
   return (
     <div
       className="fixed inset-x-0 z-[55] mx-auto flex max-w-sm items-center gap-3 rounded-xl border border-line bg-elevated/95 px-3.5 py-2.5 shadow-lift backdrop-blur"
-      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem)' }}
+      // Above the tab bar, and above the workout timer when there is one: that
+      // bar publishes the room it takes as --workout-bar-space.
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5.5rem + var(--workout-bar-space, 0px))' }}
       role="status"
     >
       <span className="min-w-0 flex-1 text-sm font-medium text-ink">{t('status.updateAvailable')}</span>

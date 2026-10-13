@@ -1,0 +1,9 @@
+# Fin de línea de los scripts que se ejecutan tal cual.
+#
+# `gradlew` es un script de shell: con CRLF, en Linux y macOS falla con
+# «/bin/sh^M: bad interpreter». En una máquina Windows con core.autocrlf=true
+# git lo sacaría con CRLF — también dentro del zip que genera `git archive` —,
+# así que se fija aquí. Los .bat, al revés: cmd.exe los quiere en CRLF.
+android/gradlew text eol=lf
+*.sh            text eol=lf
+*.bat           text eol=crlf

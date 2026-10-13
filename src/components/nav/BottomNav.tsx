@@ -14,6 +14,20 @@ const ITEMS = [
   { to: '/more', key: 'nav.more', Icon: IconGrid, end: false },
 ] as const
 
+/**
+ * The full-home-indicator inset left a visible band of empty bar under the
+ * labels. Trimming it drops the row closer to the edge of the screen while
+ * still clearing the indicator itself.
+ */
+const NAV_PADDING_BOTTOM = 'max(0px, calc(env(safe-area-inset-bottom, 0px) - 0.9rem))'
+
+/**
+ * How much of the bottom of the screen the bar covers: the 4.25rem row, its
+ * 1px top border and the trimmed inset above. Anything that has to sit just
+ * above the bar — the workout timer — reads it from here instead of keeping
+ * its own copy of these numbers.
+ */
+export const BOTTOM_NAV_HEIGHT = `calc(4.25rem + 1px + ${NAV_PADDING_BOTTOM})`
 
 /**
  * The 3D mark in the middle of the tab bar.
@@ -69,10 +83,7 @@ export function BottomNav({ hasActiveSession }: { hasActiveSession: boolean }) {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg/92 backdrop-blur-xl"
-      // The full home-indicator inset left a visible band of empty bar under
-      // the labels. Trimming it drops the row closer to the edge of the screen
-      // while still clearing the indicator itself.
-      style={{ paddingBottom: 'max(0px, calc(env(safe-area-inset-bottom, 0px) - 0.9rem))' }}
+      style={{ paddingBottom: NAV_PADDING_BOTTOM }}
       aria-label={t('nav.home')}
     >
       <ul className="mx-auto flex h-[4.25rem] max-w-lg items-stretch">

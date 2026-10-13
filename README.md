@@ -153,7 +153,10 @@ con meses de entrenamientos se actualiza sin perder nada.
 
 Cada perfil guarda `schemaVersion`. Hoy es `1`. Si algún día cambia la forma de los datos,
 se añade una migración que **transforma**, nunca una que borre, y se documenta aquí. Un
-despliegue nuevo no resetea usuarios, no siembra datos DEMO y no ejecuta nada destructivo.
+despliegue nuevo no resetea usuarios, no siembra datos de ejemplo y no ejecuta nada destructivo.
+La app no tiene datos de ejemplo: cada persona ve sólo lo que registra con su cuenta. Los
+que cargó la antigua opción «Cargar datos DEMO» se borran solos al arrancar
+(`src/lib/db/sampleData.ts`).
 
 ### Estructura
 
@@ -170,7 +173,7 @@ src/
 │   └── workout/      fila de serie, temporizador, objetivo, celebraciones, selector
 ├── hooks/
 ├── lib/
-│   ├── db/           esquema, conexión, repositorios, catálogo, datos demo
+│   ├── db/           esquema, conexión, repositorios, catálogo, limpieza de datos de ejemplo
 │   ├── firebase/     configuración, arranque diferido, cuenta, rutas, perfil
 │   ├── sync/         bandeja de salida y motor de sincronización
 │   ├── i18n/         diccionarios es / en
@@ -362,8 +365,9 @@ emulador de Firestore pueda arrancar. Ver el informe de estado y [FIREBASE.md](F
 - **LEARN** (feed de vídeos) — fuera de alcance por decisión tuya.
 - **Login por nombre de usuario** — ver la sección de arquitectura.
 - **Notificación del sistema al acabar el descanso** — hay sonido y vibración, que
-  funcionan con la app abierta. Una notificación fiable en segundo plano necesita
-  permisos y un servicio de push; no se ha simulado algo que no funcionaría.
+  funcionan con la app abierta. Lo que sí hay en Android es el aviso de
+  «entrenamiento en curso» en la pantalla de bloqueo, con el tiempo subiendo
+  (ver docs/ANDROID-SETUP.md).
 
 ---
 

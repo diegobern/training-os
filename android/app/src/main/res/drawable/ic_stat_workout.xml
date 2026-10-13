@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Icono pequeño del aviso de entrenamiento en curso: el rayo de Training OS.
+
+  Android pinta los iconos de la barra de estado con un solo color (blanco
+  sobre la barra, o el color de acento dentro de la notificación), así que el
+  trazado va en blanco liso y es el sistema quien lo tiñe: con
+  `setColor(brandBolt)` sale en el verde de la marca dentro de la
+  notificación. El plugin lo reutiliza teñido de verde, sobre tinta, para el
+  icono grande.
+
+  Trazado: el de `public/favicon.svg` y del icono adaptativo, en su sistema de
+  64x64. El rayo ocupa 51 de los 64 de alto, centrado, que deja el margen que
+  piden los iconos de notificación.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40.6 6.4 14.9 32.5h11.3L24.4 57.6 50.1 30.2H38.1Z" />
+</vector>

@@ -9,6 +9,7 @@ import { IconAlert, IconOffline } from "./components/ui/Icon";
 import { UpdatePrompt } from "./components/layout/UpdatePrompt";
 import { NativeShell } from "./components/layout/NativeShell";
 import { CelebrationLayer } from "./components/workout/CelebrationLayer";
+import { WorkoutTimerBar } from "./components/workout/WorkoutTimerBar";
 import { AuthGate } from "./components/auth/AuthGate";
 import { SyncBanner } from "./components/layout/SyncBanner";
 import { dismissBootMark } from "./lib/bootmark";
@@ -234,6 +235,10 @@ export function App() {
             <Route path="*" element={<Home />} />
           </Routes>
         </Suspense>
+        {/* The workout clock on every screen but the session itself, just
+            above the tab bar. Inside the gate: there is no session to time
+            on the sign-in screens. */}
+        <WorkoutTimerBar />
         <BottomNav hasActiveSession={hasSession} />
         <Toaster />
         <CelebrationLayer />

@@ -515,3 +515,64 @@ fuerza, para que la marca palpite con el destello en vez de ignorarlo.
 
 Cuesta una multiplicación por fotograma. Es el tipo de detalle que separa un
 objeto con material de una foto girando.
+
+## D34. El cronómetro del entrenamiento se ve en toda la app
+
+Mientras hay una sesión abierta, una barra fija encima de la navegación
+inferior enseña el tiempo transcurrido en cualquier pantalla; tocarla vuelve a
+la sesión. En la pantalla de la sesión no aparece: ahí el tiempo ya está en la
+cabecera y la parte de abajo es del temporizador de descanso.
+
+- **Un solo cálculo** para todos: `useElapsed` (`src/hooks/useElapsed.ts`), la
+  misma cuenta que guarda `finishSession` como duración. Sale de
+  `startedAt`/`pausedMs` absolutos, así que sobrevive a que Android congele el
+  WebView, y se relee en cuanto la página vuelve a verse.
+- **Abajo y no arriba**: arriba ya se apilan los avisos de sincronización y de
+  sin conexión, los toasts y la barra de cada página, todos bajo el notch.
+- **No tapa nada**: la altura de la navegación se comparte
+  (`BOTTOM_NAV_HEIGHT`), un espaciador en el flujo deja que el final de cada
+  página suba por encima de la barra, y la barra publica lo que ocupa en
+  `--workout-bar-space` para que el aviso de actualización se aparte.
+
+## D35. Finalizar pide confirmación
+
+Finalizar es lo único de la sesión que no tiene vuelta atrás, así que los dos
+accesos — «Hecho» en la cabecera y el botón grande del final — abren un resumen
+de lo que se va a guardar (duración, ejercicios con algo registrado, series
+completadas de total, series pendientes). Sin nada registrado se mantiene el
+diálogo que ofrecía descartar. Los recuentos salen de `sessionProgress`
+(`src/lib/training/sessionProgress.ts`), el mismo para la cabecera, el
+diálogo y el aviso de Android.
+
+## D36. Aviso de entrenamiento en curso en la pantalla de bloqueo (Android)
+
+Ver `docs/ANDROID-SETUP.md`. Plugin propio mínimo, cronómetro pintado por el
+sistema (`setUsesChronometer`), sin servicio en primer plano, permiso pedido al
+empezar el primer entrenamiento. En web es un no-op que no descarga Capacitor.
+
+## D37. Instrucciones en español, y una caché que se entera
+
+Las 877 fichas con pasos en inglés tienen su traducción, con el glosario fijo
+de `docs/GLOSARIO-INSTRUCCIONES-ES.md`. La fuente de verdad es
+`scripts/catalog/instructions-es.json` y una etapa del pipeline
+(`npm run catalog:es`) la aplica al catálogo publicado; cada traducción guarda
+la huella del inglés que traduce y deja de aplicarse si el original cambia.
+Están marcadas `machine`, no `reviewed` (D6): las hizo un modelo y las revisó
+otra pasada del modelo, no una persona.
+
+Rellenar campos no cambia la versión del catálogo, y la copia de cada fichero
+guardada en IndexedDB (y en la caché CacheFirst del service worker) se habría
+quedado en inglés para siempre en cualquier móvil que hubiera abierto CÓMO
+HACERLO antes. Por eso el build calcula una huella del contenido de cada
+fichero (`__CATALOG_REVISIONS__`, en `vite.config.ts`): si no coincide con la
+de la copia guardada, el fichero se vuelve a pedir con `?rev=<huella>`. Un
+fichero que no ha cambiado no se descarga nunca dos veces.
+
+## D38. Sin datos de ejemplo
+
+La app sólo enseña lo que la persona registra con su cuenta. Se ha quitado
+«Cargar datos DEMO» y todo lo que lo anunciaba. Lo que cargó esa opción a
+quien la usó se borra solo — en el dispositivo y en la cuenta — al arrancar, y
+no vuelve desde la nube en otro dispositivo (`src/lib/db/sampleData.ts`). Sólo
+se toca lo marcado `demo: true` por la propia app; nada que haya registrado una
+persona lleva esa marca.

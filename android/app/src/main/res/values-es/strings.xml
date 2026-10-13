@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  Español. Sólo lo que el sistema enseña en su idioma: el nombre y la
+  descripción del canal de notificaciones (Ajustes → Notificaciones). Lo demás
+  de values/strings.xml no se traduce: es el nombre de la app y el paquete.
+-->
+<resources>
+    <string name="workout_channel_name">Entrenamiento en curso</string>
+    <string name="workout_channel_description">Muestra en la pantalla de bloqueo el tiempo que llevas entrenando mientras dure el entrenamiento.</string>
+</resources>

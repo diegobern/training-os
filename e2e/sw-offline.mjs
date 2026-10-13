@@ -7,13 +7,13 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
+import { CHROMIUM_EXE as EXE, E2E_TMP } from './chromium.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:4310'
 const out = []
 let failures = 0
 const check = (c, m, d) => { if (c) out.push('PASS  ' + m); else { failures++; out.push('FAIL  ' + m + (d ? `\n      ${d}` : '')) } }
 
-const ctx = await chromium.launchPersistentContext(`/tmp/swoff-${Date.now()}`, {
+const ctx = await chromium.launchPersistentContext(`${E2E_TMP}/swoff-${Date.now()}`, {
   executablePath: EXE, args: ['--no-sandbox'], viewport: { width: 390, height: 844 }, locale: 'es-ES',
 })
 const page = ctx.pages()[0]

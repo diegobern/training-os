@@ -28,7 +28,7 @@ import type {
 export const CATALOG_VERSION = 2
 const BASE = `/catalog/v${CATALOG_VERSION}`
 
-type CacheKey = 'exercises' | 'media-index' | 'instructions' | 'media-attribution'
+export type CacheKey = 'exercises' | 'media-index' | 'instructions' | 'media-attribution'
 
 let indexPromise: Promise<CatalogFile> | null = null
 let mediaPromise: Promise<MediaIndex> | null = null
@@ -36,27 +36,61 @@ let instructionsPromise: Promise<InstructionFile> | null = null
 let attributionPromise: Promise<MediaAttributionFile> | null = null
 
 /**
- * Cache-first with a network fallback, never the other way round.
+ * The fingerprint of each file as it was when this build was made, from
+ * vite.config.ts. Absent outside a Vite build (the unit tests), in which case
+ * the version alone decides, as it always did.
+ */
+const REVISIONS: Record<string, string> = typeof __CATALOG_REVISIONS__ === 'undefined' ? {} : __CATALOG_REVISIONS__
+
+/** The fingerprint this build expects for one file, or null if it has none. */
+export function catalogRevision(key: CacheKey, revisions: Record<string, string> = REVISIONS): string | null {
+  return revisions[`v${CATALOG_VERSION}/${key}`] ?? null
+}
+
+/**
+ * Whether a cached row can be served as it is: same catalog version and, when
+ * the build knows the file's fingerprint, the same fingerprint.
+ */
+export function cachedRowIsCurrent(
+  row: { version: number; rev?: string } | undefined,
+  rev: string | null,
+): boolean {
+  if (!row || row.version !== CATALOG_VERSION) return false
+  return rev === null || row.rev === rev
+}
+
+/**
+ * Cache-first with a network fallback, never the other way round. This is
+ * what makes the library work on a phone with no signal.
  *
- * The catalog for a given version is immutable — a change ships as v2 — so a
- * cached copy is always correct and there is nothing to revalidate. This is
- * also what makes the library work on a phone with no signal.
+ * "A change ships as a new version" was the rule, and it holds for a change of
+ * format. It does not hold for content: filling in the Spanish instructions
+ * changed instructions.json without changing its shape, and a phone that had
+ * opened HOW TO once would have gone on reading the cached English copy for
+ * good — from IndexedDB here, and from the service worker's CacheFirst rule
+ * underneath. So each row also remembers the fingerprint of the file it came
+ * from; when the build carries a different one, the file is fetched again,
+ * under a URL that names that fingerprint so no cache in between can answer
+ * with the old one. A file that has not changed keeps its fingerprint and is
+ * never fetched twice.
  */
 async function loadFile<T>(key: CacheKey): Promise<T> {
   const db = await getDB()
+  const rev = catalogRevision(key)
   try {
     const row = await db.get('catalog', key)
-    if (row && row.version === CATALOG_VERSION) return row.payload as T
+    if (row && cachedRowIsCurrent(row, rev)) return row.payload as T
   } catch (err) {
     log('catalog', `cache read failed for ${key}: ${String(err)}`, 'warn')
   }
 
-  const res = await fetch(`${BASE}/${key}.json`, { cache: 'force-cache' })
+  const url = rev ? `${BASE}/${key}.json?rev=${rev}` : `${BASE}/${key}.json`
+  const res = await fetch(url, { cache: 'force-cache' })
   if (!res.ok) throw new Error(`catalog ${key}: HTTP ${res.status}`)
   const payload = (await res.json()) as T
 
   try {
-    await db.put('catalog', { key, version: CATALOG_VERSION, payload, fetchedAt: Date.now() })
+    await db.put('catalog', { key, version: CATALOG_VERSION, rev: rev ?? undefined, payload, fetchedAt: Date.now() })
   } catch (err) {
     // A full quota or a private window must not stop the catalog being used;
     // it only means it will be fetched again next launch.

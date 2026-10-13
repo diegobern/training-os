@@ -53,6 +53,7 @@ import {
   setQueueListener,
 } from './queue'
 import { DEFAULT_WEEKLY_SET_TARGETS, defaultSettings, type ProgressPhoto } from '../db/schema'
+import { isSampleRecord } from '../db/sampleData'
 
 /* ------------------------------------------------------------------ status */
 
@@ -325,6 +326,7 @@ async function pullCollection(
   let cursor: QueryDocumentSnapshot<DocumentData> | null = null
   let newest = last
   let count = 0
+  const sampleIds: string[] = []
 
   for (;;) {
     const parts: QueryConstraint[] = [
@@ -342,11 +344,19 @@ async function pullCollection(
       // A document still waiting in our outbox is newer here than on the
       // server; leave ours alone so the push wins.
       if (pendingLocally.has(`${store}:${docSnap.id}`)) continue
-      await putFromServer(store, decode(store, docSnap) as { id: string })
-      count++
+      const value = decode(store, docSnap) as { id: string }
       const ts = docSnap.get(SYNC_FIELD) as Timestamp | undefined
       const ms = ts?.toMillis?.()
       if (typeof ms === 'number' && (newest === null || ms > newest)) newest = ms
+      // Sample data from the removed "Load DEMO data" never comes back into
+      // the app: it is not stored, and it is deleted from the account too.
+      // See src/lib/db/sampleData.ts.
+      if (isSampleRecord(value)) {
+        sampleIds.push(value.id)
+        continue
+      }
+      await putFromServer(store, value)
+      count++
     }
 
     cursor = snap.docs[snap.docs.length - 1]
@@ -354,6 +364,7 @@ async function pullCollection(
   }
 
   if (newest !== null) await setSyncState(lastPullKey(store), newest)
+  if (sampleIds.length) await enqueueMany(sampleIds.map((docId) => ({ store, docId, op: 'delete' as const })))
   if (count) notify(store as StoreName)
   return count
 }

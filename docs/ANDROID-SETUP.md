@@ -82,10 +82,12 @@ android/                         Proyecto nativo (Gradle, manifiesto, recursos)
   app/src/main/res/values/styles.xml Temas, edge-to-edge, pantalla de arranque
   app/build.gradle                   Versión, firma, SDK
   gradle.properties                  trainingOsVersionCode
+  app/src/main/java/.../WorkoutNotificationPlugin.java  Aviso de entrenamiento en curso
 src/lib/native/                  La frontera en TypeScript
   platform.ts                        ¿Estamos dentro del APK?
   chrome.ts                          Barra de estado, splash, enlaces externos
-src/components/layout/NativeShell.tsx  Botón atrás y teclado
+  workoutNotification.ts             El aviso de la pantalla de bloqueo
+src/components/layout/NativeShell.tsx  Botón atrás, teclado y aviso de entrenamiento
 scripts/android/brand-assets.mjs Generador de iconos y splash
 ```
 
@@ -124,29 +126,50 @@ error visible.
 No se pierde nada: el catálogo, las ilustraciones y el código ya viajan dentro
 del APK. La PWA de la web sigue exactamente igual.
 
-### No hay notificaciones
+### Una notificación, y sólo una: «entrenamiento en curso»
 
-El temporizador de descanso guarda una **marca de tiempo absoluta**
-(`endsAt`, en `src/store/useWorkout.ts`), no un contador. Si Android congela el
-WebView, al volver muestra el tiempo correcto porque nunca dependió de que los
-ticks se ejecutaran.
+Mientras hay un entrenamiento abierto, la pantalla de bloqueo enseña un aviso
+con el nombre del día, las series hechas y **el tiempo subiendo solo**. Se pide
+`POST_NOTIFICATIONS` para eso y para nada más.
 
-Lo que no hace es **avisar** cuando el descanso termina con la app en segundo
-plano. Añadirlo es perfectamente viable y son tres pasos:
+Cómo funciona, y por qué así:
 
-```bash
-npm i @capacitor/local-notifications
-```
+* **El cronómetro lo pinta Android**, no la app:
+  `NotificationCompat.Builder` con `setUsesChronometer(true)` y
+  `setWhen(inicio)`. A partir de ahí el sistema cuenta solo. Por eso **no hay
+  servicio en primer plano** ni `FOREGROUND_SERVICE_HEALTH`, ni nada que tenga
+  que seguir ejecutándose con la pantalla apagada. `@capacitor/local-notifications`
+  no expone este cronómetro, así que es un plugin propio y mínimo:
+  `android/app/src/main/java/com/trainingos/app/WorkoutNotificationPlugin.java`,
+  registrado en `MainActivity.java`, con dos métodos, `start` y `stop`.
+* **El lado web** está en `src/lib/native/workoutNotification.ts` y se engancha
+  en `src/components/layout/NativeShell.tsx`: publica el aviso al empezar,
+  lo actualiza al marcar series y lo retira al finalizar o descartar. En el
+  navegador no hace nada y no descarga ni un byte de Capacitor.
+* **El permiso se pide la primera vez que se empieza un entrenamiento**, nunca
+  al abrir la app. Si se deniega no se vuelve a preguntar y todo funciona igual,
+  sin el aviso. Si después se activa en los ajustes del sistema, el aviso
+  aparece solo en el siguiente entrenamiento.
+* **Persistente.** Es `ongoing`: no se descarta deslizando ni con «Borrar todo».
+  Desde Android 14 el sistema sí deja deslizarlo con el teléfono desbloqueado
+  (es una regla de Android que ninguna app puede quitar); por eso el plugin lo
+  vuelve a publicar cada vez que la app deja de verse — por ejemplo, al
+  bloquear el teléfono —, que es justo cuando tiene que estar ahí.
+* **Tocarlo abre la app en la sesión**, también si estaba cerrada.
+* **Marca**: icono del rayo en la barra de estado, tintado en `#CDFF4F`, e icono
+  grande con el rayo verde sobre tinta `#0A0B0D`.
+* Canal `workout_in_progress`, importancia normal pero **sin sonido, sin
+  vibración y sin globo**. Normal y no baja a propósito: muchos Android ocultan
+  por defecto en la pantalla de bloqueo las notificaciones «silenciosas».
 
-1. Añadir `<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />`
-   al manifiesto, con su justificación al lado como las demás.
-2. Pedir el permiso en tiempo de ejecución (Android 13+ lo exige) la primera vez
-   que el usuario inicia un descanso, no al abrir la app.
-3. Programar la notificación en `startRest` y cancelarla en `stopRest` / `tickRest`.
+Para probarlo a mano: instala el APK de depuración, empieza un entrenamiento,
+acepta el permiso y bloquea el teléfono.
 
-No se ha hecho porque añade un permiso, y el permiso hay que declararlo en el
-formulario de Seguridad de los datos y aparece en la ficha de Play. La decisión
-de si merece la pena es tuya, no del código.
+El temporizador de **descanso** sigue sin avisar con la app en segundo plano:
+guarda una marca de tiempo absoluta (`endsAt`, en `src/store/useWorkout.ts`) y
+al volver enseña el tiempo correcto, pero no suena si la app no está delante.
+Añadirlo ya no costaría ningún permiso nuevo — el de notificaciones está — pero
+sí programar una notificación para más tarde, que es otra pieza.
 
 ### `minifyEnabled` está en `false`
 

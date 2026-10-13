@@ -42,6 +42,11 @@ export interface SyncStateRow {
 export interface CatalogCacheRow {
   key: string
   version: number
+  /**
+   * Fingerprint of the file the payload came from. Optional on purpose: rows
+   * written before it existed have none, and are simply fetched again once.
+   */
+  rev?: string
   payload: unknown
   fetchedAt: number
 }

@@ -86,17 +86,6 @@ export default function Home() {
     >
       <p className="label-xs mb-3">{greeting}</p>
 
-      {settings.demoDataPresent && (
-        <button
-          onClick={() => navigate('/settings')}
-          className="press mb-4 flex w-full items-center gap-2 rounded-xl border border-info/40 bg-info/10 px-3 py-2 text-left"
-        >
-          <span className="shrink-0 rounded-md bg-info/20 px-1.5 py-0.5 text-2xs font-bold tracking-wide text-info">
-            {t('common.demo')}
-          </span>
-          <span className="min-w-0 flex-1 text-xs leading-snug text-info">{t('home.demoActive')}</span>
-        </button>
-      )}
 
       {session && (
         <Card className="mb-4 border-accent/40 bg-accent/[0.07] p-4">

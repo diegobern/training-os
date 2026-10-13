@@ -27,21 +27,12 @@ import { RestTimerBar } from '../components/workout/RestTimerBar'
 import { TargetCard } from '../components/workout/TargetCard'
 import { fmtDuration } from '../lib/format'
 import { SET_TYPES, type Exercise, type SetType } from '../lib/db/schema'
-import { isLogged } from '../lib/training/metrics'
+import { sessionProgress } from '../lib/training/sessionProgress'
+import { useElapsed } from '../hooks/useElapsed'
 import { ExercisePicker } from '../components/workout/ExercisePicker'
 import { getExercise, saveExercise } from '../lib/db/repo.exercises'
 import { toast } from '../store/useToast'
 import { HowToSheet } from '../components/exercise/HowToSheet'
-
-function useElapsed(startedAt: number | undefined, pausedMs: number) {
-  const [now, setNow] = useState(Date.now())
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-  if (!startedAt) return 0
-  return Math.max(0, Math.round((now - startedAt - pausedMs) / 1000))
-}
 
 export default function WorkoutActive() {
   const t = useT()
@@ -71,6 +62,8 @@ export default function WorkoutActive() {
   const [notesOpen, setNotesOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [confirmFinish, setConfirmFinish] = useState(false)
+  const [confirmSave, setConfirmSave] = useState(false)
+  const [finishing, setFinishing] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null)
   const [libraryExercise, setLibraryExercise] = useState<Exercise | null>(null)
   const [howTo, setHowTo] = useState(false)
@@ -93,19 +86,11 @@ export default function WorkoutActive() {
     }
   }, [current?.exerciseId])
 
-  const totals = useMemo(() => {
-    if (!session) return { done: 0, total: 0 }
-    let done = 0
-    let total = 0
-    for (const ex of session.exercises) {
-      for (const s of ex.sets) {
-        if (s.type === 'warmup' && settings.excludeWarmupsFromStats) continue
-        total++
-        if (s.completed) done++
-      }
-    }
-    return { done, total }
-  }, [session, settings.excludeWarmupsFromStats])
+  const progress = useMemo(
+    () => (session ? sessionProgress(session, settings.excludeWarmupsFromStats) : null),
+    [session, settings.excludeWarmupsFromStats],
+  )
+  const totals = { done: progress?.doneSets ?? 0, total: progress?.totalSets ?? 0 }
 
   useEffect(() => {
     if (loaded && !session) navigate('/workout', { replace: true })
@@ -116,15 +101,34 @@ export default function WorkoutActive() {
   const prevLog = current ? previous[current.exerciseId] : null
   const insight = current ? insights[current.exerciseId] : null
 
-  async function handleFinish() {
-    const anyLogged = session!.exercises.some((e) => e.sets.some(isLogged))
-    if (!anyLogged) {
+  /*
+   * Both ways out — the big button at the end and "Done" in the header — come
+   * through here, and neither closes the session on its own any more. With
+   * nothing logged it is the existing offer to discard; otherwise a summary of
+   * what is about to be saved, because finishing is the one tap in the session
+   * that cannot be taken back.
+   */
+  function handleFinish() {
+    if (!progress?.anyLogged) {
       setConfirmFinish(true)
       return
     }
-    const result = await finish()
-    if (result) navigate('/workout/summary', { replace: true })
+    setConfirmSave(true)
   }
+
+  async function saveAndFinish() {
+    if (finishing) return
+    setFinishing(true)
+    try {
+      const result = await finish()
+      if (result) navigate('/workout/summary', { replace: true })
+    } finally {
+      setFinishing(false)
+      setConfirmSave(false)
+    }
+  }
+
+  const pendingSets = totals.total - totals.done
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg">
@@ -507,10 +511,51 @@ export default function WorkoutActive() {
         }}
       />
 
+      <ConfirmDialog
+        open={confirmSave}
+        title={t('workout.finishConfirmTitle')}
+        body={t('workout.finishConfirmBody')}
+        confirmLabel={t('workout.finishConfirm')}
+        cancelLabel={t('workout.keepTraining')}
+        busy={finishing}
+        onCancel={() => setConfirmSave(false)}
+        onConfirm={() => void saveAndFinish()}
+      >
+        {progress && (
+          <>
+            <dl className="mt-4 grid grid-cols-3 gap-2" aria-label={t('workout.finishConfirmBody')}>
+              <SummaryFact label={t('workout.summaryDuration')} value={fmtDuration(elapsed)} />
+              <SummaryFact
+                label={t('workout.summaryExercises')}
+                value={t('workout.summaryOf', { done: progress.loggedExercises, total: progress.totalExercises })}
+              />
+              <SummaryFact
+                label={t('workout.summarySets')}
+                value={t('workout.summaryOf', { done: progress.doneSets, total: progress.totalSets })}
+              />
+            </dl>
+            {pendingSets > 0 && (
+              <p className="mt-3 text-secondary text-muted">
+                {pendingSets === 1 ? t('workout.pendingOne') : t('workout.pendingMany', { n: pendingSets })}
+              </p>
+            )}
+          </>
+        )}
+      </ConfirmDialog>
+
       {/* Mounted at the root of the screen, not inside the exercise card: the
           session stays exactly as it was underneath, so closing the sheet
           returns to the set that was being typed. */}
       <HowToSheet open={howTo} onClose={() => setHowTo(false)} exercise={libraryExercise} />
+    </div>
+  )
+}
+
+function SummaryFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-line bg-elevated px-3 py-2.5">
+      <dt className="label-xs">{label}</dt>
+      <dd className="tnum mt-1 text-card-sm font-bold text-ink">{value}</dd>
     </div>
   )
 }

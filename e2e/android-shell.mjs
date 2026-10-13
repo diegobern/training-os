@@ -22,7 +22,7 @@
  */
 import { chromium } from 'playwright'
 
-const EXE = '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell'
+import { CHROMIUM_EXE as EXE } from './chromium.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 
 const out = []
@@ -204,6 +204,301 @@ const device = {
     check(outbound.length === 0, 'enlaces — no se pide la página externa dentro del WebView', outbound.join(' · '))
   }
 
+  await ctx.close()
+}
+
+/* ========================== 4. aviso de entrenamiento en curso (Android) */
+
+/*
+ * El mismo Android emulado, pero esta vez con un plugin nativo que CONTESTA:
+ * el de `WorkoutNotificationPlugin.java`, declarado en `PluginHeaders` y
+ * atendido por `nativePromise` / `nativeCallback`, que es exactamente la
+ * superficie que inyecta el WebView de Capacitor y la que usa
+ * @capacitor/core. Así se ejercita el código web real del aviso.
+ *
+ * `window.__notif` registra cada llamada y deja elegir la respuesta: permiso
+ * concedido o denegado, o un plugin que falla en todo.
+ */
+const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
+  window.androidBridge = { postMessage: () => {} }
+  /*
+   * Lo que en el teléfono sobrevive a cerrar y abrir la app — el permiso que
+   * ya se concedió y, para la prueba, el registro de llamadas — se guarda en
+   * sessionStorage, porque cada `page.goto` vuelve a cargar la página y este
+   * script se ejecuta otra vez desde cero.
+   */
+  const KEY = '__notif-state'
+  const saved = JSON.parse(sessionStorage.getItem(KEY) ?? 'null')
+  const state = (window.__notif = { tap: null, ...scenario, calls: [], ...(saved ?? {}) })
+  const persist = () => sessionStorage.setItem(KEY, JSON.stringify({ permission: state.permission, calls: state.calls }))
+  const record = (entry) => {
+    state.calls.push(entry)
+    persist()
+  }
+  window.Capacitor = {
+    platform: 'android',
+    isNative: true,
+    isNativePlatform: () => true,
+    getPlatform: () => 'android',
+    Plugins: {},
+    PluginHeaders: [
+      {
+        name: 'WorkoutNotification',
+        methods: [
+          { name: 'start', rtype: 'promise' },
+          { name: 'stop', rtype: 'promise' },
+          { name: 'checkPermissions', rtype: 'promise' },
+          { name: 'requestPermissions', rtype: 'promise' },
+          { name: 'addListener', rtype: 'callback' },
+          { name: 'removeListener', rtype: 'promise' },
+        ],
+      },
+    ],
+    nativePromise: (plugin, method, options = {}) => {
+      if (plugin !== 'WorkoutNotification') return Promise.reject(new Error(`sin nativo: ${plugin}`))
+      record({ method, options, at: Date.now() })
+      if (state.broken) return Promise.reject(new Error('plugin roto a propósito'))
+      if (method === 'checkPermissions') return Promise.resolve({ display: state.permission })
+      if (method === 'requestPermissions') {
+        state.permission = state.afterRequest
+        persist()
+        return Promise.resolve({ display: state.permission })
+      }
+      if (method === 'start') return Promise.resolve({ shown: true })
+      return Promise.resolve({})
+    },
+    nativeCallback: (plugin, method, options, callback) => {
+      record({ method, options, at: Date.now() })
+      if (plugin === 'WorkoutNotification' && method === 'addListener' && options?.eventName === 'open') state.tap = callback
+      return 'cb-' + state.calls.length
+    },
+  }
+}
+
+async function freshProfile(page) {
+  await page.goto(BASE, { waitUntil: 'commit' })
+  await page.waitForTimeout(3500)
+  await page.evaluate(async () => {
+    const db = await new Promise((r) => {
+      const q = indexedDB.open('training-os')
+      q.onsuccess = () => r(q.result)
+    })
+    const row = await new Promise((r) => {
+      const q = db.transaction('settings').objectStore('settings').get('app')
+      q.onsuccess = () => r(q.result)
+    })
+    if (!row) return
+    row.onboardingVersion = 1
+    await new Promise((r) => {
+      const q = db.transaction('settings', 'readwrite').objectStore('settings').put(row)
+      q.onsuccess = () => r()
+    })
+  })
+  await page.reload({ waitUntil: 'commit' })
+  await page.waitForTimeout(3500)
+}
+
+async function startFreeWorkout(page) {
+  await page.goto(`${BASE}/workout`, { waitUntil: 'commit' })
+  await page.waitForTimeout(2500)
+  await page.getByRole('button', { name: /Entrenamiento libre/ }).first().click()
+  await page.waitForTimeout(2500)
+}
+
+async function discardFromWorkoutScreen(page) {
+  await page.goto(`${BASE}/workout`, { waitUntil: 'commit' })
+  await page.waitForTimeout(2500)
+  await page.getByRole('button', { name: 'DESCARTAR' }).first().click()
+  await page.waitForTimeout(600)
+  await page.locator('[role="dialog"]').getByRole('button', { name: 'DESCARTAR' }).click()
+  await page.waitForTimeout(1500)
+}
+
+const noticeCalls = (page) => page.evaluate(() => window.__notif.calls.map((c) => c.method))
+const startCalls = (page) => page.evaluate(() => window.__notif.calls.filter((c) => c.method === 'start').map((c) => c.options))
+
+/* --- 4a. permiso concedido: el camino normal ------------------------------ */
+{
+  const ctx = await browser.newContext(device)
+  const page = await ctx.newPage()
+  const pageErrors = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
+  await page.addInitScript(FAKE_ANDROID_WITH_NOTICE, { permission: 'prompt', afterRequest: 'granted' })
+  await freshProfile(page)
+
+  const atOpen = await noticeCalls(page)
+  check(
+    !atOpen.includes('requestPermissions') && !atOpen.includes('start'),
+    'aviso — abrir la app NO pide el permiso de notificaciones',
+    atOpen.join(', '),
+  )
+
+  await startFreeWorkout(page)
+  const afterStart = await noticeCalls(page)
+  const ask = afterStart.indexOf('requestPermissions')
+  const first = afterStart.indexOf('start')
+  check(ask !== -1, 'aviso — el permiso se pide al empezar el primer entrenamiento', afterStart.join(', '))
+  check(first > ask, 'aviso — y con el permiso concedido se publica el aviso', afterStart.join(', '))
+
+  const sessionStart = await page.evaluate(async () => {
+    const db = await new Promise((r) => {
+      const q = indexedDB.open('training-os')
+      q.onsuccess = () => r(q.result)
+    })
+    const all = await new Promise((r) => {
+      const q = db.transaction('sessions').objectStore('sessions').getAll()
+      q.onsuccess = () => r(q.result)
+    })
+    const active = all.find((s) => s.status === 'active' && !s.deletedAt)
+    return active ? active.startedAt + active.pausedMs : null
+  })
+  const [published] = await startCalls(page)
+  check(
+    !!published && published.startedAt === sessionStart,
+    'aviso — el cronómetro nativo arranca a la misma hora que el de la app',
+    `${published?.startedAt} vs ${sessionStart}`,
+  )
+  check(published?.title === 'Entrenamiento en curso', 'aviso — título en el idioma de la app', published?.title)
+  check(/Entrenamiento libre · 0 de 0 series/.test(published?.body ?? ''), 'aviso — dice qué día y cuántas series', published?.body)
+
+  // Tocar el aviso con la app en otra pantalla vuelve a la sesión.
+  await page.goto(`${BASE}/progress`, { waitUntil: 'commit' })
+  await page.waitForTimeout(3000)
+  const tapped = await page.evaluate(() => {
+    if (!window.__notif.tap) return false
+    window.__notif.tap({})
+    return true
+  })
+  await page.waitForTimeout(1500)
+  check(tapped, 'aviso — la app escucha el toque en la notificación')
+  check(page.url().endsWith('/workout/active'), 'aviso — tocarlo abre la app en la sesión', page.url())
+
+  // Moving around inside the app must not keep tearing the listener down and
+  // putting it back: each of those is a call across the bridge.
+  const listenerCalls = async () => (await noticeCalls(page)).filter((m) => m === 'addListener' || m === 'removeListener').length
+  const beforeMoving = await listenerCalls()
+  await page.getByRole('button', { name: 'Volver' }).first().click()
+  await page.waitForTimeout(1200)
+  await page.getByRole('link', { name: 'Rutinas' }).first().click()
+  await page.waitForTimeout(1200)
+  await page.getByRole('link', { name: 'Progreso' }).first().click()
+  await page.waitForTimeout(1200)
+  check(
+    (await listenerCalls()) === beforeMoving,
+    'aviso — cambiar de pantalla no vuelve a registrar el oyente del toque',
+    `${beforeMoving} → ${await listenerCalls()}`,
+  )
+
+  await discardFromWorkoutScreen(page)
+  const afterDiscard = await noticeCalls(page)
+  check(afterDiscard.at(-1) === 'stop', 'aviso — al descartar el entrenamiento se retira solo', afterDiscard.slice(-4).join(', '))
+
+  await startFreeWorkout(page)
+  const second = (await noticeCalls(page)).slice(afterDiscard.length)
+  check(
+    !second.includes('requestPermissions') && second.includes('start'),
+    'aviso — el segundo entrenamiento no vuelve a preguntar y publica el aviso',
+    second.join(', '),
+  )
+  // Finishing through the confirmation also retires it.
+  await page.getByRole('button', { name: 'Hecho', exact: true }).click()
+  await page.waitForTimeout(700)
+  await page.locator('[role="dialog"]').getByRole('button', { name: 'DESCARTAR' }).click()
+  await page.waitForTimeout(1500)
+  check((await noticeCalls(page)).at(-1) === 'stop', 'aviso — al terminar desde la sesión también se retira')
+
+  check(pageErrors.length === 0, 'aviso — sin errores sin capturar', pageErrors.join(' · '))
+  await ctx.close()
+}
+
+/* --- 4b. permiso denegado: la app sigue igual ----------------------------- */
+{
+  const ctx = await browser.newContext(device)
+  const page = await ctx.newPage()
+  const pageErrors = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
+  await page.addInitScript(FAKE_ANDROID_WITH_NOTICE, { permission: 'prompt', afterRequest: 'denied' })
+  await freshProfile(page)
+  await startFreeWorkout(page)
+
+  const calls = await noticeCalls(page)
+  check(calls.includes('requestPermissions') && !calls.includes('start'), 'denegado — sin permiso no se publica nada', calls.join(', '))
+  check(page.url().endsWith('/workout/active'), 'denegado — el entrenamiento empieza igual', page.url())
+  const header = (await page.locator('header').first().textContent()) ?? ''
+  check(/\d{2}:\d{2}/.test(header), 'denegado — y el cronómetro de la app funciona', header.slice(0, 60))
+  await discardFromWorkoutScreen(page)
+  check(new URL(page.url()).pathname === '/workout', 'denegado — y se puede terminar con normalidad', page.url())
+  check(pageErrors.length === 0, 'denegado — sin errores sin capturar', pageErrors.join(' · '))
+  await ctx.close()
+}
+
+/* --- 4c. el plugin falla en todo: la app sigue igual ---------------------- */
+{
+  const ctx = await browser.newContext(device)
+  const page = await ctx.newPage()
+  const pageErrors = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
+  await page.addInitScript(FAKE_ANDROID_WITH_NOTICE, { permission: 'granted', broken: true })
+  await freshProfile(page)
+  await startFreeWorkout(page)
+  check(page.url().endsWith('/workout/active'), 'plugin roto — el entrenamiento empieza igual', page.url())
+  await page.getByRole('button', { name: 'Hecho', exact: true }).click()
+  await page.waitForTimeout(700)
+  check((await page.locator('[role="dialog"]').count()) === 1, 'plugin roto — la sesión responde con normalidad')
+  await page.locator('[role="dialog"]').getByRole('button', { name: 'DESCARTAR' }).click()
+  await page.waitForTimeout(1500)
+  check(pageErrors.length === 0, 'plugin roto — sin errores sin capturar', pageErrors.join(' · '))
+  await ctx.close()
+}
+
+/* --- 4d. en inglés, el aviso en inglés ------------------------------------ */
+{
+  const ctx = await browser.newContext({ ...device, locale: 'en-GB' })
+  const page = await ctx.newPage()
+  await page.addInitScript(FAKE_ANDROID_WITH_NOTICE, { permission: 'granted' })
+  await freshProfile(page)
+  await page.evaluate(async () => {
+    const db = await new Promise((r) => {
+      const q = indexedDB.open('training-os')
+      q.onsuccess = () => r(q.result)
+    })
+    const row = await new Promise((r) => {
+      const q = db.transaction('settings').objectStore('settings').get('app')
+      q.onsuccess = () => r(q.result)
+    })
+    row.language = 'en'
+    await new Promise((r) => {
+      const q = db.transaction('settings', 'readwrite').objectStore('settings').put(row)
+      q.onsuccess = () => r()
+    })
+  })
+  await page.reload({ waitUntil: 'commit' })
+  await page.waitForTimeout(3500)
+  await page.goto(`${BASE}/workout`, { waitUntil: 'commit' })
+  await page.waitForTimeout(2500)
+  await page.getByRole('button', { name: /Free workout|Entrenamiento libre/ }).first().click()
+  await page.waitForTimeout(2500)
+  const [published] = await startCalls(page)
+  check(published?.title === 'Workout in progress', 'idioma — con la app en inglés, el aviso en inglés', published?.title)
+  await ctx.close()
+}
+
+/* --- 4e. en web: nada de esto existe ------------------------------------- */
+{
+  const ctx = await browser.newContext(device)
+  const page = await ctx.newPage()
+  const requested = []
+  page.on('request', (r) => requested.push(r.url()))
+  const pageErrors = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
+  await freshProfile(page)
+  await startFreeWorkout(page)
+  await discardFromWorkoutScreen(page)
+  check(
+    !requested.some((u) => /\/assets\/native-.*\.js/.test(u)),
+    'web — empezar y terminar un entrenamiento no descarga el puente de Capacitor',
+  )
+  check(pageErrors.length === 0, 'web — el aviso es un no-op silencioso', pageErrors.join(' · '))
   await ctx.close()
 }
 

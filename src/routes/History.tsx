@@ -88,11 +88,6 @@ export default function History() {
                               <IconTrophy size={10} /> {prCount}
                             </span>
                           )}
-                          {s.demo && (
-                            <span className="shrink-0 rounded-full bg-info/15 px-1.5 py-0.5 text-2xs font-bold text-info">
-                              {t('common.demo')}
-                            </span>
-                          )}
                         </div>
                         <p className="tnum mt-0.5 text-xs text-faint">
                           {fmtTime(s.startedAt, locale)} · {fmtDuration(s.durationSec, 'compact')} ·{' '}
