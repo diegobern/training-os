@@ -146,6 +146,19 @@ export function buildWorkoutPresence(input: PresenceInput): WorkoutPresence {
 }
 
 /**
+ * La misma presencia, sin el descanso si ya llegó su hora (en pausa no vence
+ * nunca). Es lo que se repone al volver a primer plano: lo último que se pidió
+ * enseñar pudo llevar un descanso que venció con la app en segundo plano, y
+ * mandarlo tal cual pintaría una cuenta atrás que ya no existe.
+ */
+export function expireRest(p: WorkoutPresence, now: number): WorkoutPresence {
+  if (!p.rest || p.rest.paused || p.rest.endsAt > now) return p
+  const labels = { ...p.labels }
+  delete labels.restUntil
+  return { ...p, rest: null, labels }
+}
+
+/**
  * La clave con la que se deduplica: todo lo visible y nada más. Los pesos y
  * las repeticiones no aparecen en ningún texto, así que teclearlos no cambia
  * la clave. Del descanso sólo cuenta lo que el sistema pinta: en pausa, lo

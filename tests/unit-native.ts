@@ -366,6 +366,18 @@ const ENGLISH = /\bSet\b|\bRest\b|Workout|Duration|Paused|\bsets\b|until|Next se
   eq(paused.rest, { endsAt: now - 5_000, total: 90, paused: true, remaining: 30 }, 'descanso: en pausa se enseña aunque su hora vieja haya pasado')
   eq(paused.labels.restUntil, undefined, 'descanso: en pausa no hay «hasta HH:MM»')
 
+  // Lo que se repone al volver a primer plano: un descanso vencido se quita.
+  const expired = P.expireRest(withRestEs, running.endsAt)
+  eq([expired.rest, expired.labels.restUntil], [null, undefined], 'reponer: un descanso que venció mientras tanto se quita, con su «hasta»')
+  eq(
+    { ...expired, rest: withRestEs.rest, labels: withRestEs.labels },
+    withRestEs,
+    'reponer: y todo lo demás se queda igual',
+  )
+  ok(P.expireRest(withRestEs, running.endsAt - 1) === withRestEs, 'reponer: uno que aún no ha llegado a su hora no se toca')
+  ok(P.expireRest(paused, now + 3_600_000) === paused, 'reponer: uno en pausa no vence nunca')
+  ok(P.expireRest(es, now + 3_600_000) === es, 'reponer: sin descanso, nada que quitar')
+
   /* --- cortar */
   const longName = 'Press de banca con agarre cerrado y pausa en el pecho sobre banco inclinado a cuarenta y cinco grados'
   const long = P.buildWorkoutPresence({
@@ -556,6 +568,37 @@ const ENGLISH = /\bSet\b|\bRest\b|Workout|Duration|Paused|\bsets\b|until|Next se
   fire?.({ isActive: true })
   await waitFor(() => methods().includes('start'))
   eq(methods(), ['checkPermissions', 'start'], 'iOS: al volver, se repone la Live Activity (iOS pudo terminarla)')
+
+  // Con un descanso que vence mientras la app está en segundo plano, lo que
+  // se repone al volver ya no lleva la cuenta atrás.
+  const shortRest = P.buildWorkoutPresence({
+    session: session([exercise('bench', 'Press de banca', [set({ completed: true }), set(), set()])]),
+    rest: { total: 90, endsAt: Date.now() + 60, paused: false, remaining: 1 },
+    currentIndex: 0,
+    exerciseNameById: undefined,
+    t: makeT('es'),
+    language: 'es',
+    excludeWarmups: true,
+    now: Date.now(),
+    android: false,
+  })
+  calls.length = 0
+  await N.showWorkoutPresence(shortRest)
+  eq(calls.find((c) => c.method === 'start')?.options.rest, shortRest.rest, 'iOS: el descanso en marcha llega a la Live Activity')
+  fire?.({ isActive: false })
+  await sleep(120)
+  calls.length = 0
+  fire?.({ isActive: true })
+  await waitFor(() => methods().includes('start'))
+  const reposed = calls.find((c) => c.method === 'start')?.options
+  eq(
+    [reposed?.rest, (reposed?.labels as { restUntil?: string } | undefined)?.restUntil, reposed?.setLabel],
+    [null, undefined, shortRest.setLabel],
+    'iOS: al volver con el descanso ya vencido, se repone sin la cuenta atrás',
+  )
+  // Se vuelve a la presencia de antes para lo que sigue.
+  calls.length = 0
+  await N.showWorkoutPresence(presence)
 
   // Un método que no contesta nunca no deja la fila parada.
   scenario.hang.add('start')

@@ -156,18 +156,6 @@ jobs:
             xcrun simctl terminate "$UDID" com.trainingos.app || true
           done
 
-      - name: Deep link (app en frío y en caliente)
-        run: |
-          UDID=${{ steps.sim.outputs.pro }}
-          xcrun simctl openurl "$UDID" 'trainingos://workout/active?session=bogus-id' || true
-          sleep 15
-          xcrun simctl io "$UDID" screenshot "$EVIDENCE/deeplink-cold.png" || true
-          xcrun simctl openurl "$UDID" 'trainingos://evil/route?session=x' || true
-          sleep 5
-          xcrun simctl io "$UDID" screenshot "$EVIDENCE/deeplink-rejected.png" || true
-          xcrun simctl terminate "$UDID" com.trainingos.app || true
-          xcrun simctl uninstall "$UDID" com.trainingos.app || true
-
       - name: Tests de interfaz (iPhone 17 Pro, con Dynamic Island)
         run: |
           set +e

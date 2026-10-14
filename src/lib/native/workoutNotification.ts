@@ -30,7 +30,7 @@
  */
 import type { PermissionState, PluginListenerHandle } from '@capacitor/core'
 import { isNative, isNativeAndroid } from './platform'
-import { presenceKey } from './workoutPresence'
+import { expireRest, presenceKey } from './workoutPresence'
 
 /**
  * El estado continuo del entrenamiento, tal y como lo pinta el sistema. Todo
@@ -257,7 +257,9 @@ function watchForeground(): void {
       await App.addListener('appStateChange', ({ isActive }) => {
         if (!isActive) return
         lastPresenceKey = null
-        if (lastDesired) void showWorkoutPresence(lastDesired)
+        // Sin el descanso si venció mientras tanto: NativeShell manda enseguida
+        // lo mismo, pero hasta entonces no se repone una cuenta atrás muerta.
+        if (lastDesired) void showWorkoutPresence(expireRest(lastDesired, Date.now()))
       })
     } catch (err) {
       warn('no se pudo vigilar la vuelta a primer plano', err)

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { isNative, isNativeAndroid, isNativeIOS } from '../../lib/native/platform'
 import {
@@ -49,6 +49,34 @@ function markExactAlarmAsked(): void {
     /* Ver exactAlarmAsked. */
   }
 }
+
+/* ------------------------------------------ iOS: deslizar para volver */
+/*
+ * En iPhone «atrás» es el gesto de deslizar desde el borde, y el WebView lo
+ * convierte en un `history.back()`. Con una hoja abierta eso navegaría a la
+ * pantalla anterior con la hoja todavía encima. Lo correcto — lo mismo que
+ * hace el botón atrás de Android — es cerrar la hoja y quedarse donde se
+ * estaba: se corta el paso atrás antes de que React Router se entere y se
+ * repone la entrada del historial en la que se estaba, con su estado.
+ *
+ * El oyente se pone AL CARGAR ESTE MÓDULO, no en un efecto. En `window` los
+ * oyentes de `popstate` se llaman por orden de alta (Chromium ignora la fase
+ * de captura en el propio destino), y `BrowserRouter` pone el suyo en su
+ * primer `useLayoutEffect`, cuando `NativeShell` aún no está montado — la app
+ * enseña antes la pantalla de arranque —. Desde un efecto llegaríamos
+ * siempre segundos y `stopImmediatePropagation` ya no serviría de nada; así,
+ * el módulo se evalúa antes de que `main.tsx` pinte el router.
+ */
+let swipeHere: { state: unknown; url: string } | null = null
+
+function guardSwipeBack(e: PopStateEvent): void {
+  if (!swipeHere || !hasDismissable()) return
+  e.stopImmediatePropagation()
+  window.history.pushState(swipeHere.state, '', swipeHere.url)
+  dismissTop()
+}
+
+if (typeof window !== 'undefined' && isNativeIOS()) window.addEventListener('popstate', guardSwipeBack, true)
 
 /** Qué es un id de sesión en la base de datos de ESTE dispositivo. */
 async function lookupSession(id: string): Promise<'completed' | 'other' | null> {
@@ -177,40 +205,15 @@ export function NativeShell() {
   }, [])
 
   /* ------------------------------------- iOS: deslizar para volver */
-  /*
-   * En iPhone «atrás» es el gesto de deslizar desde el borde, y el WebView lo
-   * convierte en un `history.back()`. Con una hoja abierta eso navegaría a la
-   * pantalla anterior con la hoja todavía encima. Lo correcto — lo mismo que
-   * hace el botón atrás de Android — es cerrar la hoja y quedarse donde se
-   * estaba.
-   *
-   * El oyente se pone en fase de captura y en un `useLayoutEffect`: los de
-   * los hijos corren antes que el de `BrowserRouter`, así que este va primero
-   * con cualquier orden de oyentes, y `stopImmediatePropagation` impide que
-   * React Router llegue a enterarse del paso atrás. Después se repone la
-   * entrada del historial en la que se estaba, con su estado.
-   */
-  const hereRef = useRef<{ state: unknown; url: string } | null>(null)
+  // El oyente está arriba, a nivel de módulo (ver `guardSwipeBack`); aquí
+  // sólo se le dice en qué entrada del historial estamos, con su estado.
   useEffect(() => {
     if (!isNativeIOS()) return
-    hereRef.current = {
+    swipeHere = {
       state: window.history.state as unknown,
       url: location.pathname + location.search + location.hash,
     }
   }, [location])
-
-  useLayoutEffect(() => {
-    if (!isNativeIOS()) return
-    const onPop = (e: PopStateEvent) => {
-      const here = hereRef.current
-      if (!here || !hasDismissable()) return
-      e.stopImmediatePropagation()
-      window.history.pushState(here.state, '', here.url)
-      dismissTop()
-    }
-    window.addEventListener('popstate', onPop, true)
-    return () => window.removeEventListener('popstate', onPop, true)
-  }, [])
 
   /* ------------------------------------------- teclado y cambios de ruta */
   useEffect(() => {

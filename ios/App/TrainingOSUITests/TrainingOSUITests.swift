@@ -149,10 +149,47 @@ final class TrainingOSUITests: XCTestCase {
         }
     }
 
-    /// `trainingos://workout/active?session=…` se prueba desde fuera, en el
-    /// CI, con `xcrun simctl openurl`: abrirlo desde aquí exigiría otra app
-    /// (Safari) y su diálogo «¿Abrir en Training OS?».
+    /// `trainingos://workout/active?session=…` abierto desde el sistema, como
+    /// lo abre un toque en la Live Activity:
+    ///   - sin id (o con el de la sesión activa) → vuelve a la sesión;
+    ///   - con un id que no existe → al inicio, sin crear ni duplicar nada;
+    ///   - una ruta que no es la nuestra → no navega.
+    /// iOS puede preguntar «¿Abrir en "Training OS"?»: se acepta con el mismo
+    /// asistente que los permisos (su último botón es el afirmativo).
+    @MainActor
     func testDeepLink() throws {
-        throw XCTSkip("El enlace profundo lo prueba el CI con `xcrun simctl openurl <udid> 'trainingos://workout/active?session=bogus'`.")
+        let ui = AppDriver(test: self)
+        ui.launchReady()
+        ui.startFreeWorkout()
+        let bar = ui.button(startingWith: "Volver al entrenamiento en curso")
+
+        // 1. La sesión activa.
+        ui.goHome()
+        XCUIDevice.shared.system.open(URL(string: "trainingos://workout/active")!)
+        ui.allowSystemAlertIfShown(timeout: 5)
+        XCTAssertTrue(ui.app.wait(for: .runningForeground, timeout: 20), "El enlace no abre la app")
+        XCTAssertTrue(ui.waitUntil(AppDriver.Wait.screen) { ui.inSession }, "El enlace no lleva a la sesión activa")
+        ui.screenshot("Enlace 1: lleva a la sesión activa")
+
+        // 2. Un id que no es de ninguna sesión de este dispositivo.
+        ui.goHome()
+        XCUIDevice.shared.system.open(URL(string: "trainingos://workout/active?session=00000000-0000-0000-0000-000000000000")!)
+        ui.allowSystemAlertIfShown(timeout: 5)
+        XCTAssertTrue(ui.app.wait(for: .runningForeground, timeout: 20), "El enlace no abre la app")
+        XCTAssertTrue(ui.waitUntil(AppDriver.Wait.screen) { !ui.inSession && bar.exists }, "Un id desconocido debe llevar al inicio, con la sesión intacta")
+        ui.screenshot("Enlace 2: id desconocido, al inicio")
+
+        // 3. Una ruta ajena: la app no se mueve de donde está.
+        XCUIDevice.shared.system.open(URL(string: "trainingos://evil/route?session=x")!)
+        ui.allowSystemAlertIfShown(timeout: 5)
+        ui.pause(3)
+        XCTAssertFalse(ui.inSession, "Una ruta ajena no debe navegar")
+        ui.screenshot("Enlace 3: ruta ajena ignorada")
+
+        // Sigue habiendo exactamente una sesión: se vuelve a ella y se cierra.
+        XCTAssertTrue(bar.waitForExistence(timeout: AppDriver.Wait.short), "La sesión activa ha desaparecido")
+        ui.tap(bar, "barra del entrenamiento en curso")
+        XCTAssertTrue(ui.waitUntil(AppDriver.Wait.screen) { ui.inSession }, "La barra no lleva a la sesión")
+        ui.finishWorkout()
     }
 }
