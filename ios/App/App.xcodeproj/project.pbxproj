@@ -32,6 +32,7 @@
 		A7C3E10E08D798E3AB033C61 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7C3E13108D798E3AB033C61 /* SwiftUI.framework */; };
 		A7C3E10F08D798E3AB033C61 /* TrainingOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C3E12E08D798E3AB033C61 /* TrainingOSUITests.swift */; };
 		A7C3E11008D798E3AB033C61 /* AppDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C3E12F08D798E3AB033C61 /* AppDriver.swift */; };
+		A7C3E11408D798E3AB033C61 /* AuthFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C3E13208D798E3AB033C61 /* AuthFlowUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		A7C3E12F08D798E3AB033C61 /* AppDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDriver.swift; sourceTree = "<group>"; };
 		A7C3E13008D798E3AB033C61 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		A7C3E13108D798E3AB033C61 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		A7C3E13208D798E3AB033C61 /* AuthFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFlowUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +194,7 @@
 			children = (
 				A7C3E12E08D798E3AB033C61 /* TrainingOSUITests.swift */,
 				A7C3E12F08D798E3AB033C61 /* AppDriver.swift */,
+				A7C3E13208D798E3AB033C61 /* AuthFlowUITests.swift */,
 			);
 			path = TrainingOSUITests;
 			sourceTree = "<group>";
@@ -376,6 +379,7 @@
 			files = (
 				A7C3E10F08D798E3AB033C61 /* TrainingOSUITests.swift in Sources */,
 				A7C3E11008D798E3AB033C61 /* AppDriver.swift in Sources */,
+				A7C3E11408D798E3AB033C61 /* AuthFlowUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
