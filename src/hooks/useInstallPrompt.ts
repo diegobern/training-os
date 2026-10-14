@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isNative } from '../lib/native/platform'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -8,14 +9,23 @@ interface BeforeInstallPromptEvent extends Event {
 let deferred: BeforeInstallPromptEvent | null = null
 
 export function useInstallPrompt() {
-  const [available, setAvailable] = useState(!!deferred)
+  /*
+   * Dentro de la app de Android o de iPhone ya está instalada: es una app de
+   * la tienda, no una web. Sin esto, el WebView de iOS (que no es
+   * `standalone` ni conoce `beforeinstallprompt`) enseñaría «En iPhone:
+   * Compartir → Añadir a pantalla de inicio» dentro de la propia app.
+   */
+  const native = isNative()
+  const [available, setAvailable] = useState(!native && !!deferred)
   const [installed, setInstalled] = useState(
-    typeof window !== 'undefined' &&
-      (window.matchMedia('(display-mode: standalone)').matches ||
-        (navigator as unknown as { standalone?: boolean }).standalone === true),
+    native ||
+      (typeof window !== 'undefined' &&
+        (window.matchMedia('(display-mode: standalone)').matches ||
+          (navigator as unknown as { standalone?: boolean }).standalone === true)),
   )
 
   useEffect(() => {
+    if (native) return
     const onPrompt = (e: Event) => {
       e.preventDefault()
       deferred = e as BeforeInstallPromptEvent
@@ -32,7 +42,7 @@ export function useInstallPrompt() {
       window.removeEventListener('beforeinstallprompt', onPrompt)
       window.removeEventListener('appinstalled', onInstalled)
     }
-  }, [])
+  }, [native])
 
   async function promptInstall() {
     if (!deferred) return false
@@ -44,7 +54,10 @@ export function useInstallPrompt() {
   }
 
   const isIOS =
-    typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent) && !('onbeforeinstallprompt' in window)
+    !native &&
+    typeof navigator !== 'undefined' &&
+    /iphone|ipad|ipod/i.test(navigator.userAgent) &&
+    !('onbeforeinstallprompt' in window)
 
   return { available, installed, promptInstall, isIOS }
 }

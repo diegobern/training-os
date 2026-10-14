@@ -1,10 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!--
-  Español. Sólo lo que el sistema enseña en su idioma: el nombre y la
-  descripción del canal de notificaciones (Ajustes → Notificaciones). Lo demás
-  de values/strings.xml no se traduce: es el nombre de la app y el paquete.
+  Español. Sólo el respaldo de lo que el sistema enseña fuera de la app: el
+  nombre y la descripción de los canales de notificaciones (Ajustes →
+  Notificaciones), por si un canal se creara antes de que la app mandara los
+  suyos, que van en el idioma de la app. Lo demás de values/strings.xml no se
+  traduce: es el nombre de la app y el paquete.
 -->
 <resources>
     <string name="workout_channel_name">Entrenamiento en curso</string>
     <string name="workout_channel_description">Muestra en la pantalla de bloqueo el tiempo que llevas entrenando mientras dure el entrenamiento.</string>
+    <string name="rest_channel_name">Fin del descanso</string>
+    <string name="rest_channel_description">Avisa cuando termina el descanso entre series.</string>
 </resources>

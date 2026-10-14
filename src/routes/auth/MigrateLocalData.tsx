@@ -44,6 +44,8 @@ export default function MigrateLocalData() {
   const t = useT()
   const { adoptLocal, keepLocalSeparate, discardLocal, busy } = useAuth()
   const [working, setWorking] = useState(false)
+  /** La copia de «empezar limpio» no llegó a guardarse: no se ha borrado nada y se dice. */
+  const [notSaved, setNotSaved] = useState(false)
 
   const { data } = useLiveQuery(
     async () => {
@@ -56,8 +58,16 @@ export default function MigrateLocalData() {
   const count = (data?.sessions ?? 0) + (data?.routines ?? 0)
   const disabled = busy || working
   const run = (fn: () => Promise<void>) => () => {
+    setNotSaved(false)
     setWorking(true)
     void fn().finally(() => setWorking(false))
+  }
+  const separate = () => {
+    setNotSaved(false)
+    setWorking(true)
+    void keepLocalSeparate()
+      .then((went) => setNotSaved(!went))
+      .finally(() => setWorking(false))
   }
 
   return (
@@ -83,7 +93,7 @@ export default function MigrateLocalData() {
           title={t('migrate.separate')}
           hint={t('migrate.separateHint')}
           disabled={disabled}
-          onClick={run(keepLocalSeparate)}
+          onClick={separate}
         />
         <Choice
           icon={<IconTrash size={18} />}
@@ -95,6 +105,11 @@ export default function MigrateLocalData() {
         />
       </div>
 
+      {notSaved && !disabled && (
+        <p role="alert" className="mt-lg text-center text-secondary text-down">
+          {t('migrate.exportNotSaved')}
+        </p>
+      )}
       {disabled && <p className="mt-lg text-center text-secondary text-muted">{t('common.loading')}</p>}
     </AuthShell>
   )

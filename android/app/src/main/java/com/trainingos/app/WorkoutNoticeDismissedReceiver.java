@@ -15,6 +15,10 @@ import android.content.Intent;
  * y además olvida el entrenamiento: aunque llegara un descarte tardío, no hay
  * nada que volver a poner.
  *
+ * Se repinta con el mismo {@code postRemembered} que todo lo demás, desde las
+ * preferencias y con la hora de ahora: si el descanso que mostraba ya ha
+ * vencido, vuelve en modo cronómetro, nunca con una cuenta atrás pasada.
+ *
  * Declarado en el manifiesto con {@code exported="false"}: sólo lo puede
  * invocar el PendingIntent de la propia notificación.
  */

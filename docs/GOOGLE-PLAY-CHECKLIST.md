@@ -49,10 +49,26 @@ está marcado con ⬜ tienes que hacerlo tú, casi todo en Play Console.
   menores; la política de privacidad declara que no lo está.
 - ⬜ **Declaración de anuncios**: **no contiene anuncios**.
 - ⬜ **Compras en la aplicación**: **ninguna**.
-- ⬜ **Permisos de uso sensible**: ninguno que declarar. La app pide `INTERNET`
-  (permiso normal) y `POST_NOTIFICATIONS` (el aviso de entrenamiento en curso;
-  no es de uso sensible ni requiere declaración aparte). No hay servicio en
-  primer plano, así que **no** hay que declarar `FOREGROUND_SERVICE_HEALTH`.
+- ⬜ **Permisos de uso sensible**: ninguno que declarar. La app pide tres:
+  - `INTERNET`: permiso normal.
+  - `POST_NOTIFICATIONS`: los dos avisos del entrenamiento (en curso y
+    «Descanso terminado»). No es de uso sensible ni requiere declaración
+    aparte.
+  - `SCHEDULE_EXACT_ALARM`: para que «Descanso terminado» llegue a su hora.
+    **Tampoco lleva declaración en Play Console.** La declaración de la
+    política de alarmas exactas es para `USE_EXACT_ALARM`, el permiso que se
+    concede solo al instalar y que Google reserva a despertadores y
+    calendarios; Training OS no lo pide (`npm run android:verify` falla si
+    aparece). `SCHEDULE_EXACT_ALARM` es un acceso especial que concede o
+    retira la persona («Alarmas y recordatorios»), viene desactivado desde
+    Android 14 y la app funciona sin él (el aviso llega, aproximado). Si al
+    rellenar *Contenido de la app* Play preguntara por alarmas exactas, la
+    respuesta es ésa: un aviso de fin de descanso que la persona pone en
+    marcha al empezar el descanso, y que funciona sin el permiso. Repasa este
+    punto en cada envío: es una política que Google ha cambiado más de una vez.
+  - No hay servicio en primer plano, así que **no** hay que declarar
+    `FOREGROUND_SERVICE_HEALTH`; ni `USE_FULL_SCREEN_INTENT`, que la app no
+    pide.
 - ⬜ **Datos de contacto del desarrollador** verificados en la cuenta de Play.
 
 ---
@@ -94,6 +110,43 @@ Y comprueba a mano, en un móvil real con el APK de release instalado:
   avisa en vez de salir.
 - ⬜ El temporizador de descanso muestra el tiempo correcto después de dejar la
   app en segundo plano dos minutos.
+
+Aviso de descanso y notificación de entrenamiento (en Android 14 o posterior,
+que es donde «Alarmas y recordatorios» viene desactivado; si puedes, repítelo
+en un Android 12 o 13):
+
+- ⬜ El primer descanso enseña, una sola vez, la hoja «Avisos de descanso a su
+  hora». «Ahora no» la cierra y no vuelve a salir en los siguientes descansos
+  ni al reabrir la app. Al abrir la app no se pide nada.
+- ⬜ **Sin** «Alarmas y recordatorios»: con un descanso en marcha y el móvil
+  bloqueado, la notificación de entrenamiento dice «Descanso · hasta HH:MM» con
+  la duración subiendo (no hay cuenta atrás), y al acabar llega «Descanso
+  terminado», quizá con algo de retraso.
+- ⬜ «Activar en Ajustes» abre el ajuste de Training OS; al activarlo y volver,
+  el descanso en marcha pasa a cuenta atrás en la notificación.
+- ⬜ **Con** el permiso: cuenta atrás en la notificación; a su hora llega
+  «Descanso terminado» (en la pantalla de bloqueo y como aviso emergente con el
+  móvil desbloqueado en otra app), y la notificación de entrenamiento vuelve a
+  contar hacia arriba. La cuenta atrás nunca pasa de cero a números negativos,
+  tampoco después de deslizar la notificación o de bloquear y desbloquear.
+- ⬜ Con la app delante cuando acaba el descanso, **no** sale la notificación
+  «Descanso terminado»: avisa la app.
+- ⬜ Pausar, saltar o terminar antes el descanso, y luego bloquear: no llega
+  ningún aviso a la hora en que habría acabado.
+- ⬜ Finalizar o descartar el entrenamiento durante un descanso: desaparecen
+  las dos notificaciones y no llega ningún aviso después.
+- ⬜ Tocar «Descanso terminado» abre la app en la sesión y retira el aviso; si
+  nadie lo toca, se va solo a los cinco minutos, y también al volver a la app.
+- ⬜ Ajustes de la app: sin sonido de descanso pero con vibración, el aviso
+  vibra y no suena; con los dos apagados, aparece sin sonar ni vibrar.
+- ⬜ Con la app en inglés y el teléfono en español (y al revés), los dos
+  avisos y el nombre de sus canales en *Ajustes → Notificaciones* salen en el
+  idioma de la app.
+- ⬜ Retirar «Alarmas y recordatorios» con un descanso en marcha: Android cierra
+  la app (lo hace el sistema). Al reabrirla, el entrenamiento sigue donde
+  estaba y el siguiente descanso avisa en modo aproximado.
+- ⬜ Vibración háptica: con la respuesta táctil del sistema activada, marcar una
+  serie vibra; con ella desactivada en Ajustes del teléfono, no.
 - ⬜ En modo claro se ve la hora y la batería (iconos oscuros); en modo oscuro
   también (iconos claros).
 - ⬜ La barra inferior no queda debajo de la barra de gestos.
@@ -136,3 +189,5 @@ Google pregunta por estas cosas y la respuesta siempre es la misma: no.
 | Analítica / telemetría | No. Ni Firebase Analytics ni Crashlytics. |
 | Contenido generado por usuarios visible para otros | No. Cada cuenta sólo ve lo suyo; las reglas de seguridad lo impiden a nivel de servidor. |
 | Permisos peligrosos | Ninguno. |
+| Alarmas exactas sin preguntar | No. Sólo `SCHEDULE_EXACT_ALARM`, que concede la persona; nunca `USE_EXACT_ALARM`. |
+| Pantalla completa / servicio en primer plano | No. El aviso de descanso es una notificación normal y lo entrega `AlarmManager`. |

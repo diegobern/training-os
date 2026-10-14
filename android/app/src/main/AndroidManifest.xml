@@ -2,8 +2,8 @@
 <!--
   TRAINING OS — manifiesto de Android.
 
-  PERMISOS: hay exactamente dos, INTERNET y POST_NOTIFICATIONS, y están
-  justificados abajo. Cada
+  PERMISOS: hay exactamente tres, INTERNET, POST_NOTIFICATIONS y
+  SCHEDULE_EXACT_ALARM, y están justificados abajo. Cada
   permiso que se añada aquí aparece en la ficha de Google Play y hay que
   declararlo en el formulario de Seguridad de los datos, así que la lista se
   mantiene en el mínimo real. Ver docs/GOOGLE-PLAY-DATA-SAFETY.md.
@@ -48,6 +48,15 @@
             android:name=".WorkoutNoticeDismissedReceiver"
             android:exported="false" />
 
+        <!--
+          Publica el aviso «Descanso terminado» cuando vence la alarma del
+          descanso. No exportado y sin intent-filter: sólo lo invoca el
+          PendingIntent explícito de la propia alarma. Ver RestAlarmReceiver.java.
+        -->
+        <receiver
+            android:name=".RestAlarmReceiver"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -61,7 +70,7 @@
 
     <!--
       ===================================================================
-      PERMISOS — dos, y por qué
+      PERMISOS — tres, y por qué
       ===================================================================
 
       INTERNET
@@ -74,18 +83,45 @@
         no aparece como permiso peligroso en la ficha de Play.
 
       POST_NOTIFICATIONS
-        Para qué: un único aviso, el de «entrenamiento en curso». Mientras hay
-        un entrenamiento abierto se ve en la pantalla de bloqueo con el tiempo
-        subiendo (lo cuenta el propio sistema con setUsesChronometer), no se
-        puede descartar mientras dure y desaparece solo al terminar o
-        descartar el entrenamiento. Tocarlo abre la app en la sesión.
-        Nada más: ni publicidad, ni recordatorios, ni notificaciones push, ni
-        ningún otro canal. Ver WorkoutNotificationPlugin.java.
+        Para qué: dos avisos, los dos del entrenamiento que la persona tiene
+        abierto, y ninguno más.
+          1. «Entrenamiento en curso». Mientras hay un entrenamiento abierto
+             se ve en la pantalla de bloqueo con el tiempo subiendo (lo cuenta
+             el propio sistema con setUsesChronometer) o, durante un descanso,
+             bajando hasta su final; no se puede descartar mientras dure y
+             desaparece solo al terminar o descartar el entrenamiento.
+          2. «Descanso terminado». Un aviso puntual cuando acaba el descanso
+             entre series, si la app no está delante. Se va solo al cabo de
+             unos minutos o al volver a la app.
+        Tocar cualquiera de los dos abre la app en la sesión.
+        Nada más: ni publicidad, ni recordatorios para volver a la app, ni
+        notificaciones push. Ver WorkoutNotificationPlugin.java.
         Cuándo se pide: en tiempo de ejecución (Android 13 y posteriores lo
         exigen), la primera vez que se empieza un entrenamiento, nunca al
         abrir la app. Si se deniega no se vuelve a preguntar.
-        Sin él: la app funciona exactamente igual; sólo falta el aviso.
+        Sin él: la app funciona exactamente igual; sólo faltan los avisos.
         Por debajo de Android 13 este permiso no existe y no se pide nada.
+
+      SCHEDULE_EXACT_ALARM
+        Para qué: que el aviso «Descanso terminado» llegue a su hora con la
+        pantalla apagada. Al empezar un descanso se programa una alarma para
+        el momento en que termina (setExactAndAllowWhileIdle; la recibe
+        RestAlarmReceiver.java). Es una alarma que la persona ha puesto en
+        marcha al empezar el descanso, no algo que la app decida por su
+        cuenta: no enciende la pantalla, no la ocupa entera y no suena como
+        un despertador.
+        Cuándo se pide: no es un diálogo, es un acceso especial de Android 12+
+        («Alarmas y recordatorios»). Android 12 y 13 lo conceden por defecto;
+        desde Android 14 viene denegado. La primera vez que empieza un
+        descanso, sólo si falta y si las notificaciones están permitidas, la
+        app explica para qué es y ofrece abrir ese ajuste, con «Ahora no».
+        Una sola vez. Nunca se mira la versión de Android: se pregunta a
+        AlarmManagerCompat.canScheduleExactAlarms.
+        Sin él: el aviso llega igual, pero cuando Android quiere
+        (setAndAllowWhileIdle), a veces bastante tarde, y la notificación de
+        entrenamiento enseña «Descanso · hasta 12:30» en vez de la cuenta
+        atrás. Por debajo de Android 12 este permiso no existe y no hace
+        falta.
 
       ===================================================================
       PERMISOS QUE NO SE PIDEN, Y POR QUÉ NO
@@ -101,16 +137,42 @@
         entrega el fichero ya elegido por el usuario; la app nunca accede a la
         galería por su cuenta, así que no hay nada que pedir.
 
-      FOREGROUND_SERVICE / FOREGROUND_SERVICE_HEALTH / WAKE_LOCK
-        No hacen falta. El cronómetro del aviso de entrenamiento lo pinta el
-        sistema a partir de la hora de inicio, y los temporizadores de la app
-        guardan marcas de tiempo absolutas, así que al volver muestran el
-        tiempo correcto aunque Android haya congelado el WebView. Nada tiene
-        que seguir ejecutándose con la pantalla apagada. Un servicio en primer
-        plano obligaría además a una declaración aparte ante Google Play.
+      FOREGROUND_SERVICE / FOREGROUND_SERVICE_HEALTH
+        No hacen falta. Los cronómetros del aviso de entrenamiento los pinta el
+        sistema a partir de una hora, el aviso de descanso lo entrega
+        AlarmManager y los temporizadores de la app guardan marcas de tiempo
+        absolutas, así que al volver muestran el tiempo correcto aunque
+        Android haya congelado el WebView. Nada tiene que seguir ejecutándose
+        con la pantalla apagada. Un servicio en primer plano obligaría además
+        a una declaración aparte ante Google Play.
 
-      USE_EXACT_ALARM / SCHEDULE_EXACT_ALARM
-        No hacen falta: no se programa ninguna notificación para más tarde.
+      WAKE_LOCK
+        No hace falta. Mientras RestAlarmReceiver atiende la alarma,
+        AlarmManager mantiene el teléfono despierto por su cuenta, y no hay
+        nada más que ejecutar con la pantalla apagada.
+
+      USE_EXACT_ALARM
+        No se pide. Se concede sin preguntar y por eso Google Play lo reserva
+        a apps de despertador o de calendario, con declaración aparte. Training
+        OS no es eso: SCHEDULE_EXACT_ALARM, que concede o retira la persona,
+        es el permiso que corresponde.
+
+      USE_FULL_SCREEN_INTENT
+        No se pide. El aviso de descanso es una notificación normal, no una
+        pantalla que se abre sobre lo que estés haciendo: eso queda para
+        llamadas y despertadores, y desde Android 14 Google Play lo limita a
+        ellos.
+
+      VIBRATE
+        No hace falta. La vibración háptica de la app usa
+        View.performHapticFeedback, que no lo necesita y respeta el ajuste de
+        respuesta táctil del teléfono; la del aviso de descanso es del canal
+        de notificaciones y la hace el sistema.
+
+      RECEIVE_BOOT_COMPLETED
+        No se pide. Si el teléfono se reinicia a mitad de un descanso, la
+        alarma se pierde; al abrir la app, el código web vuelve a calcular
+        el estado del entrenamiento y lo reprograma si hace falta.
 
       ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION
         Training OS no usa la ubicación.
@@ -126,4 +188,5 @@
     -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 </manifest>

@@ -6,11 +6,17 @@
     <string name="custom_url_scheme">com.trainingos.app</string>
 
     <!--
-      El canal del aviso de entrenamiento en curso. Es lo que se ve en Ajustes
-      del sistema → Notificaciones → Training OS, así que va en el idioma del
-      teléfono (values-es/ para español). El título y el texto de la propia
-      notificación llegan desde la app, en el idioma de la app.
+      Los canales de notificaciones, que es lo que se ve en Ajustes del
+      sistema → Notificaciones → Training OS. Su nombre y su descripción de
+      verdad los manda la app, en el idioma de la app (no en el del teléfono),
+      antes de publicar nada. Estos textos son sólo el respaldo por si un
+      canal se creara sin que hubiera llegado ninguno; para eso, y sólo para
+      eso, Android elige values/ o values-es/ por el idioma del teléfono. El
+      título y el texto de las propias notificaciones llegan siempre desde la
+      app.
     -->
     <string name="workout_channel_name">Workout in progress</string>
     <string name="workout_channel_description">Shows the running time of your workout on the lock screen while it lasts.</string>
+    <string name="rest_channel_name">Rest timer</string>
+    <string name="rest_channel_description">Alerts you when the rest between sets is over.</string>
 </resources>

@@ -19,6 +19,7 @@ firestore-debug.log
 ui-debug.log
 dist-local
 dist-test
+dist-native
 
 # El manifiesto se genera al empaquetar
 
@@ -71,3 +72,42 @@ android/capacitor-cordova-android-plugins/
 # SÍ se versionan. Los regenera `npx cap sync`, pero son los que declaran qué
 # plugins entran en el build: sin ellos, un clon recién hecho no compila hasta
 # que alguien ejecuta un sync.
+
+# =============================================================================
+# iOS / Capacitor
+# =============================================================================
+# Lo mismo que en Android: nada de firma ni credenciales entra jamás en git.
+
+# --- Firma y credenciales de Apple --------------------------------------------
+# Certificados (.p12/.cer), perfiles de aprovisionamiento y la clave .p8 de la
+# API de App Store Connect. Si se filtran, otro puede firmar como tú.
+*.p8
+AuthKey_*.p8
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+# Configuración local del equipo de firma (DEVELOPMENT_TEAM), si se usa.
+ios/App/signing.local.xcconfig
+# Credenciales del SDK nativo de Firebase: la app usa el SDK JS y no lo necesita.
+ios/App/App/GoogleService-Info.plist
+
+# --- Generado por `npx cap sync ios` -----------------------------------------
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/capacitor-cordova-ios-plugins/
+ios/App/CapApp-SPM/symlinks/
+
+# --- Compilación ----------------------------------------------------------------
+ios/App/build/
+ios/App/output/
+ios/App/Pods/
+ios/App/CapApp-SPM/.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.ipa
+*.xcarchive/
+*.dSYM/
+*.dSYM.zip

@@ -36,7 +36,12 @@
     "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
     "android:bundle": "npm run android:sync && cd android && ./gradlew bundleRelease",
     "test:android": "node e2e/android-shell.mjs",
-    "android:verify": "node scripts/android/verify-resources.mjs"
+    "android:verify": "node scripts/android/verify-resources.mjs",
+    "ios:assets": "node scripts/ios/brand-assets.mjs",
+    "ios:sync": "npm run build && npx cap sync ios",
+    "ios:open": "npx cap open ios",
+    "ios:verify": "node scripts/ios/verify-project.mjs",
+    "test:ios": "node e2e/ios-shell.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
@@ -44,6 +49,7 @@
     "@capacitor/browser": "^8.0.4",
     "@capacitor/core": "^8.5.2",
     "@capacitor/filesystem": "^8.1.3",
+    "@capacitor/ios": "^8.5.2",
     "@capacitor/keyboard": "^8.0.5",
     "@capacitor/share": "^8.0.2",
     "@capacitor/splash-screen": "^8.0.2",

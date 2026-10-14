@@ -20,7 +20,7 @@ import type {
   QuerySnapshot,
   Timestamp,
 } from 'firebase/firestore'
-import { log, notify, readSettings, writeSettings, type StoreName } from '../db/database'
+import { deleteMeta, log, notify, readSettings, writeSettings, type StoreName } from '../db/database'
 import { clearStores, countStore, getAllStore, getFromStore } from '../db/anystore'
 import { getFirebase } from '../firebase/app'
 import {
@@ -51,9 +51,12 @@ import {
   setSyncState,
   takeBatch,
   setQueueListener,
+  ticketOf,
+  type QueueTicket,
 } from './queue'
 import { DEFAULT_WEEKLY_SET_TARGETS, defaultSettings, type ProgressPhoto } from '../db/schema'
 import { isSampleRecord } from '../db/sampleData'
+import { ACTIVE_EXERCISE_INDEX_KEY, ACTIVE_REST_KEY, ACTIVE_SESSION_KEY } from '../db/repo.sessions'
 
 /* ------------------------------------------------------------------ status */
 
@@ -134,9 +137,54 @@ export async function adoptLocalData(uid: string): Promise<number> {
   return entries.length
 }
 
+/* ------------------------------------------------------- antes de vaciar */
+
+let beforeLocalResetFn: (() => void) | null = null
+
+/**
+ * Lo que tiene que pasar ANTES de vaciar la copia local, sincrónicamente.
+ *
+ * `main.tsx` conecta aquí el vaciado del entrenamiento en memoria
+ * (`useWorkout.reset()`) y la retirada del aviso nativo. Tiene que ser lo
+ * primero y sin esperar a nada: un autoguardado pendiente o un descanso que
+ * suena no pueden sobrevivir al cambio de dueño y escribir, o avisar, con los
+ * datos de la persona anterior. El motor no importa los almacenes de React
+ * (sería un ciclo); por eso se inyecta.
+ */
+export function setBeforeLocalReset(fn: (() => void) | null): void {
+  beforeLocalResetFn = fn
+}
+
+/** Ejecuta lo registrado en `setBeforeLocalReset`. Nunca lanza: un fallo aquí no puede impedir el vaciado. */
+export function beforeLocalReset(): void {
+  try {
+    beforeLocalResetFn?.()
+  } catch (err) {
+    log('sync', `before-reset hook failed: ${String(err)}`, 'warn')
+  }
+}
+
+/**
+ * Claves de `meta` que son de la persona, no del dispositivo: el puntero al
+ * entrenamiento en curso, su descanso y su ejercicio actual, el borrador del
+ * cuestionario y el «ahora no» a la actualización del cuestionario. Las dos
+ * últimas las escriben `useOnboarding` y `useAuth`; se repiten aquí como
+ * texto porque el motor no puede importar los almacenes.
+ */
+const OWNER_META_KEYS = [
+  ACTIVE_SESSION_KEY,
+  ACTIVE_REST_KEY,
+  ACTIVE_EXERCISE_INDEX_KEY,
+  'onboarding:draft',
+  'onboarding:topUpDeclined',
+] as const
+
 /** Clears this device's copy so the account starts from what Firestore holds. */
 export async function resetLocalData(uid: string | null): Promise<void> {
+  // Lo primero, antes del primer `await` (ver `setBeforeLocalReset`).
+  beforeLocalReset()
   await clearStores(SYNCED_STORES as StoreName[])
+  await deleteMeta(OWNER_META_KEYS)
   await clearQueue()
   for (const store of SYNCED_STORES) await setSyncState(lastPullKey(store), null)
   await setSyncState(TOMBSTONE_PULL_KEY, null)
@@ -174,6 +222,74 @@ export async function resetLocalData(uid: string | null): Promise<void> {
 
 const BATCH_SIZE = 100
 
+/**
+ * Tiempo máximo de una escritura por lotes en Firestore.
+ *
+ * Con la caché en memoria, un `commit()` sin servidor al otro lado no falla:
+ * se queda esperando. Y mientras esperaba, el ciclo de sincronización seguía
+ * «en marcha» y ninguno nuevo podía empezar, hasta recargar la app. Pasado
+ * este tiempo el lote cuenta como fallido, sus filas se quedan en el buzón
+ * para el siguiente intento (mismos ids: reenviar no duplica nada) y el ciclo
+ * termina.
+ */
+export const COMMIT_TIMEOUT_MS = 25_000
+
+/** Un lote de escrituras, tal como lo necesita `push`. En la app es un `WriteBatch` de Firestore. */
+export interface PushBatch {
+  set(path: string, data: Record<string, unknown>): void
+  delete(path: string): void
+  commit(): Promise<void>
+}
+
+/** Lo que `push` usa del servidor. Inyectable para poder probar el ciclo sin Firebase. */
+export interface PushBackend {
+  batch(): PushBatch
+  serverTimestamp(): unknown
+}
+
+export interface SyncOptions {
+  backend?: PushBackend
+  commitTimeoutMs?: number
+  /**
+   * `false` en cuanto se para la sincronización (cierre de sesión, borrado de
+   * cuenta). Lo que aún esté en vuelo deja de escribir en la copia local y de
+   * tocar el estado: nada de lo que llegue tarde puede colarse en los datos
+   * del siguiente dueño.
+   */
+  alive?: () => boolean
+}
+
+async function firestoreBackend(): Promise<PushBackend | null> {
+  const services = await getFirebase()
+  if (!services) return null
+  const fs = services.db
+  const { doc, writeBatch, serverTimestamp } = await import('firebase/firestore')
+  return {
+    batch() {
+      const b = writeBatch(fs)
+      return {
+        set: (path, data) => {
+          b.set(doc(fs, path), data)
+        },
+        delete: (path) => {
+          b.delete(doc(fs, path))
+        },
+        commit: () => b.commit(),
+      }
+    },
+    serverTimestamp: () => serverTimestamp(),
+  }
+}
+
+/** `p`, o un error `code` si no ha terminado en `ms`. El temporizador se limpia siempre. */
+function withTimeout<T>(p: Promise<T>, ms: number, code: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const guard = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(code)), ms)
+  })
+  return Promise.race([p, guard]).finally(() => clearTimeout(timer))
+}
+
 function sanitize(store: SyncedStore, value: Record<string, unknown>): Record<string, unknown> {
   if (store === 'photos') {
     const { blob: _blob, ...rest } = value
@@ -198,16 +314,19 @@ async function uploadPhoto(uid: string, photo: ProgressPhoto): Promise<string | 
  * an in-memory Firestore cache an offline write would hang forever instead of
  * failing, and a hung write can't be reported honestly.
  */
-export async function push(uid: string): Promise<{ sent: number; failed: number }> {
+export async function push(uid: string, opts: SyncOptions = {}): Promise<{ sent: number; failed: number }> {
+  const alive = opts.alive ?? (() => true)
+  const report = (patch: Partial<SyncStatus>) => {
+    if (alive()) setStatus(patch)
+  }
   if (!navigator.onLine) {
-    setStatus({ phase: 'offline', pending: await pendingCount() })
+    report({ phase: 'offline', pending: await pendingCount() })
     return { sent: 0, failed: 0 }
   }
 
-  const services = await getFirebase()
-  if (!services) return { sent: 0, failed: 0 }
-  const { db: fs } = services
-  const { doc, writeBatch, serverTimestamp } = await import('firebase/firestore')
+  const backend = opts.backend ?? (await firestoreBackend())
+  if (!backend) return { sent: 0, failed: 0 }
+  const commitTimeoutMs = opts.commitTimeoutMs ?? COMMIT_TIMEOUT_MS
 
   let sent = 0
   let failed = 0
@@ -218,44 +337,48 @@ export async function push(uid: string): Promise<{ sent: number; failed: number 
 
   for (;;) {
     if (passes++ > 50) break
+    // Sincronización parada (cierre de sesión): no se empieza otro lote.
+    if (!alive()) break
     const rows = await takeBatch(BATCH_SIZE)
     if (!rows.length) break
     const progressed = rows.length
 
-    setStatus({ phase: 'syncing', pending: await pendingCount() })
+    report({ phase: 'syncing', pending: await pendingCount() })
 
-    const batch = writeBatch(fs)
-    const done: string[] = []
+    const batch = backend.batch()
+    // Cada fila con la versión que tenía al leerla: al terminar sólo se borra
+    // si nadie la ha vuelto a encolar mientras tanto (ver `clearEntries`).
+    const done: QueueTicket[] = []
 
     for (const row of rows) {
       const store = row.store as SyncedStore
-      const ref = doc(fs, `${userCollection(uid, store)}/${row.docId}`)
+      const path = `${userCollection(uid, store)}/${row.docId}`
 
       if (row.op === 'delete') {
-        batch.delete(ref)
-        batch.set(doc(fs, `${tombstoneCollection(uid)}/${store}_${row.docId}`), {
+        batch.delete(path)
+        batch.set(`${tombstoneCollection(uid)}/${store}_${row.docId}`, {
           store,
           docId: row.docId,
-          [SYNC_FIELD]: serverTimestamp(),
+          [SYNC_FIELD]: backend.serverTimestamp(),
         })
-        done.push(row.id)
+        done.push(ticketOf(row))
         continue
       }
 
       const current = await getFromStore<Record<string, unknown>>(store as StoreName, row.docId)
       if (!current) {
         // Deleted locally before it was ever uploaded — nothing to send.
-        done.push(row.id)
+        done.push(ticketOf(row))
         continue
       }
 
       if (store === 'photos') {
         const photo = current as unknown as ProgressPhoto
         try {
-          const path = await uploadPhoto(uid, photo)
-          if (path && path !== photo.storagePath) {
-            await putFromServer('photos', { ...photo, storagePath: path })
-            current.storagePath = path
+          const storagePath = await uploadPhoto(uid, photo)
+          if (storagePath && storagePath !== photo.storagePath) {
+            if (alive()) await putFromServer('photos', { ...photo, storagePath })
+            current.storagePath = storagePath
           }
         } catch (err) {
           log('sync', `photo upload failed: ${String(err)}`, 'warn')
@@ -264,21 +387,18 @@ export async function push(uid: string): Promise<{ sent: number; failed: number 
         }
       }
 
-      batch.set(ref, { ...sanitize(store, current), [SYNC_FIELD]: serverTimestamp() })
-      done.push(row.id)
+      batch.set(path, { ...sanitize(store, current), [SYNC_FIELD]: backend.serverTimestamp() })
+      done.push(ticketOf(row))
     }
 
     try {
-      await batch.commit()
+      await withTimeout(batch.commit(), commitTimeoutMs, 'COMMIT_TIMEOUT')
       await clearEntries(done)
       sent += done.length
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      await markFailed(
-        rows.map((r) => r.id),
-        message,
-      )
-      setStatus({ phase: 'error', error: message, pending: await pendingCount() })
+      await markFailed(rows.map(ticketOf), message)
+      report({ phase: 'error', error: message, pending: await pendingCount() })
       log('sync', `push failed: ${message}`, 'error')
       return { sent, failed: failed + rows.length }
     }
@@ -288,7 +408,7 @@ export async function push(uid: string): Promise<{ sent: number; failed: number 
   }
 
   const pending = await pendingCount()
-  setStatus({
+  report({
     phase: pending === 0 ? 'synced' : 'syncing',
     pending,
     lastSyncedAt: Date.now(),
@@ -318,6 +438,7 @@ async function pullCollection(
   uid: string,
   store: SyncedStore,
   pendingLocally: Set<string>,
+  alive: () => boolean,
 ): Promise<number> {
   const { collection, query, where, orderBy, limit, getDocs, startAfter } = await import('firebase/firestore')
   const last = await getSyncState<number | null>(lastPullKey(store), null)
@@ -338,6 +459,8 @@ async function pullCollection(
     const snap: QuerySnapshot<DocumentData> = await getDocs(
       query(collection(fs, userCollection(uid, store)), ...parts),
     )
+    // Lo que llega después de parar la sincronización ya no es de nadie aquí.
+    if (!alive()) return count
     if (snap.empty) break
 
     for (const docSnap of snap.docs) {
@@ -355,6 +478,7 @@ async function pullCollection(
         sampleIds.push(value.id)
         continue
       }
+      if (!alive()) return count
       await putFromServer(store, value)
       count++
     }
@@ -363,13 +487,14 @@ async function pullCollection(
     if (snap.docs.length < pageSize) break
   }
 
+  if (!alive()) return count
   if (newest !== null) await setSyncState(lastPullKey(store), newest)
   if (sampleIds.length) await enqueueMany(sampleIds.map((docId) => ({ store, docId, op: 'delete' as const })))
   if (count) notify(store as StoreName)
   return count
 }
 
-async function pullTombstones(fs: Firestore, uid: string): Promise<number> {
+async function pullTombstones(fs: Firestore, uid: string, alive: () => boolean): Promise<number> {
   const { collection, query, where, orderBy, getDocs } = await import('firebase/firestore')
   const last = await getSyncState<number | null>(TOMBSTONE_PULL_KEY, null)
   const parts: QueryConstraint[] = [
@@ -379,6 +504,7 @@ async function pullTombstones(fs: Firestore, uid: string): Promise<number> {
   const snap: QuerySnapshot<DocumentData> = await getDocs(
     query(collection(fs, tombstoneCollection(uid)), ...parts),
   )
+  if (!alive()) return 0
   let newest = last
   let count = 0
   const touched = new Set<StoreName>()
@@ -387,6 +513,7 @@ async function pullTombstones(fs: Firestore, uid: string): Promise<number> {
     const store = docSnap.get('store') as SyncedStore
     const docId = docSnap.get('docId') as string
     if (SYNCED_STORES.includes(store) && docId) {
+      if (!alive()) return count
       await deleteFromServer(store, docId)
       touched.add(store as StoreName)
       count++
@@ -396,6 +523,7 @@ async function pullTombstones(fs: Firestore, uid: string): Promise<number> {
     if (typeof ms === 'number' && (newest === null || ms > newest)) newest = ms
   }
 
+  if (!alive()) return count
   if (newest !== null) await setSyncState(TOMBSTONE_PULL_KEY, newest)
   if (touched.size) notify(...touched)
   return count
@@ -413,7 +541,8 @@ const SECOND_WAVE: SyncedStore[] = [
   'photos',
 ]
 
-export async function pull(uid: string, opts: { restoring?: boolean } = {}): Promise<number> {
+export async function pull(uid: string, opts: { restoring?: boolean; alive?: () => boolean } = {}): Promise<number> {
+  const alive = opts.alive ?? (() => true)
   const services = await getFirebase()
   if (!services) return 0
   const { db: fs } = services
@@ -444,9 +573,9 @@ export async function pull(uid: string, opts: { restoring?: boolean } = {}): Pro
   async function runWave(stores: SyncedStore[]) {
     const counts = await Promise.all(
       stores.map(async (store) => {
-        const n = await pullCollection(fs, uid, store, pendingLocally)
+        const n = await pullCollection(fs, uid, store, pendingLocally, alive)
         done++
-        if (opts.restoring) setStatus({ restoreLabel: store, restoreDone: done, restoreTotal: waves.length })
+        if (opts.restoring && alive()) setStatus({ restoreLabel: store, restoreDone: done, restoreTotal: waves.length })
         return n
       }),
     )
@@ -454,10 +583,10 @@ export async function pull(uid: string, opts: { restoring?: boolean } = {}): Pro
   }
 
   await runWave(FIRST_WAVE)
-  await runWave(SECOND_WAVE)
-  total += await pullTombstones(fs, uid)
+  if (alive()) await runWave(SECOND_WAVE)
+  if (alive()) total += await pullTombstones(fs, uid, alive)
 
-  if (opts.restoring) setStatus({ restoreLabel: null, restoreDone: waves.length })
+  if (opts.restoring && alive()) setStatus({ restoreLabel: null, restoreDone: waves.length })
   log('sync', `pulled ${total} documents`)
   return total
 }
@@ -488,39 +617,96 @@ let activeUid: string | null = null
 let timer: number | null = null
 /** Pending debounced push, so a burst of local writes becomes one upload. */
 let pushSoon: number | null = null
-let running = false
+/** El ciclo en marcha, si lo hay. Hace de la antigua bandera `running`. */
+let cycle: Promise<void> | null = null
+/** La generación (ver abajo) a la que pertenece `cycle`. */
+let cycleGeneration = -1
+/** Cuál de los ciclos lanzados es `cycle`: sólo ése lo deja libre al terminar. */
+let cycleSerial = 0
+/**
+ * Generación de la sincronización: sube con cada `startSync` y cada
+ * `stopSync`. Un ciclo recuerda la suya y, si cambia, deja de escribir.
+ */
+let generation = 0
 
 export function syncingFor(): string | null {
   return activeUid
 }
 
-export async function syncNow(): Promise<void> {
-  if (!activeUid || running) return
-  running = true
-  try {
-    await push(activeUid)
-    await pull(activeUid)
-    const pending = await pendingCount()
-    setStatus({
-      phase: pending === 0 ? 'synced' : 'syncing',
-      pending,
-      lastSyncedAt: Date.now(),
-    })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    setStatus({ phase: 'error', error: message })
-    log('sync', `sync cycle failed: ${message}`, 'error')
-  } finally {
-    running = false
-  }
+/** Si hay un ciclo de sincronización en marcha. */
+export function syncRunning(): boolean {
+  return cycle !== null
+}
+
+/**
+ * Un ciclo para la cuenta activa. Si ya hay uno en marcha devuelve ese, así
+ * que quien espera a `syncNow()` espera de verdad a que termine, en vez de
+ * volver al instante sin haber subido nada.
+ */
+export function syncNow(): Promise<void> {
+  if (!activeUid) return Promise.resolve()
+  return syncCycle(activeUid)
+}
+
+/**
+ * Subir y después bajar. Nunca rechaza: un fallo queda en el estado y en el
+ * registro. Exportado con sus opciones para las pruebas; la app entra
+ * siempre por `syncNow`.
+ */
+export function syncCycle(uid: string, opts: SyncOptions = {}): Promise<void> {
+  if (cycle && cycleGeneration === generation) return cycle
+  // Un ciclo de una sincronización ya parada (otra generación) sigue
+  // terminando: éste espera a que acabe y no se mezclan.
+  const previous = cycle
+  const gen = generation
+  const alive = () => gen === generation
+  const serial = ++cycleSerial
+  const run = (async () => {
+    try {
+      if (previous) await previous
+      if (!alive()) return
+      await push(uid, { ...opts, alive })
+      if (!alive()) return
+      await pull(uid, { alive })
+      const pending = await pendingCount()
+      if (!alive()) return
+      setStatus({
+        phase: pending === 0 ? 'synced' : 'syncing',
+        pending,
+        lastSyncedAt: Date.now(),
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      if (alive()) setStatus({ phase: 'error', error: message })
+      log('sync', `sync cycle failed: ${message}`, 'error')
+    } finally {
+      if (cycleSerial === serial) cycle = null
+    }
+  })()
+  cycle = run
+  cycleGeneration = gen
+  return run
+}
+
+/**
+ * Espera, como mucho `ms`, a que termine el ciclo en marcha. Para el cierre
+ * de sesión y el borrado de cuenta, después de `stopSync`: lo que estaba
+ * subiendo o bajando acaba antes de que se vacíe la copia local.
+ */
+export async function waitForSyncIdle(ms: number): Promise<void> {
+  const current = cycle
+  if (!current) return
+  await withTimeout(current, ms, 'SYNC_IDLE_TIMEOUT').catch(() => undefined)
 }
 
 export async function startSync(uid: string, opts: { restore?: boolean } = {}): Promise<void> {
   activeUid = uid
+  generation++
+  const gen = generation
   setStatus({ phase: 'syncing', error: null })
 
   if (opts.restore) {
-    await pull(uid, { restoring: true })
+    await pull(uid, { restoring: true, alive: () => gen === generation })
   }
   await syncNow()
 
@@ -552,6 +738,8 @@ export async function startSync(uid: string, opts: { restore?: boolean } = {}): 
 }
 
 export function stopSync(): void {
+  // Lo que siga en vuelo deja de escribir (ver `SyncOptions.alive`).
+  generation++
   setQueueListener(null)
   if (pushSoon) {
     window.clearTimeout(pushSoon)

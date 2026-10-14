@@ -160,8 +160,8 @@ Se declaran como no recogidos, y el código lo respalda:
 
 Se puede comprobar: `package.json` no contiene `firebase/analytics`,
 `@capacitor/device`, `@capacitor-community/admob` ni ningún SDK publicitario, y
-`AndroidManifest.xml` declara dos permisos, `INTERNET` y `POST_NOTIFICATIONS`
-(ver la sección 5). Ninguno de los dos recoge datos.
+`AndroidManifest.xml` declara tres permisos, `INTERNET`, `POST_NOTIFICATIONS` y
+`SCHEDULE_EXACT_ALARM` (ver la sección 5). Ninguno de los tres recoge datos.
 
 ---
 
@@ -194,27 +194,44 @@ como destinatario de una cesión. Google Play distingue expresamente entre
 
 ## 5. Permisos declarados
 
-Dos:
+Tres:
 
 | Permiso | Nivel | Por qué |
 | --- | --- | --- |
 | `android.permission.INTERNET` | Normal | Hablar con Firebase Auth, Firestore y Storage. |
-| `android.permission.POST_NOTIFICATIONS` | Tiempo de ejecución (Android 13+) | Un único aviso: «entrenamiento en curso» en la pantalla de bloqueo, con el cronómetro, mientras haya un entrenamiento abierto. |
+| `android.permission.POST_NOTIFICATIONS` | Tiempo de ejecución (Android 13+) | Dos avisos, los dos del entrenamiento abierto: «entrenamiento en curso» en la pantalla de bloqueo, con el cronómetro (o la cuenta atrás del descanso), mientras dure; y «Descanso terminado», un aviso puntual al acabar el descanso entre series si la app está en segundo plano. |
+| `android.permission.SCHEDULE_EXACT_ALARM` | Acceso especial (Android 12+): «Alarmas y recordatorios» | Que el aviso «Descanso terminado» llegue a su hora con la pantalla apagada. No recoge ningún dato. |
 
-`POST_NOTIFICATIONS` **no recoge ni comparte ningún dato**: el aviso se publica
-desde el propio teléfono con lo que ya está en él (la hora de inicio, el nombre
-del día y las series hechas) y no sale de él. No hay notificaciones push, ni
-recordatorios, ni Firebase Cloud Messaging. Por eso no añade nada a la sección 2.
+**Ninguno de los dos avisos recoge ni comparte ningún dato**: se publican desde
+el propio teléfono con lo que ya está en él (la hora de inicio, el nombre del
+día, el ejercicio, la serie y la hora a la que acaba el descanso) y no salen de
+él. No hay notificaciones push, ni recordatorios para volver a la app, ni
+Firebase Cloud Messaging. Por eso no añaden nada a la sección 2.
 
-Cuándo se pide: la primera vez que se empieza un entrenamiento, nunca al abrir
-la app. Si la persona lo deniega no se vuelve a preguntar y la app funciona
-exactamente igual, sin el aviso. Por debajo de Android 13 este permiso no
-existe y no aparece ningún diálogo.
+`SCHEDULE_EXACT_ALARM` **tampoco recoge ni comparte ningún dato**: sólo deja
+programar en el propio teléfono una alarma para el final del descanso que la
+persona acaba de empezar. No toca el calendario, ni los despertadores del
+sistema, ni nada fuera de la app. Por eso tampoco añade nada a la sección 2.
+
+Cuándo se pide cada uno, nunca al abrir la app:
+
+* `POST_NOTIFICATIONS`: la primera vez que se empieza un entrenamiento. Si la
+  persona lo deniega no se vuelve a preguntar y la app funciona exactamente
+  igual, sin los avisos. Por debajo de Android 13 este permiso no existe y no
+  aparece ningún diálogo.
+* `SCHEDULE_EXACT_ALARM`: no es un diálogo, es un ajuste del sistema. Android 12
+  y 13 lo conceden por defecto; desde Android 14 viene desactivado. La primera
+  vez que empieza un descanso, sólo si falta y las notificaciones están
+  permitidas, la app explica para qué es y ofrece abrir el ajuste, con
+  «Ahora no». Una sola vez. Sin él, el aviso de descanso llega igual, pero
+  puede llegar tarde. Por debajo de Android 12 no existe.
 
 La justificación de cada permiso, y la lista de lo que **no** se pide y por qué
-(entre otros, `FOREGROUND_SERVICE`: el cronómetro del aviso lo pinta el sistema
-y no hace falta ningún servicio en primer plano), está comentada dentro de
-`android/app/src/main/AndroidManifest.xml`.
+(entre otros, `FOREGROUND_SERVICE`: los cronómetros del aviso los pinta el
+sistema y no hace falta ningún servicio en primer plano; `USE_EXACT_ALARM`,
+`USE_FULL_SCREEN_INTENT`, `VIBRATE` y `WAKE_LOCK`), está comentada dentro de
+`android/app/src/main/AndroidManifest.xml`, y `npm run android:verify` falla si
+aparece cualquier otro.
 
 ---
 

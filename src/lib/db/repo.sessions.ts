@@ -1,5 +1,5 @@
 import { getDB, notify, log, readSettings, getMeta, setMeta } from './database'
-import { enqueueMany, putSynced } from '../sync/queue'
+import { announceQueued, inTx, putSynced, queueInTx } from '../sync/queue'
 import {
   newId,
   type Exercise,
@@ -18,6 +18,14 @@ import { getExercisesByIds } from './repo.exercises'
 import { translate } from '../i18n'
 
 export const ACTIVE_SESSION_KEY = 'activeSessionId'
+/**
+ * El descanso en curso y el ejercicio que se está viendo, para que cerrar la
+ * app (o que el sistema la mate en segundo plano) no los pierda. Son de la
+ * sesión que nombran: `useWorkout.load()` sólo los recupera si coinciden con
+ * la sesión activa. Ver docs/NATIVE-CONTRACT.md.
+ */
+export const ACTIVE_REST_KEY = 'activeRest'
+export const ACTIVE_EXERCISE_INDEX_KEY = 'activeExerciseIndex'
 
 export function makeSet(type: SetEntry['type'] = 'working'): SetEntry {
   return {
@@ -50,6 +58,16 @@ export async function getActiveSession(): Promise<WorkoutSession | null> {
     return alive
   }
   return null
+}
+
+/**
+ * ¿Hay un entrenamiento en curso guardado en este dispositivo? Sólo lee:
+ * a diferencia de `getActiveSession`, no repara el puntero de `meta`.
+ */
+export async function hasActiveSession(): Promise<boolean> {
+  const db = await getDB()
+  const all = await db.getAllFromIndex('sessions', 'by-status', 'active')
+  return all.some((s) => !s.deletedAt)
 }
 
 export interface StartSessionInput {
@@ -120,10 +138,14 @@ export async function startSession(input: StartSessionInput): Promise<WorkoutSes
   return session
 }
 
-export async function persistSession(session: WorkoutSession): Promise<void> {
+/**
+ * `isCurrent`: ver `SyncedWriteOptions`. El autoguardado lo pasa para que una
+ * escritura que salió antes de cerrar sesión no aterrice después.
+ */
+export async function persistSession(session: WorkoutSession, isCurrent?: () => boolean): Promise<void> {
   // Autosave during a workout. The outbox collapses repeated edits of the same
   // session into one pending entry, so this is cheap even every few seconds.
-  await putSynced('sessions', { ...session, updatedAt: Date.now() })
+  await putSynced('sessions', { ...session, updatedAt: Date.now() }, { isCurrent })
 }
 
 export async function discardSession(id: string): Promise<void> {
@@ -437,32 +459,41 @@ export async function commitCompletedSession(session: WorkoutSession): Promise<P
     }
   }
 
-  const tx = db.transaction(['sessions', 'exerciseLogs', 'personalRecords'], 'readwrite')
-  await tx.objectStore('sessions').put(session)
-  const logStore = tx.objectStore('exerciseLogs')
-  const stale = await logStore.index('by-session').getAllKeys(session.id)
-  for (const key of stale) await logStore.delete(key)
-  for (const entry of logs) await logStore.put(entry)
-  const prStore = tx.objectStore('personalRecords')
-  const removedPrs: string[] = []
-  for (const old of await prStore.getAll()) {
-    if (old.sessionId === session.id) {
-      await prStore.delete(old.id)
-      removedPrs.push(old.id)
+  /*
+   * Una sola transacción para todo: la sesión, sus registros, sus récords Y
+   * las filas del buzón que los suben a la cuenta. Antes el buzón iba en una
+   * segunda transacción, después; un cierre entre las dos dejaba el
+   * entrenamiento terminado aquí y sin subir nunca. Así, o queda todo (datos
+   * y su subida pendiente) o no queda nada.
+   */
+  const tx = db.transaction(['sessions', 'exerciseLogs', 'personalRecords', 'syncQueue'], 'readwrite')
+  const queue = tx.objectStore('syncQueue')
+  await inTx(tx, async () => {
+    await tx.objectStore('sessions').put(session)
+    await queueInTx(queue, 'sessions', session.id, 'put')
+    const logStore = tx.objectStore('exerciseLogs')
+    const stale = (await logStore.index('by-session').getAllKeys(session.id)).map(String)
+    for (const key of stale) {
+      await logStore.delete(key)
+      await queueInTx(queue, 'exerciseLogs', key, 'delete')
     }
-  }
-  for (const pr of prs) await prStore.put(pr)
-  await tx.done
-
-  // The transaction is the atomic part; queueing for the account comes after,
-  // so a crash mid-write can never leave half a workout in either place.
-  await enqueueMany([
-    { store: 'sessions', docId: session.id, op: 'put' },
-    ...stale.map((key) => ({ store: 'exerciseLogs' as const, docId: String(key), op: 'delete' as const })),
-    ...logs.map((l) => ({ store: 'exerciseLogs' as const, docId: l.id, op: 'put' as const })),
-    ...removedPrs.map((id) => ({ store: 'personalRecords' as const, docId: id, op: 'delete' as const })),
-    ...prs.map((p) => ({ store: 'personalRecords' as const, docId: p.id, op: 'put' as const })),
-  ])
+    for (const entry of logs) {
+      await logStore.put(entry)
+      await queueInTx(queue, 'exerciseLogs', entry.id, 'put')
+    }
+    const prStore = tx.objectStore('personalRecords')
+    for (const old of await prStore.getAll()) {
+      if (old.sessionId === session.id) {
+        await prStore.delete(old.id)
+        await queueInTx(queue, 'personalRecords', old.id, 'delete')
+      }
+    }
+    for (const pr of prs) {
+      await prStore.put(pr)
+      await queueInTx(queue, 'personalRecords', pr.id, 'put')
+    }
+  })
+  announceQueued()
 
   return prs
 }
@@ -536,25 +567,27 @@ export async function deleteSession(id: string): Promise<void> {
   const db = await getDB()
   const s = await db.get('sessions', id)
   if (!s) return
-  const tx = db.transaction(['sessions', 'exerciseLogs', 'personalRecords'], 'readwrite')
-  await tx.objectStore('sessions').put({ ...s, deletedAt: Date.now(), updatedAt: Date.now() })
-  const logStore = tx.objectStore('exerciseLogs')
-  const logKeys = (await logStore.index('by-session').getAllKeys(id)).map(String)
-  for (const key of logKeys) await logStore.delete(key)
-  const prStore = tx.objectStore('personalRecords')
-  const prIds: string[] = []
-  for (const pr of await prStore.getAll()) {
-    if (pr.sessionId === id) {
-      await prStore.delete(pr.id)
-      prIds.push(pr.id)
+  // Datos y buzón en la misma transacción, como en `commitCompletedSession`.
+  const tx = db.transaction(['sessions', 'exerciseLogs', 'personalRecords', 'syncQueue'], 'readwrite')
+  const queue = tx.objectStore('syncQueue')
+  await inTx(tx, async () => {
+    await tx.objectStore('sessions').put({ ...s, deletedAt: Date.now(), updatedAt: Date.now() })
+    await queueInTx(queue, 'sessions', id, 'put')
+    const logStore = tx.objectStore('exerciseLogs')
+    const logKeys = (await logStore.index('by-session').getAllKeys(id)).map(String)
+    for (const key of logKeys) {
+      await logStore.delete(key)
+      await queueInTx(queue, 'exerciseLogs', key, 'delete')
     }
-  }
-  await tx.done
-  await enqueueMany([
-    { store: 'sessions', docId: id, op: 'put' },
-    ...logKeys.map((docId) => ({ store: 'exerciseLogs' as const, docId, op: 'delete' as const })),
-    ...prIds.map((docId) => ({ store: 'personalRecords' as const, docId, op: 'delete' as const })),
-  ])
+    const prStore = tx.objectStore('personalRecords')
+    for (const pr of await prStore.getAll()) {
+      if (pr.sessionId === id) {
+        await prStore.delete(pr.id)
+        await queueInTx(queue, 'personalRecords', pr.id, 'delete')
+      }
+    }
+  })
+  announceQueued()
   log('history', `session deleted: ${s.dayName}`)
   notify('sessions', 'exerciseLogs', 'personalRecords')
 }

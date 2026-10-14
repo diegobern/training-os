@@ -1,17 +1,20 @@
 import { getDB, invalidateSettingsCache, log, notify, readSettings, type ExercisePrefRow } from './db/database'
-import type {
-  BodyweightEntry,
-  Exercise,
-  ExerciseLog,
-  MeasurementEntry,
-  Milestone,
-  PersonalRecord,
-  Routine,
-  Settings,
-  WorkoutSession,
+import {
+  defaultSettings,
+  type BodyweightEntry,
+  type Exercise,
+  type ExerciseLog,
+  type MeasurementEntry,
+  type Milestone,
+  type PersonalRecord,
+  type Routine,
+  type Settings,
+  type WorkoutSession,
 } from './db/schema'
 import { isLogged } from './training/metrics'
 import { enqueueMany } from './sync/queue'
+import { beforeLocalReset } from './sync/engine'
+import { hasActiveSession } from './db/repo.sessions'
 import type { SyncedStore } from './firebase/paths'
 import { shareTextFile } from './native/chrome'
 
@@ -118,11 +121,20 @@ export async function buildBackup(includePhotos = false): Promise<BackupFile> {
   return file
 }
 
-async function download(filename: string, content: string, type: string) {
-  // Android no tiene descargas dentro del WebView; ahí el fichero se entrega
-  // por el menú de compartir del sistema. En web esto devuelve false y sigue
-  // el camino de siempre.
-  if (await shareTextFile(filename, content)) return
+/**
+ * Entrega el fichero y dice si de verdad salió.
+ *
+ * En las apps (Android e iOS) no hay descargas dentro del WebView: el fichero
+ * va por el menú de compartir del sistema, y la persona puede cerrarlo sin
+ * elegir nada. Eso NO es una copia guardada, y quien borra datos después de
+ * exportar (`useAuth.keepLocalSeparate`) tiene que saberlo. En web, el
+ * `<a download>` lo entrega el navegador y cuenta como entregado: no hay forma
+ * de saber más, y es el camino de siempre.
+ */
+async function download(filename: string, content: string, type: string): Promise<boolean> {
+  // `null`: no es nativo, sigue el camino del navegador.
+  const shared = await shareTextFile(filename, content)
+  if (shared) return shared.delivered
 
   const blob = new Blob([content], { type })
   const url = URL.createObjectURL(blob)
@@ -133,6 +145,13 @@ async function download(filename: string, content: string, type: string) {
   a.click()
   a.remove()
   setTimeout(() => URL.revokeObjectURL(url), 2000)
+  return true
+}
+
+/** Lo que devuelve una exportación: cuántos registros llevaba y si el fichero llegó a salir. */
+export interface ExportResult {
+  count: number
+  delivered: boolean
 }
 
 function stamp() {
@@ -141,11 +160,12 @@ function stamp() {
   return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`
 }
 
-export async function exportJson(includePhotos = false): Promise<number> {
+export async function exportJson(includePhotos = false): Promise<ExportResult> {
   const file = await buildBackup(includePhotos)
-  await download(`training-os-${stamp()}.json`, JSON.stringify(file, null, 2), 'application/json')
-  log('backup', `exported ${Object.values(file.counts).reduce((a, b) => a + b, 0)} records`)
-  return Object.values(file.counts).reduce((a, b) => a + b, 0)
+  const count = Object.values(file.counts).reduce((a, b) => a + b, 0)
+  const delivered = await download(`training-os-${stamp()}.json`, JSON.stringify(file, null, 2), 'application/json')
+  log('backup', delivered ? `exported ${count} records` : `export of ${count} records not delivered`)
+  return { count, delivered }
 }
 
 function csvEscape(v: unknown): string {
@@ -153,7 +173,7 @@ function csvEscape(v: unknown): string {
   return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
 }
 
-export async function exportCsv(): Promise<number> {
+export async function exportCsv(): Promise<ExportResult> {
   const db = await getDB()
   const sessions = (await db.getAll('sessions'))
     .filter((s) => s.status === 'completed' && !s.deletedAt)
@@ -210,9 +230,9 @@ export async function exportCsv(): Promise<number> {
     }
   }
 
-  await download(`training-os-sets-${stamp()}.csv`, rows.join('\n'), 'text/csv;charset=utf-8')
-  log('backup', `exported ${count} set rows to CSV`)
-  return count
+  const delivered = await download(`training-os-sets-${stamp()}.csv`, rows.join('\n'), 'text/csv;charset=utf-8')
+  log('backup', delivered ? `exported ${count} set rows to CSV` : `CSV export of ${count} rows not delivered`)
+  return { count, delivered }
 }
 
 export type ImportMode = 'merge' | 'replace'
@@ -227,11 +247,17 @@ export interface ImportResult {
  * to be English sentences shown straight to the person whatever the app's
  * language ("No se pudo importar el archivo: Not a Training OS backup").
  */
-export type BackupImportProblem = 'notBackup' | 'noData'
+export type BackupImportProblem = 'notBackup' | 'noData' | 'activeWorkout'
+
+const PROBLEM_MESSAGES: Record<BackupImportProblem, string> = {
+  notBackup: 'Not a Training OS backup',
+  noData: 'Backup has no data',
+  activeWorkout: 'A workout is in progress',
+}
 
 export class BackupImportError extends Error {
   constructor(readonly problem: BackupImportProblem) {
-    super(problem === 'notBackup' ? 'Not a Training OS backup' : 'Backup has no data')
+    super(PROBLEM_MESSAGES[problem])
     this.name = 'BackupImportError'
   }
 }
@@ -243,7 +269,10 @@ export class BackupImportError extends Error {
  * message stays in the technical log, never on screen.
  */
 export function importErrorKey(err: unknown): string {
-  if (err instanceof BackupImportError) return err.problem === 'notBackup' ? 'data.importNotBackup' : 'data.importNoData'
+  if (err instanceof BackupImportError) {
+    if (err.problem === 'activeWorkout') return 'data.importBlockedActive'
+    return err.problem === 'notBackup' ? 'data.importNotBackup' : 'data.importNoData'
+  }
   if (err instanceof SyntaxError) return 'data.importNotJson'
   if (err instanceof DOMException && err.name === 'QuotaExceededError') return 'data.importNoSpace'
   return 'data.importError'
@@ -254,6 +283,14 @@ export async function importBackup(json: unknown, mode: ImportMode): Promise<Imp
   const file = json as Partial<BackupFile>
   if (file.format !== BACKUP_FORMAT) throw new BackupImportError('notBackup')
   if (!file.data) throw new BackupImportError('noData')
+  /*
+   * «Reemplazar» vacía `sessions`, y con ella el entrenamiento en curso: la
+   * pantalla seguiría mostrándolo, el siguiente autoguardado lo resucitaría a
+   * medias y el aviso nativo apuntaría a una sesión que ya no existe. Se
+   * comprueba aquí, sobre lo guardado, además de en la pantalla (Ajustes mira
+   * `useWorkout.session`), para que ningún otro camino pueda saltárselo.
+   */
+  if (mode === 'replace' && (await hasActiveSession())) throw new BackupImportError('activeWorkout')
 
   const db = await getDB()
   const stores = [
@@ -346,7 +383,22 @@ export async function importBackup(json: unknown, mode: ImportMode): Promise<Imp
   return { imported, skipped }
 }
 
+/**
+ * «Borrar todos los datos» de Ajustes.
+ *
+ * Lo primero, sin esperar a nada, lo mismo que antes de cualquier vaciado
+ * (`beforeLocalReset`): el entrenamiento en memoria se vacía y el aviso nativo
+ * se retira, para que ni un autoguardado ni un descanso sobrevivan al borrado.
+ *
+ * La fila de ajustes se borra con todo lo demás, pero el idioma y el tema se
+ * conservan: son del dispositivo, no de los datos (igual que en
+ * `resetLocalData`), y sin ellos la app reaparecería tras recargar en otro
+ * idioma y con un destello claro. El resto de ajustes vuelve a sus valores
+ * por defecto, que es lo que promete el aviso («y ajustes»).
+ */
 export async function wipeEverything(): Promise<void> {
+  beforeLocalReset()
+  const kept = await readSettings()
   const db = await getDB()
   const stores = [
     'exercises',
@@ -364,6 +416,7 @@ export async function wipeEverything(): Promise<void> {
   ] as const
   const tx = db.transaction([...stores], 'readwrite')
   for (const s of stores) await tx.objectStore(s).clear()
+  await tx.objectStore('settings').put({ ...defaultSettings(), language: kept.language, theme: kept.theme })
   await tx.done
   invalidateSettingsCache()
   log('backup', 'all local data erased', 'warn')

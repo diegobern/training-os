@@ -13,6 +13,7 @@ import type {
   WorkoutSession,
 } from './schema'
 import { defaultSettings } from './schema'
+import { deviceLanguages, pickLanguage } from '../i18n/pickLanguage'
 
 export const DB_NAME = 'training-os'
 export const DB_VERSION = 3
@@ -26,6 +27,19 @@ export interface SyncQueueRow {
   queuedAt: number
   attempts: number
   lastError: string | null
+  /**
+   * Versión de la fila: sube cada vez que el documento se vuelve a encolar.
+   *
+   * La subida lee la fila, envía el documento y después borra la fila. Si
+   * mientras tanto la persona edita ese mismo documento, la fila se reescribe
+   * (mismo id) y el borrado se llevaba por delante un cambio que nunca subió.
+   * Con `seq` el borrado compara: sólo quita la fila si sigue siendo la que
+   * se envió.
+   *
+   * Opcional porque las filas escritas antes de existir no lo tienen; cuentan
+   * como 0. Es un campo añadido, no un índice: no cambia DB_VERSION.
+   */
+  seq?: number
 }
 
 export interface SyncStateRow {
@@ -426,10 +440,14 @@ export async function readSettings(): Promise<Settings> {
     settingsCache = merged
     return merged
   }
-  const fresh = defaultSettings()
+  // Primera vez en este dispositivo: el idioma sale del sistema (es / es-* →
+  // español; lo demás, inglés). Sólo aquí, al crear la fila: una instalación
+  // que ya tiene ajustes conserva el idioma que tenía, y `defaultSettings()`
+  // sigue diciendo 'es' para todo lo demás que la use.
+  const fresh: Settings = { ...defaultSettings(), language: pickLanguage(deviceLanguages()) }
   await db.put('settings', fresh)
   settingsCache = fresh
-  log('settings', 'created default settings')
+  log('settings', `created default settings (${fresh.language})`)
   return fresh
 }
 
@@ -459,6 +477,30 @@ export async function setMeta(key: string, value: unknown): Promise<void> {
   const db = await getDB()
   await db.put('meta', { key, value, updatedAt: Date.now() })
   notify('meta')
+}
+
+/**
+ * `setMeta` sin avisar a nadie, para estado de pantalla que se escribe a
+ * menudo (el descanso en curso, el ejercicio que se está viendo): ninguna
+ * consulta lo lee, y avisar haría repetir cada consulta suscrita a '*'.
+ *
+ * `isCurrent` se mira justo antes de escribir, ya con la base abierta: si el
+ * dueño de los datos cambió mientras tanto (ver `useWorkout.reset`), no se
+ * escribe nada.
+ */
+export async function setMetaQuiet(key: string, value: unknown, isCurrent?: () => boolean): Promise<void> {
+  const db = await getDB()
+  if (isCurrent && !isCurrent()) return
+  await db.put('meta', { key, value, updatedAt: Date.now() })
+}
+
+/** Borra varias claves de `meta` en una sola transacción. Sin aviso, como `setMetaQuiet`. */
+export async function deleteMeta(keys: readonly string[], isCurrent?: () => boolean): Promise<void> {
+  if (!keys.length) return
+  const db = await getDB()
+  if (isCurrent && !isCurrent()) return
+  const tx = db.transaction('meta', 'readwrite')
+  await Promise.all([...keys.map((key) => tx.store.delete(key)), tx.done])
 }
 
 /* -------------------------------------------------------------- estimates */

@@ -217,7 +217,9 @@ const device = {
  * @capacitor/core. Así se ejercita el código web real del aviso.
  *
  * `window.__notif` registra cada llamada y deja elegir la respuesta: permiso
- * concedido o denegado, o un plugin que falla en todo.
+ * concedido o denegado, alarma exacta sí o no, o un plugin que falla en todo.
+ * La háptica se apunta aparte (`haptics`): cada botón vibra, y mezclada con
+ * el resto no dejaría ver en qué orden llegan `start`, `stop` y los avisos.
  */
 const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
   window.androidBridge = { postMessage: () => {} }
@@ -229,12 +231,24 @@ const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
    */
   const KEY = '__notif-state'
   const saved = JSON.parse(sessionStorage.getItem(KEY) ?? 'null')
-  const state = (window.__notif = { tap: null, ...scenario, calls: [], ...(saved ?? {}) })
-  const persist = () => sessionStorage.setItem(KEY, JSON.stringify({ permission: state.permission, calls: state.calls }))
+  const state = (window.__notif = { tap: null, exactAlarms: true, ...scenario, calls: [], haptics: [], ...(saved ?? {}) })
+  const persist = () =>
+    sessionStorage.setItem(
+      KEY,
+      JSON.stringify({ permission: state.permission, exactAlarms: state.exactAlarms, calls: state.calls, haptics: state.haptics }),
+    )
   const record = (entry) => {
     state.calls.push(entry)
     persist()
   }
+  /*
+   * Un toque en la notificación con la app cerrada: el plugin de verdad lo
+   * guarda y lo entrega en cuanto alguien escucha `open`, antes incluso de
+   * que la app haya leído la sesión. Se deja preparado con
+   * sessionStorage['__notif-tap'] antes de recargar.
+   */
+  const heldTap = sessionStorage.getItem('__notif-tap')
+  sessionStorage.removeItem('__notif-tap')
   window.Capacitor = {
     platform: 'android',
     isNative: true,
@@ -247,8 +261,13 @@ const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
         methods: [
           { name: 'start', rtype: 'promise' },
           { name: 'stop', rtype: 'promise' },
+          { name: 'scheduleRestAlert', rtype: 'promise' },
+          { name: 'cancelRestAlert', rtype: 'promise' },
+          { name: 'haptic', rtype: 'promise' },
+          { name: 'isSupported', rtype: 'promise' },
           { name: 'checkPermissions', rtype: 'promise' },
           { name: 'requestPermissions', rtype: 'promise' },
+          { name: 'requestExactAlarm', rtype: 'promise' },
           { name: 'addListener', rtype: 'callback' },
           { name: 'removeListener', rtype: 'promise' },
         ],
@@ -256,6 +275,11 @@ const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
     ],
     nativePromise: (plugin, method, options = {}) => {
       if (plugin !== 'WorkoutNotification') return Promise.reject(new Error(`sin nativo: ${plugin}`))
+      if (method === 'haptic') {
+        state.haptics.push(options.kind)
+        persist()
+        return state.broken ? Promise.reject(new Error('plugin roto a propósito')) : Promise.resolve({})
+      }
       record({ method, options, at: Date.now() })
       if (state.broken) return Promise.reject(new Error('plugin roto a propósito'))
       if (method === 'checkPermissions') return Promise.resolve({ display: state.permission })
@@ -265,11 +289,22 @@ const FAKE_ANDROID_WITH_NOTICE = (scenario) => {
         return Promise.resolve({ display: state.permission })
       }
       if (method === 'start') return Promise.resolve({ shown: true })
+      if (method === 'scheduleRestAlert') return Promise.resolve({ scheduled: true, exact: state.exactAlarms })
+      if (method === 'cancelRestAlert') return Promise.resolve({ delivered: false })
+      if (method === 'isSupported') return Promise.resolve({ presence: true, restAlerts: true, exactAlarms: state.exactAlarms })
+      if (method === 'requestExactAlarm') {
+        state.exactAlarms = true
+        persist()
+        return Promise.resolve({ exactAlarms: true })
+      }
       return Promise.resolve({})
     },
     nativeCallback: (plugin, method, options, callback) => {
       record({ method, options, at: Date.now() })
-      if (plugin === 'WorkoutNotification' && method === 'addListener' && options?.eventName === 'open') state.tap = callback
+      if (plugin === 'WorkoutNotification' && method === 'addListener' && options?.eventName === 'open') {
+        state.tap = callback
+        if (heldTap !== null) setTimeout(() => callback(JSON.parse(heldTap)), 0)
+      }
       return 'cb-' + state.calls.length
     },
   }
@@ -490,6 +525,168 @@ const startCalls = (page) => page.evaluate(() => window.__notif.calls.filter((c)
     'idioma — y nada del aviso en español (texto, canal y descripción)',
     `${published?.body} · ${published?.channelName} · ${published?.channelDescription}`,
   )
+  await ctx.close()
+}
+
+/* --- 4f. descanso: aviso de «Descanso terminado» y alarma exacta --------- */
+/*
+ * Un descanso de verdad: se marca una serie de un ejercicio con carga y el
+ * descanso empieza solo. La notificación pasa a cuenta atrás, el aviso se
+ * programa a la misma hora y, como este teléfono no tiene alarma exacta, la
+ * hoja que lo explica sale una vez (sin bloquear: el aviso ya está puesto).
+ */
+const sinceMark = (page, n) => page.evaluate((from) => window.__notif.calls.slice(from), n)
+
+async function addLoadedExercise(page, query) {
+  await page.getByRole('button', { name: /Añadir ejercicio/ }).first().click()
+  await page.waitForTimeout(2500)
+  const picker = page.locator('div.fixed.inset-0.z-50')
+  await picker.getByPlaceholder('Buscar').fill(query)
+  await page.waitForTimeout(2200)
+  await picker.locator('li').first().locator('button').first().click()
+  await page.waitForTimeout(2500)
+}
+
+async function logSet(page, index) {
+  await page.locator('input[aria-label="Peso"]').nth(index).fill('60')
+  await page.locator('input[aria-label="Repeticiones"]').nth(index).fill('8')
+  await page.waitForTimeout(300)
+  await page.getByRole('button', { name: `Serie ${index + 1} completada`, exact: true }).click()
+  await page.waitForTimeout(1500)
+}
+
+{
+  const ctx = await browser.newContext(device)
+  const page = await ctx.newPage()
+  const pageErrors = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
+  await page.addInitScript(FAKE_ANDROID_WITH_NOTICE, { permission: 'granted', exactAlarms: false })
+  await freshProfile(page)
+  await startFreeWorkout(page)
+  await addLoadedExercise(page, 'press banca')
+
+  let mark = (await noticeCalls(page)).length
+  await logSet(page, 0)
+  let since = await sinceMark(page, mark)
+  const withRest = since.filter((c) => c.method === 'start').at(-1)?.options
+  const alert = since.find((c) => c.method === 'scheduleRestAlert')?.options
+  check(
+    typeof withRest?.rest?.endsAt === 'number' && withRest.rest.endsAt > Date.now() && withRest.rest.paused === false,
+    'descanso — la notificación pasa a cuenta atrás con la hora de fin',
+    JSON.stringify(withRest?.rest),
+  )
+  check(/^Serie 2 de \d+$/.test(withRest?.setLabel ?? ''), 'descanso — y dice qué serie toca', withRest?.setLabel)
+  check(
+    /^Descanso · hasta \d{2}:\d{2}$/.test(withRest?.labels?.restUntil ?? ''),
+    'descanso — con «Descanso · hasta HH:MM» por si la alarma no es exacta',
+    withRest?.labels?.restUntil,
+  )
+  check(
+    !!alert && alert.at === withRest?.rest?.endsAt,
+    'descanso — el aviso se programa a la misma hora que acaba',
+    `${alert?.at} vs ${withRest?.rest?.endsAt}`,
+  )
+  check(
+    alert?.title === 'Descanso terminado' && /^Siguiente serie: \S/.test(alert?.body ?? ''),
+    'descanso — título y texto del aviso en español',
+    `${alert?.title} · ${alert?.body}`,
+  )
+  check(
+    alert?.channelName === 'Fin del descanso' && alert?.channelDescription === 'Avisa cuando termina el descanso entre series.',
+    'descanso — el canal del aviso también en español',
+    `${alert?.channelName} · ${alert?.channelDescription}`,
+  )
+  check(alert?.sound === true && alert?.vibrate === true, 'descanso — con sonido y vibración según los ajustes', `${alert?.sound}/${alert?.vibrate}`)
+
+  // La alarma exacta: la hoja sale una vez, con el aviso ya programado.
+  const sheet = page.locator('[role="dialog"]').filter({ hasText: 'Avisos de descanso a su hora' })
+  await sheet.waitFor({ timeout: 4000 }).catch(() => {})
+  check(await sheet.isVisible(), 'alarma exacta — el primer descanso sin el permiso lo explica')
+  check(!!alert, 'alarma exacta — sin bloquear: el aviso ya estaba programado (aproximado) antes de contestar')
+  const asked = await page.evaluate(() => localStorage.getItem('training-os:exact-alarm-asked'))
+  check(asked === '1', 'alarma exacta — se apunta que ya se preguntó', String(asked))
+  mark = (await noticeCalls(page)).length
+  await sheet.getByRole('button', { name: 'Activar en Ajustes' }).click()
+  await page.waitForTimeout(1500)
+  since = (await sinceMark(page, mark)).map((c) => c.method)
+  check(
+    since[0] === 'requestExactAlarm' && since.includes('scheduleRestAlert'),
+    'alarma exacta — concedida, el descanso en curso se reprograma (ahora exacto)',
+    since.join(', '),
+  )
+  check(!(await sheet.isVisible()), 'alarma exacta — y la hoja se cierra')
+
+  const restBar = page.locator('div.fixed[role="timer"]')
+  mark = (await noticeCalls(page)).length
+  await restBar.getByRole('button', { name: 'Pausa' }).click()
+  await page.waitForTimeout(1200)
+  since = await sinceMark(page, mark)
+  check(since.some((c) => c.method === 'cancelRestAlert'), 'descanso — pausar cancela el aviso', since.map((c) => c.method).join(', '))
+  check(
+    since.filter((c) => c.method === 'start').at(-1)?.options?.rest?.paused === true,
+    'descanso — y la notificación lo enseña en pausa',
+  )
+
+  mark = (await noticeCalls(page)).length
+  await restBar.getByRole('button', { name: 'Seguir' }).click()
+  await page.waitForTimeout(1200)
+  since = await sinceMark(page, mark)
+  check(since.some((c) => c.method === 'scheduleRestAlert'), 'descanso — reanudar lo vuelve a programar', since.map((c) => c.method).join(', '))
+
+  mark = (await noticeCalls(page)).length
+  await restBar.getByRole('button', { name: 'Saltar' }).click()
+  await page.waitForTimeout(1200)
+  since = await sinceMark(page, mark)
+  check(since.some((c) => c.method === 'cancelRestAlert'), 'descanso — saltarlo cancela el aviso', since.map((c) => c.method).join(', '))
+  check(
+    since.filter((c) => c.method === 'start').at(-1)?.options?.rest === null,
+    'descanso — y la notificación vuelve al cronómetro del entrenamiento',
+  )
+
+  // Segundo descanso: se programa, y la hoja ya no vuelve a salir.
+  mark = (await noticeCalls(page)).length
+  await logSet(page, 1)
+  since = (await sinceMark(page, mark)).map((c) => c.method)
+  check(since.includes('scheduleRestAlert'), 'descanso — la segunda serie programa otro aviso', since.join(', '))
+  check(!(await sheet.isVisible()), 'alarma exacta — la hoja no vuelve a salir')
+
+  // Descartar a mitad del descanso, sin recargar (el descanso vive en memoria):
+  // lo último que recibe el nativo es stop, que ya cancela el aviso.
+  await page.getByRole('button', { name: 'Volver' }).first().click()
+  await page.waitForTimeout(1200)
+  await page.getByRole('link', { name: 'Entreno' }).first().click()
+  await page.waitForTimeout(1500)
+  mark = (await noticeCalls(page)).length
+  await page.getByRole('button', { name: 'DESCARTAR' }).first().click()
+  await page.waitForTimeout(600)
+  await page.locator('[role="dialog"]').getByRole('button', { name: 'DESCARTAR' }).click()
+  await page.waitForTimeout(1500)
+  since = (await sinceMark(page, mark)).map((c) => c.method)
+  check(
+    since.at(-1) === 'stop' && !since.includes('cancelRestAlert'),
+    'descanso — descartar a mitad del descanso: lo último que llega es stop',
+    since.join(', '),
+  )
+
+  // Un toque en la notificación con la app cerrada llega antes de que se lea
+  // la sesión: se guarda y, leída, lleva a la sesión en curso.
+  await startFreeWorkout(page)
+  await page.goto(`${BASE}/progress`, { waitUntil: 'commit' })
+  await page.waitForTimeout(2500)
+  await page.evaluate(() => sessionStorage.setItem('__notif-tap', '{}'))
+  await page.reload({ waitUntil: 'commit' })
+  await page.waitForTimeout(4000)
+  check(page.url().endsWith('/workout/active'), 'toque — en frío, antes de leer la sesión, acaba en la sesión en curso', page.url())
+
+  const haptics = await page.evaluate(() => window.__notif.haptics)
+  check(
+    haptics.length > 0 && haptics.every((k) => ['tick', 'success', 'pr', 'warn'].includes(k)),
+    'háptica — la vibración la da el nativo',
+    haptics.slice(0, 6).join(', '),
+  )
+
+  await discardFromWorkoutScreen(page)
+  check(pageErrors.length === 0, 'descanso — sin errores sin capturar', pageErrors.join(' · '))
   await ctx.close()
 }
 

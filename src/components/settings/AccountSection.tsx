@@ -4,10 +4,12 @@ import { Button, Card, ConfirmDialog, Sheet, TextField, cx } from '../ui/primiti
 import { IconAlert, IconCheck, IconChevronRight, IconRefresh } from '../ui/Icon'
 import { useApp, useT } from '../../store/useApp'
 import { useAuth } from '../../store/useAuth'
+import { useWorkout } from '../../store/useWorkout'
 import { useSyncStatus } from '../../store/useSync'
 import { missingFirebaseKeys } from '../../lib/firebase/config'
-import { authErrorKey, changePassword, deleteAccount } from '../../lib/firebase/account'
-import { resetLocalData, syncNow, wipeRemoteData } from '../../lib/sync/engine'
+import { authErrorKey, changePassword } from '../../lib/firebase/account'
+import { syncNow } from '../../lib/sync/engine'
+import { pendingCount } from '../../lib/sync/queue'
 import { checkPassword } from '../../lib/firebase/paths'
 import { fmtDate } from '../../lib/dates'
 import { toast } from '../../store/useToast'
@@ -32,9 +34,14 @@ export function AccountSection() {
   const t = useT()
   const locale = useApp((s) => s.locale)
   const navigate = useNavigate()
-  const { phase, user, profile, logout } = useAuth()
+  const { phase, user, profile, logout, deleteAccount } = useAuth()
   const sync = useSyncStatus()
   const [confirmLogout, setConfirmLogout] = useState(false)
+  /** Lo que se perdería al cerrar sesión, leído al pulsar el botón. */
+  const [logoutRisk, setLogoutRisk] = useState<{ activeWorkout: boolean; pending: number }>({
+    activeWorkout: false,
+    pending: 0,
+  })
   const [pwOpen, setPwOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [current, setCurrent] = useState('')
@@ -68,6 +75,24 @@ export function AccountSection() {
       </Card>
     )
   }
+
+  /**
+   * Antes de preguntar, se mira qué se perdería: un entrenamiento en curso
+   * (se descarta en este dispositivo) y cambios que aún no han subido. Se lee
+   * en el momento, no del indicador de sincronización, que puede ir atrasado.
+   */
+  async function askLogout() {
+    const activeWorkout = useWorkout.getState().session !== null
+    let pending = 0
+    try {
+      pending = await pendingCount()
+    } catch {
+      /* sin poder leer el buzón, se pregunta igual, sin ese aviso */
+    }
+    setLogoutRisk({ activeWorkout, pending })
+    setConfirmLogout(true)
+  }
+  const logoutRisky = logoutRisk.activeWorkout || logoutRisk.pending > 0
 
   const syncLabel =
     sync.phase === 'synced'
@@ -116,7 +141,7 @@ export function AccountSection() {
         <Button full variant="secondary" onClick={() => setPwOpen(true)}>
           {t('account.changePassword')}
         </Button>
-        <Button full variant="secondary" onClick={() => setConfirmLogout(true)}>
+        <Button full variant="secondary" onClick={() => void askLogout()}>
           {t('account.logout')}
         </Button>
         <Button full variant="danger" onClick={() => setDeleteOpen(true)}>
@@ -195,17 +220,15 @@ export function AccountSection() {
               setBusy(true)
               setError(null)
               try {
-                await wipeRemoteData(user.uid)
+                // El orden (reautenticar antes de borrar nada en la nube) y
+                // la vuelta atrás si algo falla viven en useAuth.deleteAccount.
                 await deleteAccount(deletePassword)
                 /*
-                 * Y la copia local. Sin esto, el entrenamiento de una cuenta
-                 * que acaba de eliminarse seguiría en IndexedDB de este móvil
-                 * hasta que alguien entrara con otra cuenta. No es un fallo de
-                 * datos — `resetLocalData` detecta el cambio de dueño al
-                 * siguiente inicio de sesión — pero "elimina mi cuenta" tiene
-                 * que significar que no queda nada, también aquí.
+                 * Para cuando esto se ejecuta, Firebase ya ha cerrado la sesión
+                 * y esta pantalla ha desaparecido. El aviso se ve igual: vive
+                 * en el almacén de avisos y el Toaster está fuera de la puerta
+                 * de sesión (App.tsx), así que sale sobre la bienvenida.
                  */
-                await resetLocalData(null)
                 toast(t('account.deleted'), 'success')
               } catch (err) {
                 setError(t(authErrorKey(err)))
@@ -249,7 +272,7 @@ export function AccountSection() {
         open={confirmLogout}
         title={t('account.logout')}
         body={t('account.logoutConfirm')}
-        confirmLabel={t('account.logout')}
+        confirmLabel={logoutRisky ? t('account.logoutAnyway') : t('account.logout')}
         cancelLabel={t('common.cancel')}
         destructive
         onCancel={() => setConfirmLogout(false)}
@@ -257,7 +280,24 @@ export function AccountSection() {
           setConfirmLogout(false)
           void logout()
         }}
-      />
+      >
+        {logoutRisky && (
+          <div className="mt-md space-y-2">
+            {logoutRisk.activeWorkout && (
+              <p className="flex items-start gap-2 text-body text-down">
+                <IconAlert size={16} className="mt-0.5 shrink-0" />
+                {t('account.logoutActiveWorkout')}
+              </p>
+            )}
+            {logoutRisk.pending > 0 && (
+              <p className="flex items-start gap-2 text-body text-down">
+                <IconAlert size={16} className="mt-0.5 shrink-0" />
+                {t('account.logoutPending', { n: logoutRisk.pending })}
+              </p>
+            )}
+          </div>
+        )}
+      </ConfirmDialog>
     </>
   )
 }

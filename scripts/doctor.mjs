@@ -23,7 +23,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const MANIFEST = join(ROOT, 'release', 'FILES.json')
 
 /* Solo donde un fichero olvidado puede romper el build o el comportamiento. */
-const WATCHED = ['src', 'e2e', 'tests', 'scripts', 'public', 'firebase', 'android']
+const WATCHED = ['src', 'e2e', 'tests', 'scripts', 'public', 'firebase', 'android', 'ios']
 
 /*
  * Carpetas en las que este script no entra nunca.
@@ -49,7 +49,23 @@ const SKIP = new Set([
   // recorre directamente, sin pasar por este filtro de nombres.
   'public',
   'capacitor-cordova-android-plugins',
+  // iOS — lo regeneran Xcode, Swift Package Manager y `npx cap sync ios`.
+  // `ios/App/App/public` ya lo cubre 'public', y `ios/App/build` 'build'.
+  'Pods',
+  'DerivedData',
+  'xcuserdata',
+  '.build',
+  '.swiftpm',
+  'capacitor-cordova-ios-plugins',
+  '.DS_Store',
 ])
+
+/*
+ * Rutas concretas (no nombres) que tampoco se recorren: llamarlas por su
+ * nombre en SKIP saltaría también cualquier carpeta `output` o `symlinks`
+ * legítima en otro sitio.
+ */
+const SKIP_PATHS = new Set(['ios/App/output', 'ios/App/CapApp-SPM/symlinks'])
 
 /*
  * Ficheros que este script NO BORRA JAMÁS, ni con --fix, aunque no estén en el
@@ -69,8 +85,21 @@ const NEVER_DELETE_NAMES = new Set([
   'keystore.properties',
   'local.properties',
   'google-services.json',
+  'GoogleService-Info.plist',
 ])
-const NEVER_DELETE_EXTENSIONS = ['.jks', '.keystore', '.p12', '.pepk']
+// Android (almacén de claves) e iOS (certificados, perfiles, claves de la API
+// de App Store Connect): nada de esto está en git y nada de esto se borra.
+const NEVER_DELETE_EXTENSIONS = [
+  '.jks',
+  '.keystore',
+  '.p12',
+  '.pepk',
+  '.p8',
+  '.cer',
+  '.mobileprovision',
+  '.provisionprofile',
+  '.certSigningRequest',
+]
 
 /*
  * Ficheros que genera `npx cap sync` y que, por diseño, no están en git.
@@ -80,6 +109,8 @@ const GENERATED = [
   'android/app/src/main/assets/capacitor.config.json',
   'android/app/src/main/assets/capacitor.plugins.json',
   'android/app/src/main/res/xml/config.xml',
+  'ios/App/App/capacitor.config.json',
+  'ios/App/App/config.xml',
 ]
 
 function isGenerated(relPath) {
@@ -107,6 +138,7 @@ function walk(dir, out = []) {
   for (const name of readdirSync(dir)) {
     if (SKIP.has(name)) continue
     const full = join(dir, name)
+    if (SKIP_PATHS.has(relative(ROOT, full).split('\\').join('/'))) continue
     const st = statSync(full)
     if (st.isDirectory()) walk(full, out)
     else out.push(relative(ROOT, full).split('\\').join('/'))

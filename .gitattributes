@@ -7,3 +7,21 @@
 android/gradlew text eol=lf
 *.sh            text eol=lf
 *.bat           text eol=crlf
+
+# Proyecto de Xcode: siempre LF. Xcode y las herramientas de Apple escriben LF;
+# con CRLF el .pbxproj genera diffs enteros en cada guardado y los plist,
+# storyboards y esquemas se reescriben al abrirlos en un Mac.
+*.pbxproj           text eol=lf -merge
+*.swift             text eol=lf
+*.plist             text eol=lf
+*.entitlements      text eol=lf
+*.xcconfig          text eol=lf
+*.storyboard        text eol=lf
+*.xib               text eol=lf
+*.xcscheme          text eol=lf
+*.xcprivacy         text eol=lf
+*.xcstrings         text eol=lf
+*.xcworkspacedata   text eol=lf
+*.strings           text eol=lf
+Package.swift       text eol=lf
+Package.resolved    text eol=lf

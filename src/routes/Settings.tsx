@@ -17,6 +17,7 @@ import { SettingsMenu } from '../components/settings/SettingsMenu'
 import { AccountSection } from '../components/settings/AccountSection'
 import { useApp, useT } from '../store/useApp'
 import { useAuth } from '../store/useAuth'
+import { useWorkout } from '../store/useWorkout'
 import { MUSCLE_GROUPS, type Language, type ThemeMode, type Units } from '../lib/db/schema'
 import { exportCsv, exportJson, importBackup, importErrorKey, wipeEverything, type ImportMode } from '../lib/backup'
 import { getLogs, log, requestPersistentStorage, storageInfo, subscribeLogs } from '../lib/db/database'
@@ -74,7 +75,19 @@ export default function Settings() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  /**
+   * «Reemplazar» con un entrenamiento en curso lo borraría por debajo de la
+   * pantalla que lo está mostrando. Se dice antes de elegir el fichero; la
+   * restauración lo comprueba otra vez sobre lo guardado (importBackup).
+   */
+  function replaceBlocked(): boolean {
+    if (importMode !== 'replace' || useWorkout.getState().session === null) return false
+    toast(t('data.importBlockedActive'), 'error')
+    return true
+  }
+
   async function handleImport(file: File) {
+    if (replaceBlocked()) return
     setBusy(true)
     try {
       const text = await file.text()
@@ -348,8 +361,13 @@ export default function Settings() {
             icon={<IconDownload size={16} />}
             disabled={busy}
             onClick={async () => {
-              const n = await exportJson(includePhotos)
-              toast(`${t('data.exportOk')} · ${n}`, 'success')
+              try {
+                // Sólo si el fichero salió: cerrar el menú de compartir no es una copia.
+                const { count, delivered } = await exportJson(includePhotos)
+                if (delivered) toast(`${t('data.exportOk')} · ${count}`, 'success')
+              } catch (err) {
+                log('backup', `export failed: ${err instanceof Error ? err.message : String(err)}`, 'warn')
+              }
             }}
           >
             {t('settings.export')}
@@ -360,8 +378,12 @@ export default function Settings() {
             icon={<IconDownload size={16} />}
             disabled={busy}
             onClick={async () => {
-              const n = await exportCsv()
-              toast(`${t('data.exportOk')} · ${n}`, 'success')
+              try {
+                const { count, delivered } = await exportCsv()
+                if (delivered) toast(`${t('data.exportOk')} · ${count}`, 'success')
+              } catch (err) {
+                log('backup', `CSV export failed: ${err instanceof Error ? err.message : String(err)}`, 'warn')
+              }
             }}
           >
             {t('settings.exportCsv')}
@@ -447,7 +469,9 @@ export default function Settings() {
           variant="primary"
           className="mt-4"
           disabled={busy}
-          onClick={() => fileRef.current?.click()}
+          onClick={() => {
+            if (!replaceBlocked()) fileRef.current?.click()
+          }}
         >
           {t('data.importChoose')}
         </Button>
@@ -488,8 +512,18 @@ export default function Settings() {
         onCancel={() => setConfirmWipe(false)}
         onConfirm={async () => {
           setConfirmWipe(false)
-          await wipeEverything()
-          toast(t('data.wiped'), 'success')
+          /*
+           * wipeEverything vacía primero el entrenamiento en memoria y retira
+           * el aviso nativo (beforeLocalReset, conectado en main.tsx), y
+           * conserva el idioma y el tema. Después se recarga: todo lo que hay
+           * en memoria se vuelve a leer de una base vacía.
+           */
+          try {
+            await wipeEverything()
+            toast(t('data.wiped'), 'success')
+          } catch (err) {
+            log('backup', `wipe failed: ${err instanceof Error ? err.message : String(err)}`, 'error')
+          }
           setTimeout(() => location.reload(), 600)
         }}
       />

@@ -1,29 +1,31 @@
-import { useEffect } from 'react'
 import { useWorkout } from '../../store/useWorkout'
 import { fmtTimer } from '../../lib/format'
 import { IconButton, cx } from '../ui/primitives'
 import { IconPause, IconPlay, IconRefresh, IconSkip } from '../ui/Icon'
 import { useT } from '../../store/useApp'
 
+/**
+ * Sólo pinta. El reloj del descanso vive en useWorkout: termina a su hora
+ * aunque esta barra no esté montada (otra pantalla, la app en segundo plano),
+ * y la cuenta que se ve aquí la mueve él (`restRemaining`). Antes el
+ * temporizador estaba en este componente, y un descanso empezado al salir de
+ * la pantalla del entrenamiento no terminaba nunca.
+ */
 export function RestTimerBar() {
   const rest = useWorkout((s) => s.rest)
-  const tick = useWorkout((s) => s.tickRest)
+  const restRemaining = useWorkout((s) => s.restRemaining)
   const adjust = useWorkout((s) => s.adjustRest)
   const togglePause = useWorkout((s) => s.toggleRestPause)
   const restart = useWorkout((s) => s.restartRest)
   const stop = useWorkout((s) => s.stopRest)
   const t = useT()
 
-  useEffect(() => {
-    if (!rest) return
-    const id = window.setInterval(tick, 250)
-    return () => window.clearInterval(id)
-  }, [rest, tick])
-
   if (!rest) return null
 
-  const pct = Math.max(0, Math.min(1, rest.remaining / Math.max(1, rest.total)))
-  const urgent = rest.remaining <= 10 && !rest.paused
+  // En pausa manda lo que quedaba al pausar; corriendo, el segundero del almacén.
+  const remaining = rest.paused ? rest.remaining : restRemaining
+  const pct = Math.max(0, Math.min(1, remaining / Math.max(1, rest.total)))
+  const urgent = remaining <= 10 && !rest.paused
 
   return (
     <div
@@ -46,7 +48,7 @@ export function RestTimerBar() {
           <div className="min-w-0 flex-1">
             <p className="label-xs">{t('workout.restTimer')}</p>
             <p className={cx('tnum text-2xl font-bold leading-none tracking-tight', urgent ? 'text-accent' : 'text-ink')}>
-              {fmtTimer(rest.remaining)}
+              {fmtTimer(remaining)}
             </p>
           </div>
           <button

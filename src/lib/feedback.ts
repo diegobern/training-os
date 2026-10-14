@@ -1,8 +1,8 @@
 import { useApp } from '../store/useApp'
+import { isNative } from './native/platform'
+import { nativeHaptic, type HapticKind } from './native/workoutNotification'
 
 /* ------------------------------------------------------------------ haptics */
-
-type HapticKind = 'tick' | 'success' | 'pr' | 'warn'
 
 const PATTERNS: Record<HapticKind, number | number[]> = {
   tick: 12,
@@ -14,6 +14,17 @@ const PATTERNS: Record<HapticKind, number | number[]> = {
 export function haptic(kind: HapticKind = 'tick') {
   const { haptics } = useApp.getState().settings
   if (!haptics) return
+  /*
+   * Dentro de la app la vibración la da el sistema: `performHapticFeedback`
+   * en Android (sin el permiso VIBRATE, que la app no pide) y los generadores
+   * de impacto en iOS, donde `navigator.vibrate` ni siquiera existe.
+   * `nativeHaptic` importa Capacitor de forma dinámica y nunca lanza; en el
+   * navegador este fichero no arrastra ni un byte del puente.
+   */
+  if (isNative()) {
+    void nativeHaptic(kind)
+    return
+  }
   try {
     navigator.vibrate?.(PATTERNS[kind])
   } catch {
@@ -27,12 +38,20 @@ let ctx: AudioContext | null = null
 
 function audio(): AudioContext | null {
   if (typeof window === 'undefined') return null
-  if (!ctx) {
+  // Un contexto cerrado no vuelve a sonar nunca: se crea otro.
+  if (!ctx || ctx.state === 'closed') {
     const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
     if (!Ctor) return null
     ctx = new Ctor()
   }
-  if (ctx.state === 'suspended') void ctx.resume()
+  /*
+   * Cualquier estado que no sea `running`, no sólo `suspended`: WebKit (el
+   * WebView de iOS) deja el contexto en `interrupted` después de una llamada,
+   * de Siri o de bloquear el móvil, y ahí no suena nada hasta que alguien lo
+   * reanuda. `resume()` puede rechazar (sin gesto del usuario); no pasa nada,
+   * se reintenta en el siguiente sonido.
+   */
+  if (ctx.state !== 'running') ctx.resume().catch(() => {})
   return ctx
 }
 

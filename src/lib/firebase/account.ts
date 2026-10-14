@@ -284,14 +284,35 @@ export async function changePassword(currentPassword: string, newPassword: strin
   log('account', 'password changed')
 }
 
-export async function deleteAccount(currentPassword: string): Promise<void> {
-  const { auth, db } = await services()
-  const { EmailAuthProvider, reauthenticateWithCredential, deleteUser } = await import('firebase/auth')
-  const { doc, deleteDoc } = await import('firebase/firestore')
+/**
+ * Confirma la contraseña con Firebase. Una contraseña mal escrita lanza
+ * (`auth/wrong-password`, `auth/invalid-credential`) y no toca nada.
+ *
+ * Separada de `deleteAccount` a propósito: borrar la cuenta empieza por aquí,
+ * ANTES de borrar ningún dato en la nube. Cuando iba dentro de
+ * `deleteAccount`, la pantalla ya había llamado a `wipeRemoteData`: con la
+ * contraseña equivocada se borraban todos los datos y la cuenta seguía viva.
+ */
+export async function reauthenticate(currentPassword: string): Promise<void> {
+  const { auth } = await authOnly()
+  const { EmailAuthProvider, reauthenticateWithCredential } = await import('firebase/auth')
   const user = auth.currentUser
   if (!user?.email) throw new AccountError('no-user', 'Not signed in')
-
   await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, currentPassword))
+}
+
+/**
+ * El último paso de eliminar la cuenta: el nombre de usuario, el perfil y el
+ * usuario de Firebase. Exige haber llamado antes a `reauthenticate` (Firebase
+ * pide un inicio de sesión reciente para `deleteUser`) y a `wipeRemoteData`.
+ * El orden completo vive en `useAuth.deleteAccount`.
+ */
+export async function deleteAccount(): Promise<void> {
+  const { auth, db } = await services()
+  const { deleteUser } = await import('firebase/auth')
+  const { doc, deleteDoc } = await import('firebase/firestore')
+  const user = auth.currentUser
+  if (!user) throw new AccountError('no-user', 'Not signed in')
 
   const profile = await readProfile(user.uid)
   if (profile?.usernameNormalized) {

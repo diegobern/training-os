@@ -11,6 +11,12 @@
  *   2. Una referencia a un recurso que no existe — `@color/colorPrimary`,
  *      `@drawable/splash`, `@style/AppTheme`…
  *
+ * Y de paso vigila lo que no puede cambiar sin que nadie lo decida: los
+ * permisos (exactamente tres, cada uno justificado), los receptores no
+ * exportados, el aviso de entrenamiento y el de descanso tal y como los
+ * describe docs/NATIVE-CONTRACT.md, y que los métodos del plugin nativo sean
+ * los mismos en Java, en TypeScript y en el contrato.
+ *
  * El caso 2 no es hipotético: la plantilla que genera `npx cap add android`
  * trae un `styles.xml` que referencia `@color/colorPrimary`,
  * `colorPrimaryDark` y `colorAccent` **sin definirlos en ninguna parte**. El
@@ -198,25 +204,47 @@ check(
 
 /*
  * Mínimo privilegio: exactamente estos permisos, ni uno más. POST_NOTIFICATIONS
- * es para el aviso de «entrenamiento en curso» de la pantalla de bloqueo
- * (WorkoutNotificationPlugin.java); cualquier otro que aparezca hace fallar
- * esta comprobación hasta que alguien lo justifique y la actualice.
+ * es para los dos avisos del entrenamiento (en curso y fin del descanso) y
+ * SCHEDULE_EXACT_ALARM para que el del descanso llegue a su hora
+ * (WorkoutNotificationPlugin.java, RestAlert.java); cualquier otro que
+ * aparezca hace fallar esta comprobación hasta que alguien lo justifique y la
+ * actualice. Ordenados: se comparan con la lista del manifiesto ordenada.
  */
-const EXPECTED_PERMISSIONS = ['android.permission.INTERNET', 'android.permission.POST_NOTIFICATIONS']
+const EXPECTED_PERMISSIONS = [
+  'android.permission.INTERNET',
+  'android.permission.POST_NOTIFICATIONS',
+  'android.permission.SCHEDULE_EXACT_ALARM',
+]
 const permissions = [...manifest.matchAll(/<uses-permission[^>]*android:name="([^"]+)"/g)].map((m) => m[1])
 check(
   JSON.stringify([...permissions].sort()) === JSON.stringify(EXPECTED_PERMISSIONS),
-  'exactamente dos permisos: INTERNET y POST_NOTIFICATIONS',
+  'exactamente tres permisos: INTERNET, POST_NOTIFICATIONS y SCHEDULE_EXACT_ALARM',
   permissions.join(', '),
 )
 
-// Cada permiso que se pide lleva su justificación escrita en el propio
-// manifiesto, con el formato de las demás: el nombre y debajo «Para qué:».
+// Cada permiso que se pide — y cada uno de los esperados, aunque alguien lo
+// hubiera quitado de la lista — lleva su justificación escrita en el propio
+// manifiesto, con el formato de las demás: el nombre solo en su línea y
+// debajo «Para qué:».
 const manifestWithComments = readFileSync(join(MAIN, 'AndroidManifest.xml'), 'utf8')
-const unjustified = permissions.filter(
+const unjustified = [...new Set([...permissions, ...EXPECTED_PERMISSIONS])].filter(
   (p) => !new RegExp(`\\n\\s+${p.split('.').pop()}\\s*\\n\\s+Para qué:`).test(manifestWithComments),
 )
 check(unjustified.length === 0, 'cada permiso pedido está justificado en el manifiesto', unjustified.join(', '))
+
+// Y lo que NO se pide también está explicado, en su sección: son justo los
+// permisos que alguien añadiría «para que el aviso de descanso vaya mejor».
+// El nombre, solo o en una lista con « / », en su propia línea.
+const notRequestedAt = manifestWithComments.indexOf('PERMISOS QUE NO SE PIDEN')
+const notRequested = notRequestedAt === -1 ? '' : manifestWithComments.slice(notRequestedAt)
+const unexplained = ['USE_EXACT_ALARM', 'USE_FULL_SCREEN_INTENT', 'VIBRATE', 'WAKE_LOCK', 'FOREGROUND_SERVICE'].filter(
+  (p) => !new RegExp(`\\n\\s+(?:[\\w.*]+ / )*${p}(?: / [\\w.*]+)*\\s*\\n`).test(notRequested),
+)
+check(
+  unexplained.length === 0,
+  'el manifiesto explica por qué no se piden USE_EXACT_ALARM, USE_FULL_SCREEN_INTENT, VIBRATE, WAKE_LOCK ni FOREGROUND_SERVICE',
+  unexplained.join(', '),
+)
 
 check(
   !/<service\b/.test(manifest) && !/FOREGROUND_SERVICE/.test(manifest),
@@ -248,9 +276,18 @@ check(
   'MainActivity registra WorkoutNotificationPlugin antes de super.onCreate',
 )
 
-const pluginSrc = readFileSync(join(JAVA, 'WorkoutNotificationPlugin.java'), 'utf8')
-// El aviso se construye en WorkoutNotice.java; lo que sigue mira todo el Java propio.
-const nativeSrc = javaFiles.map((f) => readFileSync(f, 'utf8')).join('\n')
+/**
+ * El Java sin comentarios. Igual que con el XML: los comentarios explican, por
+ * ejemplo, por qué NO se usa setAlarmClock, y eso no puede contar como usarlo
+ * (ni un comentario que nombre setChronometerCountDown como llamarlo). El
+ * `[^:]` respeta un `://` que pudiera haber dentro de una cadena.
+ */
+const withoutJavaComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
+
+const pluginSrc = withoutJavaComments(readFileSync(join(JAVA, 'WorkoutNotificationPlugin.java'), 'utf8'))
+// Los avisos se construyen en WorkoutNotice.java y RestAlert.java; lo que sigue mira todo el Java propio.
+const javaCode = Object.fromEntries(javaFiles.map((f) => [basename(f), withoutJavaComments(readFileSync(f, 'utf8'))]))
+const nativeSrc = Object.values(javaCode).join('\n')
 const nativeName = pluginSrc.match(/@CapacitorPlugin\(\s*name\s*=\s*"([^"]+)"/)?.[1]
 const jsName = readFileSync(join(ROOT, 'src/lib/native/workoutNotification.ts'), 'utf8').match(
   /registerPlugin<\w+>\('([^']+)'\)/,
@@ -263,11 +300,19 @@ check(
   /Manifest\.permission\.POST_NOTIFICATIONS/.test(pluginSrc),
   'el plugin declara el permiso que pide en tiempo de ejecución',
 )
-const builderNeeds = ['setUsesChronometer(true)', 'setWhen(', 'setOngoing(true)', 'VISIBILITY_PUBLIC', 'setContentIntent(', 'setDeleteIntent(']
+const builderNeeds = [
+  'setUsesChronometer(true)',
+  'setChronometerCountDown(',
+  'setWhen(',
+  'setOngoing(true)',
+  'VISIBILITY_PUBLIC',
+  'setContentIntent(',
+  'setDeleteIntent(',
+]
 const builderMissing = builderNeeds.filter((s) => !nativeSrc.includes(s))
 check(
   builderMissing.length === 0,
-  'el aviso lleva cronómetro del sistema, es persistente, se ve en la pantalla de bloqueo y abre la app',
+  'el aviso lleva cronómetro del sistema (hacia arriba y en cuenta atrás), es persistente, se ve en la pantalla de bloqueo y abre la app',
   builderMissing.join(', '),
 )
 check(
@@ -283,12 +328,98 @@ check(
   receiver || 'no declarado',
 )
 
-// El canal de notificaciones se ve en los ajustes del sistema, en su idioma.
-const channelStrings = (dir) =>
-  [...readFileSync(join(RES, dir, 'strings.xml'), 'utf8').matchAll(/<string\s+name="(workout_channel_\w+)"/g)].map((m) => m[1]).sort()
+// El aviso de descanso: lo publica un receptor propio cuando vence la alarma.
+// Sólo lo puede invocar esa alarma: no exportado y sin intent-filter.
+const restReceiver =
+  manifest.match(/<receiver\b[^>]*android:name="\.RestAlarmReceiver"[^>]*?(?:\/>|>[\s\S]*?<\/receiver>)/)?.[0] ?? ''
 check(
-  channelStrings('values').length > 0 && JSON.stringify(channelStrings('values')) === JSON.stringify(channelStrings('values-es')),
-  'el canal del aviso tiene sus textos en inglés y en español',
+  /android:exported="false"/.test(restReceiver) &&
+    !/<intent-filter/.test(restReceiver) &&
+    /extends\s+BroadcastReceiver/.test(javaCode['RestAlarmReceiver.java'] ?? ''),
+  'el receptor del aviso de descanso está declarado, no se exporta y no tiene intent-filter',
+  restReceiver || 'no declarado',
+)
+
+// Alarma exacta sólo con permiso: cada fichero que la programa pregunta antes
+// a canScheduleExactAlarms y se cubre del SecurityException (el permiso se
+// puede retirar en cualquier momento), con la aproximada como respaldo.
+const exactUsers = Object.keys(javaCode).filter((f) => javaCode[f].includes('setExactAndAllowWhileIdle('))
+const exactUnguarded = exactUsers.filter(
+  (f) =>
+    !javaCode[f].includes('canScheduleExactAlarms(') ||
+    !/catch\s*\(\s*SecurityException\b/.test(javaCode[f]) ||
+    !javaCode[f].includes('setAndAllowWhileIdle('),
+)
+check(
+  exactUsers.length > 0 && exactUnguarded.length === 0,
+  'la alarma exacta se programa sólo tras canScheduleExactAlarms, con SecurityException cubierto y respaldo aproximado',
+  exactUsers.length === 0 ? 'nadie llama a setExactAndAllowWhileIdle' : exactUnguarded.join(', '),
+)
+
+// Lo que este aviso no es: ni un despertador (setAlarmClock), ni una pantalla
+// completa, ni un permiso que se concede solo (USE_EXACT_ALARM).
+const forbidden = ['setAlarmClock', 'setFullScreenIntent', 'USE_EXACT_ALARM', 'USE_FULL_SCREEN_INTENT'].filter(
+  (s) => nativeSrc.includes(s) || manifest.includes(s),
+)
+check(forbidden.length === 0, 'sin setAlarmClock, sin pantalla completa y sin USE_EXACT_ALARM', forbidden.join(', '))
+
+// La háptica es la del sistema: sin Vibrator, que pediría el permiso VIBRATE.
+check(
+  /performHapticFeedback\(/.test(nativeSrc) && !/\bVibrator(Manager)?\b/.test(nativeSrc),
+  'la vibración háptica usa performHapticFeedback, sin Vibrator',
+)
+
+/*
+ * Los mismos métodos en los tres sitios: Java, la interfaz TypeScript y el
+ * contrato. Un método que falta en un lado sólo se ve en un dispositivo: en
+ * Android, una promesa rechazada; en iOS, colgada.
+ */
+const javaMethods = [
+  ...new Set([...pluginSrc.matchAll(/@PluginMethod(?:\([^)]*\))?\s+public\s+void\s+(\w+)\s*\(\s*PluginCall\b/g)].map((m) => m[1])),
+].sort()
+/** Lo que hay entre la llave que abre tras `opener` y la que la cierra. */
+const blockBody = (text, opener) => {
+  const at = text.search(opener)
+  if (at === -1) return ''
+  const open = text.indexOf('{', at)
+  let depth = 0
+  for (let i = open; i < text.length; i++) {
+    if (text[i] === '{') depth++
+    else if (text[i] === '}' && --depth === 0) return text.slice(open + 1, i)
+  }
+  return ''
+}
+// Un método por línea: `nombre(` al principio. addListener es de Capacitor.
+const methodsIn = (body) =>
+  [...new Set([...body.matchAll(/^\s*(\w+)\s*(?:<[^>\n]*>)?\s*\(/gm)].map((m) => m[1]))].filter((n) => n !== 'addListener').sort()
+const tsSrc = readFileSync(join(ROOT, 'src/lib/native/workoutNotification.ts'), 'utf8')
+const tsInterface = tsSrc.match(/registerPlugin<(\w+)>\(/)?.[1]
+const tsMethods = tsInterface ? methodsIn(blockBody(tsSrc, new RegExp(`interface\\s+${tsInterface}\\b[^{]*\\{`))) : []
+const contractMethods = methodsIn(
+  blockBody(readFileSync(join(ROOT, 'docs/NATIVE-CONTRACT.md'), 'utf8'), /\nplugin WorkoutNotification\s*\{/),
+)
+const differences = (a, b) => [...a.filter((m) => !b.includes(m)).map((m) => '+' + m), ...b.filter((m) => !a.includes(m)).map((m) => '-' + m)]
+check(
+  contractMethods.length > 0 && JSON.stringify(javaMethods) === JSON.stringify(contractMethods),
+  `los métodos del plugin en Java son los del contrato (${javaMethods.length})`,
+  `Java frente a docs/NATIVE-CONTRACT.md: ${differences(javaMethods, contractMethods).join(', ') || 'contrato sin métodos'}`,
+)
+check(
+  tsMethods.length > 0 && JSON.stringify(javaMethods) === JSON.stringify(tsMethods),
+  `los métodos del plugin en Java son los de la interfaz TypeScript (${tsInterface ?? '?'})`,
+  `Java frente a workoutNotification.ts: ${differences(javaMethods, tsMethods).join(', ') || 'interfaz sin métodos'}`,
+)
+
+// Los canales de notificaciones se ven en los ajustes del sistema; sus textos
+// de respaldo, en inglés y en español, de los dos canales.
+const channelStrings = (dir) =>
+  [...readFileSync(join(RES, dir, 'strings.xml'), 'utf8').matchAll(/<string\s+name="((?:workout|rest)_channel_\w+)"/g)]
+    .map((m) => m[1])
+    .sort()
+check(
+  ['workout_channel_name', 'rest_channel_name'].every((n) => channelStrings('values').includes(n)) &&
+    JSON.stringify(channelStrings('values')) === JSON.stringify(channelStrings('values-es')),
+  'los canales de los avisos tienen sus textos en inglés y en español',
   `${channelStrings('values')} / ${channelStrings('values-es')}`,
 )
 

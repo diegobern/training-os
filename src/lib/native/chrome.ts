@@ -1,12 +1,13 @@
 /**
- * El "cromado" nativo: barra de estado, barra de navegación y pantalla de
- * arranque. Todo lo de este fichero no hace absolutamente nada en la web.
+ * El "cromado" nativo: barra de estado, barra de navegación, pantalla de
+ * arranque, enlaces externos y compartir ficheros. Todo lo de este fichero no
+ * hace absolutamente nada en la web.
  *
  * Los plugins se importan de forma dinámica y sólo después de comprobar que
  * estamos dentro de la app. Así el paquete que descarga un navegador no
  * incluye ni un byte de Capacitor.
  */
-import { isNativeAndroid } from './platform'
+import { isNative, isNativeAndroid, isNativeIOS } from './platform'
 
 let splashHidden = false
 
@@ -20,13 +21,25 @@ let splashHidden = false
  *
  * Ojo con el nombre del estilo, que es contraintuitivo: `Style.Dark` significa
  * "texto claro para fondos oscuros", no "texto oscuro".
+ *
+ * En iOS sólo se toca el estilo. La barra de estado de iPhone ya es
+ * transparente y el WebView ya llega hasta arriba (las zonas seguras las
+ * respeta el CSS con `env(safe-area-inset-*)`); `setOverlaysWebView` y
+ * `setBackgroundColor` son de Android y en iOS como mucho no hacen nada, o
+ * desplazan el WebView bajo la isla dinámica.
  */
 export async function applyNativeChrome(resolvedTheme: 'light' | 'dark'): Promise<void> {
-  if (!isNativeAndroid()) return
+  if (!isNative()) return
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar')
+    const style = resolvedTheme === 'dark' ? Style.Dark : Style.Light
+    if (isNativeIOS()) {
+      await StatusBar.setStyle({ style })
+      return
+    }
+    if (!isNativeAndroid()) return
     await StatusBar.setOverlaysWebView({ overlay: true })
-    await StatusBar.setStyle({ style: resolvedTheme === 'dark' ? Style.Dark : Style.Light })
+    await StatusBar.setStyle({ style })
     await StatusBar.setBackgroundColor({ color: '#00000000' })
   } catch {
     /*
@@ -43,12 +56,12 @@ export async function applyNativeChrome(resolvedTheme: 'light' | 'dark'): Promis
  * Está configurada con `launchAutoHide: false`, es decir: se queda hasta que
  * alguien la esconde. Ese "alguien" es la aplicación, en cuanto sabe qué
  * pantalla tiene que enseñar. Es lo que evita el hueco en blanco clásico entre
- * el logo del sistema y la interfaz.
+ * el logo del sistema y la interfaz. Igual en Android que en iOS.
  *
  * Es idempotente: llamarla dos veces no hace nada la segunda.
  */
 export async function hideNativeSplash(): Promise<void> {
-  if (!isNativeAndroid() || splashHidden) return
+  if (!isNative() || splashHidden) return
   splashHidden = true
   try {
     const { SplashScreen } = await import('@capacitor/splash-screen')
@@ -64,14 +77,15 @@ export async function hideNativeSplash(): Promise<void> {
  * En un WebView, `target="_blank"` carga la página **encima** de la
  * aplicación, sin barra de direcciones y sin botón de volver: el usuario se
  * queda atrapado en una página de GitHub sin forma evidente de salir. Con
- * Capacitor el enlace se abre en una Custom Tab de Chrome, que tiene su propia
- * barra y su propio botón de cerrar.
+ * Capacitor el enlace se abre en una Custom Tab de Chrome (Android) o en un
+ * SFSafariViewController (iOS), que tienen su propia barra y su propio botón
+ * de cerrar.
  *
  * Devuelve `true` si se ha encargado; `false` significa "no soy nativo, deja
  * que el navegador haga lo suyo".
  */
 export async function openExternal(url: string): Promise<boolean> {
-  if (!isNativeAndroid()) return false
+  if (!isNative()) return false
   try {
     const { Browser } = await import('@capacitor/browser')
     await Browser.open({ url, presentationStyle: 'popover' })
@@ -82,36 +96,51 @@ export async function openExternal(url: string): Promise<boolean> {
 }
 
 /**
- * Entrega un fichero de texto al usuario dentro de la app de Android.
+ * Lo que pasó al entregar un fichero dentro de la app.
+ *
+ * `delivered: true` — la hoja de compartir se completó: la persona eligió
+ * dónde guardarlo o a quién mandarlo. `delivered: false` — la cerró sin
+ * elegir nada. Quien borra datos después de exportar (migrar, «borrar todo»)
+ * tiene que distinguir los dos casos: una copia que no se guardó no es una
+ * copia.
+ */
+export interface ShareOutcome {
+  delivered: boolean
+}
+
+/**
+ * Entrega un fichero de texto al usuario dentro de la app (Android o iOS).
  *
  * En el navegador, exportar la copia de seguridad es un `<a download>` con una
  * URL `blob:`. Dentro de un WebView de Capacitor **eso no hace nada**: el
  * WebView no lleva ningún `DownloadListener`, así que la pulsación se traga el
  * clic y no aparece ningún fichero por ninguna parte. Ni error, ni aviso, ni
  * descarga. Sin esta función, "Exportar copia de seguridad" sería un botón que
- * no hace nada en Android.
+ * no hace nada en la app.
  *
  * La alternativa es escribir el fichero en la caché de la app — que no
  * necesita ningún permiso, ni siquiera en Android 13 — y pasárselo al menú de
  * compartir del sistema, desde donde la persona lo guarda en Archivos, en
  * Drive o se lo envía por correo. Es más pasos que una descarga, pero es la
- * forma en que Android espera que una app entregue un fichero.
+ * forma en que Android y iOS esperan que una app entregue un fichero.
  *
- * El tipo de contenido no se pasa: Android lo deduce de la extensión del
+ * El tipo de contenido no se pasa: el sistema lo deduce de la extensión del
  * fichero al compartirlo, y todos los que exporta Training OS terminan en
  * `.json` o `.csv`.
  *
- * Devuelve `true` si se ha encargado. `false` significa "no soy nativo": que
- * siga el camino del navegador.
+ * Devuelve `null` si no es nativo: que siga el camino del navegador. Dentro
+ * de la app devuelve `{ delivered }` (ver `ShareOutcome`). Cualquier otro
+ * fallo — no se pudo escribir el fichero, el plugin no responde — se lanza,
+ * igual que antes.
  */
-export async function shareTextFile(filename: string, content: string): Promise<boolean> {
-  if (!isNativeAndroid()) return false
+export async function shareTextFile(filename: string, content: string): Promise<ShareOutcome | null> {
+  if (!isNative()) return null
 
   const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem')
   const { Share } = await import('@capacitor/share')
 
-  // Directory.Cache: no pide permisos y Android la limpia solo si hace falta
-  // espacio. El fichero definitivo lo decide el usuario en el menú de
+  // Directory.Cache: no pide permisos y el sistema la limpia solo si hace
+  // falta espacio. El fichero definitivo lo decide el usuario en el menú de
   // compartir, así que esto es sólo un sitio de paso.
   const written = await Filesystem.writeFile({
     path: filename,
@@ -125,9 +154,10 @@ export async function shareTextFile(filename: string, content: string): Promise<
   } catch (err) {
     // Cerrar el menú de compartir sin elegir nada lanza una excepción. No es
     // un error: es alguien que ha cambiado de idea. El fichero se queda en la
-    // caché y no molesta a nadie.
+    // caché y no molesta a nadie, pero NO se ha entregado.
     const message = err instanceof Error ? err.message : String(err)
     if (!/cancel/i.test(message)) throw err
+    return { delivered: false }
   }
-  return true
+  return { delivered: true }
 }

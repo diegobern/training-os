@@ -9,7 +9,7 @@ import {
 import { seedLibraryIfEmpty } from '../lib/db/repo.exercises'
 import { migrateFavoritesOnce } from '../lib/db/repo.prefs'
 import { purgeSampleDataOnce } from '../lib/db/sampleData'
-import { defaultSettings, type Settings, type ThemeMode } from '../lib/db/schema'
+import { defaultSettings, type Language, type Settings, type ThemeMode } from '../lib/db/schema'
 import { LOCALES, makeT, type TFn } from '../lib/i18n'
 import { setFormatLocale } from '../lib/format'
 import { applyNativeChrome } from '../lib/native/chrome'
@@ -54,6 +54,21 @@ function applyTheme(mode: ThemeMode) {
   }
 }
 
+/**
+ * El idioma, también fuera de React: `<html lang>` (lectores de pantalla,
+ * guiones, el corrector del teclado) y una copia en localStorage para el
+ * guion de index.html, que lo pone antes del primer pintado igual que el tema.
+ * La de verdad vive en IndexedDB, que no se puede leer tan pronto.
+ */
+function applyLanguage(lang: Language) {
+  document.documentElement.lang = lang
+  try {
+    localStorage.setItem('to:lang', lang)
+  } catch {
+    /* almacenamiento bloqueado: el siguiente arranque empieza con el idioma por defecto */
+  }
+}
+
 function applyMotion(enabled: boolean) {
   document.documentElement.setAttribute('data-motion', enabled ? 'on' : 'off')
 }
@@ -76,7 +91,7 @@ export const useApp = create<AppState>((set, get) => ({
       await seedLibraryIfEmpty(settings.language)
       applyTheme(settings.theme)
       applyMotion(settings.animations)
-      document.documentElement.lang = settings.language
+      applyLanguage(settings.language)
       // Before `set`: the first render after it already writes "32,5 kg".
       setFormatLocale(LOCALES[settings.language])
       set({
@@ -104,7 +119,7 @@ export const useApp = create<AppState>((set, get) => ({
     const next = await writeSettings(patch)
     if (patch.theme !== undefined) applyTheme(next.theme)
     if (patch.animations !== undefined) applyMotion(next.animations)
-    if (patch.language !== undefined) document.documentElement.lang = next.language
+    applyLanguage(next.language)
     setFormatLocale(LOCALES[next.language])
     set({ settings: next, t: makeT(next.language), locale: LOCALES[next.language] })
   },
@@ -113,6 +128,7 @@ export const useApp = create<AppState>((set, get) => ({
     const settings = await readSettings()
     applyTheme(settings.theme)
     applyMotion(settings.animations)
+    applyLanguage(settings.language)
     setFormatLocale(LOCALES[settings.language])
     set({ settings, t: makeT(settings.language), locale: LOCALES[settings.language] })
   },

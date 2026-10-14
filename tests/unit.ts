@@ -801,12 +801,14 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
 
 /* ----------------------------------------------------- detección de plataforma */
 /*
- * `isNativeAndroid()` decide si se registra el service worker, si se abre un
- * enlace fuera de la app y si se escucha el botón físico. Si devolviera `true`
- * por error en un navegador, la web se quedaría sin actualizaciones.
+ * `isNative()` decide si se registra el service worker, si se abre un enlace
+ * fuera de la app y si se habla con el plugin propio; `isNativeAndroid()` y
+ * `isNativeIOS()`, lo que sólo existe en una de las dos (botón atrás, gesto de
+ * volver). Si alguna devolviera `true` por error en un navegador, la web se
+ * quedaría sin actualizaciones.
  */
 {
-  const { isNative, platform, isNativeAndroid } = await import('../src/lib/native/platform')
+  const { isNative, platform, isNativeAndroid, isNativeIOS } = await import('../src/lib/native/platform')
   const w = globalThis as unknown as { Capacitor?: unknown }
   const original = w.Capacitor
 
@@ -814,19 +816,30 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   eq(isNative(), false, 'plataforma: sin el global de Capacitor, no es nativo')
   eq(platform(), 'web', 'plataforma: sin el global de Capacitor, es web')
   eq(isNativeAndroid(), false, 'plataforma: un navegador nunca es Android nativo')
+  eq(isNativeIOS(), false, 'plataforma: un navegador nunca es iOS nativo')
 
   // Un objeto Capacitor presente pero que dice que NO es nativo: es el caso
   // real de la web cuando alguien sirve el bundle con el puente cargado.
   w.Capacitor = { isNativePlatform: () => false, getPlatform: () => 'web' }
   eq(isNativeAndroid(), false, 'plataforma: Capacitor en modo web sigue siendo web')
+  eq(isNativeIOS(), false, 'plataforma: Capacitor en modo web tampoco es iOS')
 
   w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'android' }
   eq(isNative(), true, 'plataforma: dentro del APK sí es nativo')
   eq(platform(), 'android', 'plataforma: dentro del APK la plataforma es android')
   eq(isNativeAndroid(), true, 'plataforma: dentro del APK isNativeAndroid es true')
+  eq(isNativeIOS(), false, 'plataforma: dentro del APK no es iOS')
 
   w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'ios' }
   eq(isNativeAndroid(), false, 'plataforma: iOS es nativo pero no es Android')
+  eq(isNative(), true, 'plataforma: dentro de la app de iPhone sí es nativo')
+  eq(platform(), 'ios', 'plataforma: dentro de la app de iPhone la plataforma es ios')
+  eq(isNativeIOS(), true, 'plataforma: dentro de la app de iPhone isNativeIOS es true')
+
+  // Una plataforma que no conocemos no es ninguna de las dos.
+  w.Capacitor = { isNativePlatform: () => true, getPlatform: () => 'electron' }
+  eq(platform(), 'web', 'plataforma: una plataforma desconocida se trata como web')
+  eq(isNativeAndroid() || isNativeIOS(), false, 'plataforma: y no activa nada de Android ni de iOS')
 
   if (original === undefined) delete w.Capacitor
   else w.Capacitor = original
@@ -967,7 +980,9 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
  * `androidBridge`, `PluginHeaders`, `nativePromise` and `nativeCallback`. The
  * real @capacitor/core is what talks to it, so these exercise the same code
  * path the APK runs. The Java half is checked by scripts/android and on a
- * device.
+ * device. The iOS half (same plugin, other rules for the permission) runs in
+ * its own bundle, tests/unit-native.ts: @capacitor/core keeps the first
+ * Capacitor global it sees, so one bundle can only be one platform.
  */
 {
   type Call = { method: string; options: Record<string, unknown> }
@@ -982,7 +997,14 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   }
 
   const calls: Call[] = []
-  const scenario = { permission: 'prompt', afterRequest: 'granted', failStart: false }
+  const scenario = {
+    permission: 'prompt',
+    afterRequest: 'granted',
+    failStart: false,
+    failHaptic: false,
+    delivered: true,
+    exactAlarms: false,
+  }
   let tap: ((data: unknown) => void) | null = null
 
   // Before anything imports @capacitor/core: it reads these once, on load.
@@ -997,8 +1019,13 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
         methods: [
           { name: 'start', rtype: 'promise' },
           { name: 'stop', rtype: 'promise' },
+          { name: 'scheduleRestAlert', rtype: 'promise' },
+          { name: 'cancelRestAlert', rtype: 'promise' },
+          { name: 'haptic', rtype: 'promise' },
+          { name: 'isSupported', rtype: 'promise' },
           { name: 'checkPermissions', rtype: 'promise' },
           { name: 'requestPermissions', rtype: 'promise' },
+          { name: 'requestExactAlarm', rtype: 'promise' },
           { name: 'addListener', rtype: 'callback' },
           { name: 'removeListener', rtype: 'promise' },
         ],
@@ -1016,6 +1043,14 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
         if (scenario.failStart) throw new Error('el plugin ha fallado')
         return { shown: true }
       }
+      if (method === 'scheduleRestAlert') return { scheduled: true, exact: scenario.exactAlarms }
+      if (method === 'cancelRestAlert') return { delivered: scenario.delivered }
+      if (method === 'haptic' && scenario.failHaptic) throw new Error('sin vibrador')
+      if (method === 'isSupported') return { presence: true, restAlerts: true, exactAlarms: scenario.exactAlarms }
+      if (method === 'requestExactAlarm') {
+        scenario.exactAlarms = true
+        return { exactAlarms: true }
+      }
       return {}
     },
     nativeCallback: (plugin: string, method: string, options: Record<string, unknown>, cb: (data: unknown) => void) => {
@@ -1027,9 +1062,25 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
 
   const notice = await import('../src/lib/native/workoutNotification')
   const methods = () => calls.map((c) => c.method)
-  const payload = { startedAt: 1_700_000_000_000, title: 'Entrenamiento en curso', body: 'Push · 0 de 3 series' }
+  // Lo que construye buildWorkoutPresence para un día «Push» sin descanso,
+  // con la app en español y en Android (lleva los textos del canal).
+  const payload = {
+    sessionId: 'sesion-1',
+    startedAt: 1_700_000_000_000,
+    title: 'Entrenamiento en curso',
+    body: 'Push · 0 de 3 series',
+    sessionName: 'Push',
+    exerciseName: null,
+    setLabel: null,
+    progressLabel: '0 de 3 series',
+    rest: null,
+    labels: { rest: 'Descanso', restOver: 'Descanso terminado', elapsed: 'Duración', paused: 'En pausa' },
+    locale: 'es-ES',
+    channelName: 'Entrenamiento en curso',
+    channelDescription: 'Muestra en la pantalla de bloqueo el tiempo que llevas entrenando mientras dure el entrenamiento.',
+  }
 
-  await notice.showWorkoutNotice(payload)
+  await notice.showWorkoutPresence(payload)
   eq(
     methods(),
     ['checkPermissions', 'requestPermissions', 'start'],
@@ -1038,47 +1089,108 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   eq(calls[2]?.options, payload, 'aviso: llega al nativo la hora de inicio, el título y el texto, tal cual')
 
   calls.length = 0
-  await notice.showWorkoutNotice({ ...payload, body: 'Push · 1 de 3 series' })
+  await notice.showWorkoutPresence(payload)
+  eq(methods(), [], 'aviso: lo mismo otra vez no cruza el puente (deduplicado por lo que se ve)')
+
+  calls.length = 0
+  await notice.showWorkoutPresence({ ...payload, body: 'Push · 1 de 3 series', progressLabel: '1 de 3 series' })
   eq(methods(), ['checkPermissions', 'start'], 'aviso: con permiso ya concedido no se vuelve a preguntar')
 
   calls.length = 0
-  await notice.hideWorkoutNotice()
+  await notice.hideWorkoutPresence()
   eq(methods(), ['stop'], 'aviso: terminar o descartar lo retira')
+
+  calls.length = 0
+  await notice.showWorkoutPresence({ ...payload, body: 'Push · 1 de 3 series', progressLabel: '1 de 3 series' })
+  eq(methods(), ['checkPermissions', 'start'], 'aviso: tras retirarlo, el mismo aviso se vuelve a publicar (la retirada borra la clave)')
+
+  // El aviso de «Descanso terminado», con permiso: se programa tal cual.
+  const alert = {
+    sessionId: 'sesion-1',
+    at: 1_700_000_090_000,
+    title: 'Descanso terminado',
+    body: 'Siguiente serie: Press banca',
+    sound: true,
+    vibrate: true,
+    channelName: 'Fin del descanso',
+    channelDescription: 'Avisa cuando termina el descanso entre series.',
+  }
+  calls.length = 0
+  const scheduled = await notice.scheduleRestAlert(alert)
+  eq(methods(), ['checkPermissions', 'scheduleRestAlert'], 'descanso: con permiso se programa el aviso')
+  eq(calls[1]?.options, alert, 'descanso: llega al nativo la hora, los textos y los ajustes, tal cual')
+  eq(scheduled, { scheduled: true, exact: false }, 'descanso: se sabe si quedó programado y si es exacto')
+
+  calls.length = 0
+  eq(await notice.cancelRestAlert(), { delivered: true }, 'descanso: cancelar dice si el aviso ya había salido')
+  eq(methods(), ['cancelRestAlert'], 'descanso: cancelar no pregunta permisos')
+
+  calls.length = 0
+  eq(await notice.isSupported(), { presence: true, restAlerts: true, exactAlarms: false }, 'descanso: se sabe si hay alarma exacta')
+  eq(await notice.requestExactAlarm(), { exactAlarms: true }, 'descanso: pedir la alarma exacta contesta si se concedió')
+  eq(methods(), ['isSupported', 'requestExactAlarm'], 'descanso: consultar y pedir la alarma exacta van directos')
+
+  calls.length = 0
+  await notice.nativeHaptic('pr')
+  eq(calls, [{ method: 'haptic', options: { kind: 'pr' } }], 'háptica: llega al nativo el tipo de vibración')
+  scenario.failHaptic = true
+  let threw = false
+  await notice.nativeHaptic('tick').catch(() => (threw = true))
+  eq(threw, false, 'háptica: si el nativo falla, nadie se entera')
+  scenario.failHaptic = false
 
   // Denied: never asked again, never shown, and nothing thrown at the caller.
   scenario.permission = 'denied'
   calls.length = 0
-  let threw = false
-  await notice.showWorkoutNotice(payload).catch(() => (threw = true))
+  threw = false
+  await notice.showWorkoutPresence(payload).catch(() => (threw = true))
   eq(methods(), ['checkPermissions'], 'aviso: con el permiso denegado no se publica nada')
   eq(threw, false, 'aviso: el permiso denegado no rompe nada')
+
+  calls.length = 0
+  eq(await notice.scheduleRestAlert(alert), null, 'descanso: con el permiso denegado no se programa nada')
+  eq(methods(), ['checkPermissions'], 'descanso: y no llega a llamar a scheduleRestAlert')
 
   // A second fresh install would ask; one that has already asked does not.
   scenario.permission = 'prompt'
   calls.length = 0
-  await notice.showWorkoutNotice(payload)
+  await notice.showWorkoutPresence(payload)
   eq(methods(), ['checkPermissions'], 'aviso: el permiso se pide UNA vez, no en cada entrenamiento')
 
   // The plugin failing must not reach the workout.
   scenario.permission = 'granted'
   scenario.failStart = true
   threw = false
-  await notice.showWorkoutNotice(payload).catch(() => (threw = true))
+  await notice.showWorkoutPresence(payload).catch(() => (threw = true))
   eq(threw, false, 'aviso: si el plugin falla, el entrenamiento ni se entera')
   scenario.failStart = false
 
   // Order: a show still waiting must not land after the hide that follows it.
   calls.length = 0
-  void notice.showWorkoutNotice(payload)
-  await notice.hideWorkoutNotice()
+  void notice.showWorkoutPresence(payload)
+  await notice.hideWorkoutPresence()
   eq(methods().at(-1), 'stop', 'aviso: las llamadas van en fila; un stop nunca queda antes que su start')
+  eq(methods().includes('start'), false, 'aviso: y el start que esperaba en la fila ya no publica nada')
 
-  let tapped = 0
-  const off = notice.onWorkoutNoticeTap(() => tapped++)
+  // forceStopNative (cerrar sesión, borrar todo): retira y olvida la clave.
+  await notice.showWorkoutPresence(payload)
+  calls.length = 0
+  await notice.forceStopNative()
+  await notice.showWorkoutPresence(payload)
+  eq(methods().filter((m) => m === 'stop').length, 2, 'aviso: la retirada urgente manda el stop ya y otro al final de la fila')
+  eq(methods().at(-1), 'start', 'aviso: y después el mismo aviso se vuelve a publicar (no se queda deduplicado)')
+
+  let tapped: unknown[] = []
+  const off = notice.onWorkoutNoticeTap((e) => tapped.push(e))
   await new Promise((r) => setTimeout(r, 20))
   const emit = tap as ((data: unknown) => void) | null
   emit?.({})
-  eq(tapped, 1, 'aviso: tocar la notificación llega a quien escucha')
+  eq(tapped.length, 1, 'aviso: tocar la notificación llega a quien escucha')
+  emit?.({ sessionId: 'sesion-1' })
+  emit?.({ sessionId: 42 })
+  emit?.(null)
+  eq(tapped, [{}, { sessionId: 'sesion-1' }, {}, {}], 'aviso: el toque trae el id de la sesión, y sólo si es una cadena')
+  tapped = []
   off()
 
   if (saved.Capacitor === undefined) delete g.Capacitor
@@ -1096,12 +1208,33 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   const g = globalThis as unknown as Record<string, unknown>
   const had = g.Capacitor
   delete g.Capacitor
-  const { isNativeAndroid } = await import('../src/lib/native/platform')
+  const { isNative } = await import('../src/lib/native/platform')
   const notice = await import('../src/lib/native/workoutNotification')
   let threw = false
-  await notice.showWorkoutNotice({ startedAt: 1, title: 't', body: 'b' }).catch(() => (threw = true))
-  await notice.hideWorkoutNotice().catch(() => (threw = true))
-  eq(isNativeAndroid() === false && threw === false, true, 'aviso: en el navegador es un no-op silencioso')
+  const presence = {
+    sessionId: 's',
+    startedAt: 1,
+    title: 't',
+    body: 'b',
+    sessionName: 'n',
+    exerciseName: null,
+    setLabel: null,
+    progressLabel: 'p',
+    rest: null,
+    labels: { rest: 'r', restOver: 'o', elapsed: 'e', paused: 'p' },
+    locale: 'es-ES',
+  }
+  await notice.showWorkoutPresence(presence).catch(() => (threw = true))
+  await notice.hideWorkoutPresence().catch(() => (threw = true))
+  const web = {
+    alert: await notice.scheduleRestAlert({ sessionId: 's', at: 1, title: 't', body: 'b', sound: true, vibrate: true }),
+    cancel: await notice.cancelRestAlert(),
+    support: await notice.isSupported(),
+  }
+  await notice.nativeHaptic('tick').catch(() => (threw = true))
+  await notice.forceStopNative().catch(() => (threw = true))
+  eq(isNative() === false && threw === false, true, 'aviso: en el navegador es un no-op silencioso')
+  eq(web, { alert: null, cancel: null, support: null }, 'aviso: en el navegador no hay descanso, ni cancelación, ni soporte')
   if (had !== undefined) g.Capacitor = had
 }
 

@@ -15,6 +15,9 @@ import { SyncBanner } from "./components/layout/SyncBanner";
 import { dismissBootMark } from "./lib/bootmark";
 import { BootFailure, useBootWatchdog } from "./components/layout/BootFailure";
 import { getDbStatus } from "./lib/db/database";
+import { translate } from "./lib/i18n";
+import { deviceLanguages, pickLanguage } from "./lib/i18n/pickLanguage";
+import type { Language } from "./lib/db/schema";
 import Home from "./routes/Home";
 import WorkoutStart from "./routes/WorkoutStart";
 import WorkoutActive from "./routes/WorkoutActive";
@@ -58,6 +61,22 @@ function ScrollToTop() {
 }
 
 /**
+ * El idioma mientras la app arranca, antes de que se lean los ajustes (y por
+ * tanto antes de que exista un `t` de verdad): la copia que deja useApp en
+ * localStorage, como hace el guion del tema en index.html. Sin copia (primer
+ * arranque) es el idioma que tomará la instalación nueva, el del dispositivo.
+ */
+function bootLanguage(): Language {
+  try {
+    const stored = localStorage.getItem("to:lang");
+    if (stored === "es" || stored === "en") return stored;
+  } catch {
+    /* almacenamiento bloqueado: se decide por el dispositivo */
+  }
+  return pickLanguage(deviceLanguages());
+}
+
+/**
  * Deliberately a pixel-for-pixel copy of the #boot-mark block in index.html:
  * same tile, same size, same gap, same label. That element is still fading out
  * while this one fades in, and two marks at different sizes or positions read
@@ -85,7 +104,7 @@ function BootScreen({ slow }: { slow?: boolean } = {}) {
           from loading, in production, with no console error. */}
       {slow && (
         <p className="mt-2 max-w-[16rem] text-center text-caption text-faint">
-          Esto está tardando más de lo normal…
+          {translate(bootLanguage(), "app.bootSlow")}
         </p>
       )}
     </div>
@@ -240,9 +259,12 @@ export function App() {
             on the sign-in screens. */}
         <WorkoutTimerBar />
         <BottomNav hasActiveSession={hasSession} />
-        <Toaster />
         <CelebrationLayer />
       </AuthGate>
+      {/* Fuera de la puerta de sesión: un aviso que se da justo cuando la
+          sesión se cierra («Cuenta eliminada») tiene que verse también en la
+          pantalla de bienvenida que aparece a continuación. */}
+      <Toaster />
     </>
   );
 }

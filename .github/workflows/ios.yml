@@ -1,0 +1,216 @@
+# Training OS — compilación y pruebas de iOS en un Mac de GitHub Actions.
+#
+# Sólo se ejecuta en la rama `ios-parity` (y a mano). No firma nada: compila
+# para el simulador y, sin firma, para dispositivo, que es lo que demuestra que
+# el proyecto de Xcode, el plugin Swift y la Live Activity compilan de verdad.
+#
+# La app se empaqueta SIN configuración de Firebase (aquí no hay .env): arranca
+# en modo local, que permite entrenar sin cuenta y por tanto probar en el
+# simulador sin tocar el proyecto de Firebase real.
+#
+# La evidencia (registros, capturas del simulador, imágenes de la Live
+# Activity) se publica en la rama `ios-ci-evidence`, legible sin iniciar sesión
+# en GitHub. Esa rama sólo contiene resultados de la última ejecución.
+name: iOS
+
+on:
+  push:
+    branches: [ios-parity]
+  workflow_dispatch:
+
+permissions:
+  contents: write # únicamente para publicar la evidencia en ios-ci-evidence
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      EVIDENCE: ${{ github.workspace }}/evidence
+      XCODE_APP: /Applications/Xcode_26.6.app
+      PROJECT: ios/App/App.xcodeproj
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Carpeta de evidencia
+        run: |
+          mkdir -p "$EVIDENCE"
+          echo "commit $GITHUB_SHA run $GITHUB_RUN_NUMBER" > "$EVIDENCE/run.txt"
+
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$XCODE_APP"
+          { xcodebuild -version; xcrun simctl list runtimes; sw_vers; } | tee "$EVIDENCE/env.txt"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Pruebas unitarias (web)
+        run: npm test 2>&1 | tail -n 5 | tee "$EVIDENCE/unit.txt"
+
+      - name: Paquete web (modo local, sin Firebase)
+        run: npm run build 2>&1 | tail -n 15 | tee "$EVIDENCE/web-build.txt"
+
+      - name: cap sync ios
+        run: npx cap sync ios 2>&1 | tee "$EVIDENCE/cap-sync.txt"
+
+      - name: Verificador estático del proyecto iOS
+        run: npm run ios:verify 2>&1 | tee "$EVIDENCE/ios-verify.txt"
+
+      - name: Proyecto legible por Xcode
+        run: |
+          set -o pipefail
+          xcodebuild -list -project "$PROJECT" 2>&1 | tee "$EVIDENCE/xcodebuild-list.txt"
+          find ios -name '*.plist' -o -name '*.xcprivacy' | while read -r f; do plutil -lint "$f"; done 2>&1 | tee "$EVIDENCE/plutil-lint.txt"
+
+      - name: Elegir simuladores
+        id: sim
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, subprocess
+          data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
+          def pick(name):
+              best = None
+              for runtime, devices in data['devices'].items():
+                  if 'iOS' not in runtime:
+                      continue
+                  version = tuple(int(x) for x in runtime.rsplit('iOS-', 1)[-1].split('-') if x.isdigit())
+                  for d in devices:
+                      if d['name'] == name and (best is None or version > best[0]):
+                          best = (version, d['udid'])
+              return best[1] if best else ''
+          print(f"pro={pick('iPhone 17 Pro')}")
+          print(f"plain={pick('iPhone 16e') or pick('iPhone 17')}")
+          print(f"max={pick('iPhone 17 Pro Max')}")
+          PY
+          cat "$GITHUB_OUTPUT" | tee "$EVIDENCE/simulators.txt"
+
+      - name: Compilar para simulador (Debug) y tests
+        run: |
+          set +e
+          xcodebuild -project "$PROJECT" -scheme App -configuration Debug             -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.pro }}"             -derivedDataPath build -clonedSourcePackagesDirPath spm             build-for-testing > "$EVIDENCE/build-simulator.log" 2>&1
+          rc=$?
+          grep -E 'error:|warning: .*(deprecated|ActivityKit|WidgetKit)|BUILD|TEST BUILD' "$EVIDENCE/build-simulator.log" | tail -n 120
+          cp ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved "$EVIDENCE/Package.resolved" 2>/dev/null
+          exit $rc
+
+      - name: Compilar para dispositivo (Release, sin firma)
+        run: |
+          set +e
+          xcodebuild -project "$PROJECT" -scheme App -configuration Release             -sdk iphoneos -destination 'generic/platform=iOS'             -derivedDataPath build-device -clonedSourcePackagesDirPath spm             CODE_SIGNING_ALLOWED=NO build > "$EVIDENCE/build-device.log" 2>&1
+          rc=$?
+          grep -E 'error:|BUILD' "$EVIDENCE/build-device.log" | tail -n 120
+          exit $rc
+
+      - name: Inspeccionar App.app
+        run: |
+          APP=$(find build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name 'App.app' | head -1)
+          {
+            echo "== App"; plutil -p "$APP/Info.plist" | grep -E 'MinimumOSVersion|UIDeviceFamily|NSSupportsLiveActivities|CFBundleURLSchemes|CFBundleLocalizations|NSCameraUsageDescription|UISupportedInterfaceOrientations|ITSAppUsesNonExemptEncryption' -A3
+            echo "== Recursos"; ls "$APP" | grep -E 'PrivacyInfo|lproj|public'
+            echo "== Extensiones"; ls "$APP/PlugIns"
+            for X in "$APP"/PlugIns/*.appex; do plutil -p "$X/Info.plist" | grep -E 'NSExtensionPointIdentifier|MinimumOSVersion|CFBundleVersion|CFBundleIdentifier'; done
+            echo "== Versiones"; plutil -p "$APP/Info.plist" | grep -E 'CFBundleVersion|CFBundleShortVersionString'
+          } 2>&1 | tee "$EVIDENCE/bundle.txt"
+
+      - name: Simulador iPhone 17 Pro
+        run: |
+          UDID=${{ steps.sim.outputs.pro }}
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          APP=$(find build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name 'App.app' | head -1)
+          xcrun simctl install "$UDID" "$APP"
+
+      - name: Imágenes de la Live Activity (ImageRenderer, DEBUG)
+        run: |
+          UDID=${{ steps.sim.outputs.pro }}
+          xcrun simctl launch "$UDID" com.trainingos.app -renderLiveActivityPreviews || true
+          DATA=$(xcrun simctl get_app_container "$UDID" com.trainingos.app data)
+          # index.json se escribe el último: es la señal de que ha terminado.
+          for i in $(seq 90); do [ -f "$DATA/Documents/live-activity-previews/index.json" ] && break; sleep 2; done
+          mkdir -p "$EVIDENCE/live-activity-previews"
+          cp -R "$DATA/Documents/live-activity-previews/." "$EVIDENCE/live-activity-previews/" 2>/dev/null || echo "sin imágenes" > "$EVIDENCE/live-activity-previews/MISSING.txt"
+          xcrun simctl terminate "$UDID" com.trainingos.app || true
+
+      - name: Arranque en español y en inglés (capturas)
+        run: |
+          UDID=${{ steps.sim.outputs.pro }}
+          for LANG in es en; do
+            xcrun simctl uninstall "$UDID" com.trainingos.app || true
+            APP=$(find build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name 'App.app' | head -1)
+            xcrun simctl install "$UDID" "$APP"
+            xcrun simctl launch "$UDID" com.trainingos.app -AppleLanguages "($LANG)" -AppleLocale "${LANG}_ES" || true
+            sleep 20
+            xcrun simctl io "$UDID" screenshot "$EVIDENCE/boot-$LANG.png" || true
+            xcrun simctl terminate "$UDID" com.trainingos.app || true
+          done
+
+      - name: Deep link (app en frío y en caliente)
+        run: |
+          UDID=${{ steps.sim.outputs.pro }}
+          xcrun simctl openurl "$UDID" 'trainingos://workout/active?session=bogus-id' || true
+          sleep 15
+          xcrun simctl io "$UDID" screenshot "$EVIDENCE/deeplink-cold.png" || true
+          xcrun simctl openurl "$UDID" 'trainingos://evil/route?session=x' || true
+          sleep 5
+          xcrun simctl io "$UDID" screenshot "$EVIDENCE/deeplink-rejected.png" || true
+          xcrun simctl terminate "$UDID" com.trainingos.app || true
+          xcrun simctl uninstall "$UDID" com.trainingos.app || true
+
+      - name: Tests de interfaz (iPhone 17 Pro, con Dynamic Island)
+        run: |
+          set +e
+          xcodebuild -project "$PROJECT" -scheme App -configuration Debug             -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.pro }}"             -derivedDataPath build -clonedSourcePackagesDirPath spm             -resultBundlePath "$RUNNER_TEMP/ui-pro.xcresult"             -parallel-testing-enabled NO test-without-building > "$EVIDENCE/ui-tests-pro.log" 2>&1
+          rc=$?
+          grep -E 'Test Case|error:|failed|passed|TEST' "$EVIDENCE/ui-tests-pro.log" | tail -n 120
+          exit $rc
+
+      - name: Tests de interfaz (iPhone sin Dynamic Island)
+        if: always() && steps.sim.outputs.plain != ''
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.plain }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.plain }}" -b
+          set +e
+          xcodebuild -project "$PROJECT" -scheme App -configuration Debug             -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.plain }}"             -derivedDataPath build -clonedSourcePackagesDirPath spm             -resultBundlePath "$RUNNER_TEMP/ui-plain.xcresult"             -parallel-testing-enabled NO test-without-building > "$EVIDENCE/ui-tests-plain.log" 2>&1
+          rc=$?
+          grep -E 'Test Case|error:|failed|passed|TEST' "$EVIDENCE/ui-tests-plain.log" | tail -n 120
+          exit $rc
+
+      - name: Extraer capturas de los tests
+        if: always()
+        run: |
+          for R in pro plain; do
+            B="$RUNNER_TEMP/ui-$R.xcresult"
+            [ -d "$B" ] || continue
+            mkdir -p "$EVIDENCE/ui-$R"
+            xcrun xcresulttool export attachments --path "$B" --output-path "$EVIDENCE/ui-$R" 2>&1 | tail -n 3 || true
+            xcrun xcresulttool get test-results summary --path "$B" > "$EVIDENCE/ui-$R/summary.json" 2>/dev/null || true
+          done
+
+      - name: Publicar evidencia en ios-ci-evidence
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd "$RUNNER_TEMP"
+          rm -rf evidence-repo && mkdir evidence-repo && cd evidence-repo
+          git init -q
+          git checkout -q -b ios-ci-evidence
+          cp -R "$EVIDENCE"/. .
+          # Los registros completos pesan mucho: se guarda el final de cada uno.
+          for f in *.log; do [ -f "$f" ] && tail -n 400 "$f" > "$f.tail" && mv "$f.tail" "$f"; done
+          git add -A
+          git -c user.name="training-os-ci" -c user.email="training-os-ci@users.noreply.github.com" \
+            commit -qm "iOS CI evidence: run $GITHUB_RUN_NUMBER ($GITHUB_SHA)"
+          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ios-ci-evidence

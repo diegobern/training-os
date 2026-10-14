@@ -1,5 +1,5 @@
 /**
- * ¿Estamos dentro de la app de Android o en el navegador?
+ * ¿Estamos dentro de una app empaquetada (Android o iOS) o en el navegador?
  *
  * Hay una manera evidente de responder a esto — importar `Capacitor` de
  * `@capacitor/core` y llamar a `isNativePlatform()` — y no es la que se usa
@@ -14,8 +14,20 @@
  * objeto global `Capacitor` ANTES de que se ejecute nuestro código. Leerlo
  * cuesta cero bytes en web y da exactamente la misma respuesta. Todo lo que
  * sí necesita el SDK — los plugins — se importa de forma dinámica y sólo
- * cuando `isNativeAndroid()` ya ha dicho que sí, así que el navegador jamás
- * llega a descargar esos trozos.
+ * cuando `isNative()` ya ha dicho que sí, así que el navegador jamás llega a
+ * descargar esos trozos.
+ *
+ * Qué pregunta usar (ver docs/NATIVE-CONTRACT.md, «Plataforma»):
+ *
+ *   - `isNative()` para todo lo que comparten las dos apps: pantalla de
+ *     arranque, barra de estado, teclado, compartir, enlaces externos, no
+ *     registrar el service worker, el plugin propio y la háptica.
+ *   - `isNativeAndroid()` sólo para lo que no existe en iOS: el botón atrás
+ *     físico (`backButton`/`exitApp`), los campos `channel*` de las
+ *     notificaciones y el permiso de alarma exacta.
+ *   - `isNativeIOS()` para lo que no existe en Android: el gesto de deslizar
+ *     para volver, la barra de accesorios del teclado y la barra de estado
+ *     (en iOS sólo `setStyle`).
  */
 
 type CapacitorGlobal = {
@@ -46,10 +58,19 @@ export function platform(): 'android' | 'ios' | 'web' {
 }
 
 /**
- * La comprobación que usa el resto de la aplicación. Hoy sólo existe la app de
- * Android; si algún día hay una de iOS, este fichero es el único sitio donde
- * habría que decidir qué comportamientos comparten.
+ * Dentro del APK. Sólo para lo que es de Android y nada más: el botón atrás,
+ * los canales de notificación y la alarma exacta. Lo que comparten las dos
+ * apps pregunta `isNative()`.
  */
 export function isNativeAndroid(): boolean {
   return isNative() && platform() === 'android'
+}
+
+/**
+ * Dentro de la app de iPhone. Sólo para lo que es de iOS y nada más: el gesto
+ * de volver, la barra de accesorios del teclado y el estilo de la barra de
+ * estado.
+ */
+export function isNativeIOS(): boolean {
+  return isNative() && platform() === 'ios'
 }

@@ -12,9 +12,14 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <!-- Runs before the first paint. There is no stored value on a first
          visit, which is correct: the app opens light by default, and only a
-         user who has chosen dark has something here to read. -->
+         user who has chosen dark has something here to read.
+         El idioma, igual: useApp deja una copia en 'to:lang' y aquí se pone
+         en <html lang> antes de pintar nada. Sin copia (primera vez) se queda
+         el de arriba hasta que arranca la app. -->
     <script>
       try {
+        var lang = localStorage.getItem('to:lang')
+        if (lang === 'es' || lang === 'en') document.documentElement.lang = lang
         if (localStorage.getItem('to:theme') === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark')
           document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0A0B0D')
