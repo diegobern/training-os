@@ -618,6 +618,14 @@ jobs:
           for i in $(seq 15); do pgrep -f "emulators:start" >/dev/null || break; sleep 1; done
           pkill -9 -f "emulators:start" 2>/dev/null || true
           pkill -9 -f "cloud-firestore-emulator" 2>/dev/null || true
+          - name: Guardar evidencia como Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-auth-evidence-${{ github.run_number }}
+          path: evidence/auth/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Publicar evidencia en ios-ci-evidence-auth
         if: always()
