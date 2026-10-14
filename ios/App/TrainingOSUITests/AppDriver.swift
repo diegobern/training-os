@@ -49,9 +49,7 @@ final class AppDriver {
         shot.name = "Final: pantalla"
         shot.lifetime = .keepAlways
         test.add(shot)
-        let state = XCTAttachment(string: "estado de la app: \(app.state.rawValue) (4 = en primer plano)
-
-" + app.debugDescription)
+        let state = XCTAttachment(string: "estado de la app: \(app.state.rawValue) (4 = en primer plano)\n\n" + app.debugDescription)
         state.name = "Final: árbol de la app"
         state.lifetime = .keepAlways
         test.add(state)
