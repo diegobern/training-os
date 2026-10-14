@@ -5,6 +5,32 @@ fase 2. Sustituyen a cualquier supuesto anterior. Línea base: tag `pre-expansio
 
 ---
 
+## REGLA PERMANENTE — Paridad Web · Android · iOS
+
+> **Every user-facing feature added to Training OS must be evaluated on Web,
+> Android and iOS. Platform-specific behavior must have a native equivalent
+> where meaningful. No release is complete until the feature parity matrix is
+> updated.**
+
+Añadida el 2026-10-14, con la app de iOS, y por encima de cualquier decisión de
+esta lista. En la práctica:
+
+- **Cada función nueva se piensa en las tres plataformas** antes de darla por
+  terminada: cómo se ve en el navegador, en la app de Android y en la de
+  iPhone, y qué cambia en cada una (teclado, zonas seguras, atrás, permisos,
+  idioma, sin conexión).
+- **Lo que una plataforma hace con su API nativa tiene su equivalente en la
+  otra** cuando tiene sentido — la notificación de entrenamiento de Android es
+  la Live Activity de iOS; el botón atrás, el gesto de deslizar —, y pasa por
+  el mismo contrato (`docs/NATIVE-CONTRACT.md`, D41). Si no tiene sentido en
+  una plataforma, se dice por qué en la matriz, no se deja en blanco.
+- **Ninguna versión está terminada sin actualizar la matriz de paridad**,
+  [`docs/IOS-FEATURE-PARITY.md`](IOS-FEATURE-PARITY.md): qué existe en cada
+  plataforma y qué está verificado (pruebas, simulador, dispositivo real) y qué
+  no.
+
+---
+
 ## D1. Catálogo global vs datos de usuario
 
 **El catálogo integrado NO se duplica en `users/{uid}/exercises`.**
@@ -642,3 +668,155 @@ entrenamiento hecho con la red cortada antes de abrir la app (nada sube
 mientras tanto; sube exactamente una vez al volver) y una recarga que no
 pierde nada. `e2e/authgate.mjs` comprueba que, con Firestore caído, el alta
 no se queda colgada en el formulario.
+
+## D41. Un contrato JavaScript, dos implementaciones nativas
+
+Todo lo que la app necesita del sistema y no cubre un plugin oficial pasa por
+**un único plugin propio**, `WorkoutNotification`: el mismo nombre, los mismos
+nueve métodos, el mismo evento `open` y los mismos datos en Android (Java) y en
+iOS (Swift). Cada plataforma lo cumple con su API correcta:
+
+| Qué | Android | iOS |
+|---|---|---|
+| Entrenamiento en curso con el móvil bloqueado | Notificación persistente con cronómetro del sistema | Live Activity (ActivityKit) en la pantalla de bloqueo y la Dynamic Island, pintada por una extensión de WidgetKit |
+| «Descanso terminado» | `AlarmManager` → notificación | Notificación local (`UNUserNotificationCenter`) |
+| Háptica | `performHapticFeedback` | `UIImpactFeedbackGenerator` / `UINotificationFeedbackGenerator` |
+| Volver al entrenamiento | `PendingIntent` con `sessionId` | `trainingos://workout/active?session=<id>` |
+
+El lado web (`src/lib/native/workoutNotification.ts`) no sabe cuál de las dos
+tiene delante. El contrato — métodos, datos, quién llama a qué y cuándo — está
+en `docs/NATIVE-CONTRACT.md`, y es la fuente de verdad: `npm run android:verify`
+y `npm run ios:verify` fallan si Java, Swift o TypeScript declaran otros
+métodos que el contrato.
+
+- **El idioma lo pone JavaScript.** Todo texto llega traducido con `t()`; el
+  código nativo no tiene palabras de la interfaz.
+- **Los tiempos son marcas absolutas** y los cronómetros los pinta el sistema:
+  ni servicio en primer plano en Android ni modo de segundo plano en iOS.
+- **Nada nativo puede tumbar un entrenamiento**: cada llamada tiene un tiempo
+  máximo y un fallo se queda en la consola.
+- **Lo que es de una sola plataforma viaja como campo opcional** (los
+  `channel*` de Android) o como método que la otra contesta sin hacer nada
+  (`requestExactAlarm` en iOS).
+
+Por qué uno y no dos: `@capacitor/local-notifications` no expone ni el
+cronómetro de Android ni las Live Activities, y dos plugins distintos
+obligarían a duplicar en JavaScript la lógica de cuándo publicar, actualizar y
+retirar, que es justo la parte delicada.
+
+## D42. «Descanso terminado» en las dos plataformas, y por qué no es la Live Activity
+
+El README lo tenía como «deliberadamente fuera». Ya no: el aviso puntual de
+fin de descanso existe en Android y en iOS, y se programa y se cancela con las
+mismas reglas (`desiredRestAlert` y `restAlertTransition`, en
+`src/lib/native/workoutPresence.ts`): al empezar, ajustar o reanudar un
+descanso se programa; al pausarlo, saltarlo o terminarlo antes se cancela; al
+llegar su hora **no** se cancela, lo entrega el sistema. Con la app delante no
+sale: avisa la propia app.
+
+- **iOS**: notificación local con `UNTimeIntervalNotificationTrigger` e
+  identificador fijo. Llega con la app en segundo plano, con el móvil
+  bloqueado y con la app cerrada. Siempre puntual: no hay permiso de alarma
+  exacta.
+- **Android**: `AlarmManager` sobre el reloj de tiempo transcurrido.
+  `setExactAndAllowWhileIdle` si hay `SCHEDULE_EXACT_ALARM` — un acceso
+  especial que viene denegado desde Android 14 y que se ofrece **en contexto**,
+  una sola vez, la primera vez que empieza un descanso, con «Activar en
+  Ajustes» y «Ahora no» — y, si no, `setAndAllowWhileIdle`, aproximado. Sin
+  `USE_EXACT_ALARM`. Detalle en `docs/ANDROID-SETUP.md`.
+- **El permiso de notificaciones** se pide una vez, al empezar el primer
+  entrenamiento. Denegado, no hay aviso y todo lo demás funciona igual.
+
+**Por qué la Live Activity no basta.** La Live Activity (y la notificación de
+entrenamiento de Android) es el **estado continuo**: enseña la cuenta atrás y
+pasa sola a «Descanso terminado» al vencer (`staleDate`), pero **no suena, no
+vibra y no aparece**: con el móvil en el bolsillo no avisa a nadie. El aviso es
+un **aviso puntual** que hace exactamente eso y se va. Además dependen de cosas
+distintas — la Live Activity no necesita permiso; el aviso, sí — y la persona
+puede apagar cualquiera de los dos sin perder el otro. Dos superficies, dos
+trabajos.
+
+## D43. Un único punto de vaciado: un entrenamiento nunca cruza de cuenta
+
+El riesgo era concreto: con un entrenamiento en marcha en la cuenta A, cerrar
+sesión y entrar con la B podía dejar la Live Activity o la notificación de A en
+la pantalla de bloqueo, un aviso de descanso de A por llegar, o un autoguardado
+pendiente de A escribiendo su sesión en la base de datos local de B.
+
+La solución es **un único punto de paso**, no una limpieza en cada pantalla:
+
+- `engine.setBeforeLocalReset(fn)`: `resetLocalData` y `wipeEverything` llaman
+  a `fn` **sincrónicamente, lo primero**, antes de su primer `await`.
+  `main.tsx` lo conecta a `useWorkout.reset()` + `forceStopNative()`. Cualquier
+  camino que vacíe el dispositivo — cambio de dueño, cerrar sesión, borrar la
+  cuenta, «Borrar todo» — pasa por ahí sin saberlo.
+- `useWorkout.reset()` cancela el guardado pendiente, vacía la sesión en
+  memoria y sube una `epoch`: cada acción asíncrona la comprueba tras cada
+  `await` y no escribe si cambió.
+- `forceStopNative()` no espera a la fila del plugin (que puede estar parada
+  hasta dos minutos delante del diálogo de permiso): manda el `stop` ya y deja
+  otro al final, para que siga siendo el último mensaje.
+- Si Firebase cierra la sesión por su cuenta (`onAuth(null)`):
+  `reset({ flush: true })` + `stop`; los datos locales se quedan.
+- Restaurar una copia «reemplazar» está bloqueado mientras haya un
+  entrenamiento en curso.
+
+**Eliminar la cuenta reautentica lo primero.** Con la contraseña mal no se toca
+nada: ni la nube, ni la sincronización, ni el entrenamiento. Sólo después:
+guardar lo pendiente, `reset` + `stop`, parar la sincronización esperando al
+ciclo en vuelo, borrar los datos en la nube, el nombre de usuario, el perfil y
+el usuario, y vaciar la copia local. Si algo falla antes de borrar el usuario,
+la sincronización se vuelve a arrancar y el entrenamiento se vuelve a leer. Es
+también lo que pide Apple (directriz 5.1.1(v)) y lo que espera Google Play.
+
+Lo cubre `tests/unit-lifecycle.ts`, contra una IndexedDB real. El orden
+completo de cada momento está en `docs/NATIVE-CONTRACT.md`, «Ciclo de vida».
+
+## D44. Plataforma: `isNative` frente a `isNativeAndroid` / `isNativeIOS`, y sin service worker en las apps
+
+`src/lib/native/platform.ts` lee el objeto global `Capacitor` que inyecta el
+WebView, en vez de importar `@capacitor/core`: cero bytes en la web. Tres
+preguntas, cada una para lo suyo:
+
+| Pregunta | Para qué |
+|---|---|
+| `isNative()` | Todo lo que comparten las dos apps: splash, barra de estado, cerrar el teclado al navegar, compartir, enlaces externos, no registrar el service worker, el plugin propio y la háptica |
+| `isNativeAndroid()` | Sólo lo que no existe en iOS: el botón atrás (`backButton`/`exitApp`), los campos `channel*` y el permiso de alarma exacta |
+| `isNativeIOS()` | Sólo lo que no existe en Android: deslizar para volver con una hoja abierta, la barra de accesorios del teclado y la barra de estado (sólo `setStyle`) |
+
+La regla de siempre sigue en pie: **ninguna condición de plataforma fuera de
+`src/lib/native/`** y de `NativeShell.tsx`, que es donde se enganchan los
+efectos. Una pregunta de plataforma nueva se añade ahí.
+
+**Sin service worker en las apps.** `UpdatePrompt.tsx` comprueba `isNative()`
+y no registra nada, en Android y en iOS. Dentro de la app, un precaché seguiría
+sirviendo los ficheros viejos después de que la tienda instalara una
+actualización, y con `registerType: 'prompt'` esperaría a un botón que la
+persona puede no ver nunca: actualizada por fuera, vieja por dentro, sin ningún
+error. No se pierde nada: el código, el catálogo y las ilustraciones ya viajan
+dentro de la app. Tampoco se enseña el consejo de instalar la PWA. La web sigue
+exactamente igual.
+
+## D45. El primer arranque, en el idioma del dispositivo
+
+Una instalación **nueva** arranca en el idioma del dispositivo:
+`pickLanguage(deviceLanguages())` (`src/lib/i18n/pickLanguage.ts`). Sólo cuenta
+el primer idioma de la lista: `es` o cualquier `es-*` → español; todo lo demás
+→ inglés. Un `['ca-ES', 'es-ES']` recibe inglés a propósito: no adivinamos qué
+segundo idioma prefiere nadie; se cambia en Ajustes en un toque.
+
+- **Sólo al crear los ajustes** (`src/lib/db/database.ts`). Una instalación que
+  ya los tiene conserva el idioma que eligió; esto no le cambia nada a nadie.
+- `App.tsx` usa la misma función para la pantalla de arranque, antes de que se
+  hayan leído los ajustes, para que no haya un primer fotograma en el otro
+  idioma.
+- **Igual en web, Android e iOS**: los tres leen `navigator.languages` del
+  navegador o del WebView. En iOS, `CFBundleLocalizations` declara `es` y `en`
+  con sus `InfoPlist.strings`, para que los textos del sistema (el permiso de
+  cámara) salgan también en uno de los dos.
+- A partir de ahí manda D39: todo, también lo que pinta el sistema por la app
+  (la notificación, la Live Activity, el aviso de descanso), en el idioma de la
+  app. Lo único que sale en el idioma del teléfono son los diálogos del propio
+  sistema.
+
+Lo comprueba `tests/unit-lifecycle.ts`.

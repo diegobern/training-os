@@ -12,6 +12,7 @@ import { useAuth } from './store/useAuth'
 import { useWorkout } from './store/useWorkout'
 import { setBeforeLocalReset } from './lib/sync/engine'
 import { forceStopNative } from './lib/native/workoutNotification'
+import { clearSharedExports } from './lib/native/chrome'
 import { log } from './lib/db/database'
 
 installSessionGuards()
@@ -28,7 +29,13 @@ setBeforeLocalReset(() => {
     .reset()
     .catch((err: unknown) => log('workout', `reset before local reset failed: ${String(err)}`, 'warn'))
   void forceStopNative()
+  // Las copias exportadas que quedaron en la caché del teléfono son de la
+  // cuenta que se va: fuera (las de hace un momento, en el próximo arranque).
+  void clearSharedExports()
 })
+
+// Y en cada arranque, lo que quedó pendiente de la vez anterior.
+void clearSharedExports()
 
 // The questionnaire pushes each step to the account, but it must not import
 // the auth store directly: that would pull Firebase into the onboarding chunk

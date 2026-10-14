@@ -9,7 +9,7 @@ mismo `src/` que se despliega en Netlify es el que va dentro del APK.
 
 | Herramienta | Versión | Cómo comprobarlo |
 | --- | --- | --- |
-| Node | 20 o superior | `node -v` |
+| Node | 22 o superior (lo exige Capacitor 8) | `node -v` |
 | JDK | **21** | `java -version` |
 | Android Studio | Ladybug o posterior | — |
 | Android SDK Platform | **API 36** (Android 16) | SDK Manager |

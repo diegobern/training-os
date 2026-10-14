@@ -49,6 +49,20 @@ Para cada tipo, el formulario pregunta lo mismo: **¿se recoge?**,
 Es el identificador de acceso. Sin él no hay cuenta ni sincronización.
 **No se envía verificación por correo**: la cuenta queda activa al crearse.
 
+### Información personal → Nombre
+
+| | |
+| --- | --- |
+| Recogido | Sí |
+| Compartido | No |
+| Obligatorio | Sí |
+| Finalidad | Gestión de la cuenta · Funciones de la app |
+| Dónde | `src/routes/auth/SignUp.tsx` (campo «Nombre»); `src/lib/firebase/account.ts` → `signUp` (perfil de Firebase Auth y documento `users/{uid}`) |
+
+El nombre visible que la persona escribe al crear la cuenta (como mínimo dos
+caracteres; puede ser un apodo). Se enseña en su propio perfil y en ningún
+sitio más: no es público ni lo ve nadie más.
+
 ### Información personal → IDs de usuario
 
 | | |
@@ -147,7 +161,7 @@ Se declaran como no recogidos, y el código lo respalda:
 | Tipo | Por qué no |
 | --- | --- |
 | Ubicación (aproximada o precisa) | No hay permiso de ubicación ni ninguna llamada a geolocalización. |
-| Nombre, dirección postal, teléfono | No se piden en ningún formulario. |
+| Dirección postal, teléfono | No se piden en ningún formulario. |
 | Raza, etnia, creencias políticas o religiosas, orientación sexual | No se preguntan. |
 | Información financiera | No hay compras, ni suscripciones, ni pasarela de pago. |
 | Mensajes, contactos, calendario | No hay permisos ni código que los toque. |

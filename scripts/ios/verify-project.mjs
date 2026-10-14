@@ -508,6 +508,16 @@ check(
   `versión fijada sólo en el proyecto, igual para app y extensión: ${projectVersions.join(' / ')}`,
   versionOverrides.length ? `la redefinen: ${versionOverrides.join(', ')}` : undefined,
 )
+// La versión visible es la de package.json, la misma que enseña la app
+// (__APP_VERSION__) y la que Android toma en build.gradle. En iOS no hay
+// script que la copie: si se sube la versión en package.json y no aquí, las
+// dos tiendas publicarían versiones distintas del mismo código.
+const packageVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version
+check(
+  projectConfigs.every((c) => c.settings.MARKETING_VERSION === packageVersion),
+  `MARKETING_VERSION coincide con package.json (${packageVersion})`,
+  projectVersions.join(' / '),
+)
 check(!/COCOAPODS/.test(pbxText), 'sin restos de CocoaPods (-D COCOAPODS)')
 check(project.developmentRegion === 'en', `región de desarrollo en (${project.developmentRegion})`)
 check(

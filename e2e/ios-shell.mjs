@@ -25,13 +25,13 @@
  *
  * Requiere un servidor sirviendo un build local-only en BASE:
  *   npx vite build --mode localonly --outDir dist-native
- *   npx vite preview --outDir dist-native --host 127.0.0.1 --port 4361 --strictPort
- *   BASE=http://127.0.0.1:4361 node e2e/ios-shell.mjs
+ *   npx vite preview --outDir dist-local --host 127.0.0.1 --port 4330 --strictPort
+ *   node e2e/ios-shell.mjs
  */
 import { chromium } from 'playwright'
 
 import { CHROMIUM_EXE as EXE } from './chromium.mjs'
-const BASE = process.env.BASE || 'http://127.0.0.1:4361'
+const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 
 const out = []
 let failures = 0
@@ -124,6 +124,7 @@ const FAKE_IOS = (scenario) => {
           .concat(callback('addListener')),
       },
       { name: 'SplashScreen', methods: ['show', 'hide'].map(promise) },
+      { name: 'Filesystem', methods: ['readdir', 'deleteFile', 'writeFile', 'stat'].map(promise) },
       {
         name: 'StatusBar',
         methods: ['setStyle', 'setBackgroundColor', 'setOverlaysWebView', 'show', 'hide', 'getInfo'].map(promise),
@@ -143,6 +144,19 @@ const FAKE_IOS = (scenario) => {
       },
     ],
     nativePromise: (plugin, method, options = {}) => {
+      // La caché del teléfono: lo que el escenario diga, con la antigüedad
+      // convertida a fecha de modificación en el momento de cargar.
+      if (plugin === 'Filesystem' && method === 'readdir') {
+        const files = (scenario.cacheFiles ?? []).map((f) => ({
+          name: f.name,
+          type: 'file',
+          size: 10,
+          ctime: 0,
+          mtime: Date.now() - f.ageMs,
+          uri: `file:///cache/${f.name}`,
+        }))
+        return Promise.resolve({ files })
+      }
       if (plugin !== 'WorkoutNotification') {
         state.plugins.push({ plugin, method, options })
         persist()
@@ -276,7 +290,17 @@ const pluginCalls = (page) => page.evaluate(() => window.__ios.plugins)
   page.on('request', (r) => requested.push(r.url()))
   const pageErrors = []
   page.on('pageerror', (e) => pageErrors.push(e.message))
-  await page.addInitScript(FAKE_IOS, { permission: 'prompt', afterRequest: 'denied' })
+  await page.addInitScript(FAKE_IOS, {
+    permission: 'prompt',
+    afterRequest: 'denied',
+    // Una copia exportada de hace una hora (sobra), otra de hace un momento
+    // (puede estar entregándose todavía) y un fichero que no es nuestro.
+    cacheFiles: [
+      { name: 'training-os-20261001-1200.json', ageMs: 60 * 60 * 1000 },
+      { name: 'training-os-sets-20261014-1530.csv', ageMs: 10 * 1000 },
+      { name: 'otra-app.json', ageMs: 60 * 60 * 1000 },
+    ],
+  })
   await page.goto(BASE, { waitUntil: 'commit' })
   // El registro del service worker en web va 2,5 s después de la carga.
   await page.waitForTimeout(6000)
@@ -296,6 +320,12 @@ const pluginCalls = (page) => page.evaluate(() => window.__ios.plugins)
     !named.includes('StatusBar.setBackgroundColor') && !named.includes('StatusBar.setOverlaysWebView'),
     'arranque — y NADA de setBackgroundColor / setOverlaysWebView (son de Android)',
     named.join(', '),
+  )
+  const deleted = plugins.filter((c) => c.plugin === 'Filesystem' && c.method === 'deleteFile').map((c) => c.options.path)
+  check(
+    deleted.length === 1 && deleted[0] === 'training-os-20261001-1200.json',
+    'arranque — se borra de la caché la copia exportada antigua, y sólo esa',
+    JSON.stringify(deleted),
   )
   const bar = plugins.find((c) => c.plugin === 'Keyboard' && c.method === 'setAccessoryBarVisible')
   check(bar?.options?.isVisible === true, 'arranque — la barra de accesorios del teclado queda visible', JSON.stringify(bar?.options))

@@ -133,6 +133,46 @@ export interface ShareOutcome {
  * fallo — no se pudo escribir el fichero, el plugin no responde — se lanza,
  * igual que antes.
  */
+/** Los nombres que escribe la exportación (`backup.ts`): copia JSON y CSV de series. */
+const EXPORT_FILE = /^training-os-[\w.-]+\.(json|csv)$/
+
+/**
+ * Borra de la caché las copias que dejó `shareTextFile`.
+ *
+ * El fichero sólo hacía falta mientras el menú de compartir lo entregaba, y
+ * la política de privacidad dice que al cerrar sesión no queda nada de la
+ * cuenta en el teléfono. Se respeta un margen (`olderThanMs`): en Android el
+ * menú devuelve el control antes de que la app de destino (Drive, Gmail)
+ * termine de leer el fichero, y borrarlo en ese momento rompería la copia
+ * que se acaba de pedir — por ejemplo, la de «guardar mis datos aparte» justo
+ * antes de vaciar el teléfono. Lo que quede dentro del margen se borra en el
+ * siguiente arranque.
+ *
+ * Nunca lanza. En la web no hay nada que borrar.
+ */
+export async function clearSharedExports(olderThanMs = 2 * 60 * 1000): Promise<number> {
+  if (!isNative()) return 0
+  try {
+    const { Filesystem, Directory } = await import('@capacitor/filesystem')
+    const { files } = await Filesystem.readdir({ path: '', directory: Directory.Cache })
+    const now = Date.now()
+    let removed = 0
+    for (const f of files) {
+      if (f.type !== 'file' || !EXPORT_FILE.test(f.name)) continue
+      if (now - f.mtime < olderThanMs) continue
+      try {
+        await Filesystem.deleteFile({ path: f.name, directory: Directory.Cache })
+        removed++
+      } catch {
+        /* Otro proceso lo tiene abierto o ya no está: se intenta en el próximo arranque. */
+      }
+    }
+    return removed
+  } catch {
+    return 0
+  }
+}
+
 export async function shareTextFile(filename: string, content: string): Promise<ShareOutcome | null> {
   if (!isNative()) return null
 

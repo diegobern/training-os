@@ -23,6 +23,10 @@ Tiempo estimado: **15 minutos**. Coste: **0 €** salvo que actives Storage (ver
 9. Probar
 ```
 
+Si además vas a publicar las apps de **Android o iOS**, mira también
+[«Apps nativas»](#apps-nativas-android-e-ios): no hay que registrar nada en
+Firebase, pero sí permitir sus orígenes en el CORS del bucket de Storage.
+
 ---
 
 ## 1. Crear el proyecto
@@ -167,18 +171,24 @@ Comprueba después, en **Firestore → Rules → Playground**, que una lectura d
 
 ## 8. Authorized domains
 
-Firebase solo permite autenticarse desde dominios que conozca.
-
 **Security → Authentication → Settings → Authorized domains**.
 
-Ya vienen `localhost`, `PROJECT_ID.firebaseapp.com` y `PROJECT_ID.web.app`. Añade el
-dominio donde publiques la app:
+Esta lista la consulta Firebase Authentication en los flujos que pasan por el navegador
+con una redirección o una ventana emergente: iniciar sesión con Google u otro proveedor,
+enlaces de inicio de sesión por correo, URLs de continuación. **El inicio de sesión con
+email y contraseña — el único que usa Training OS — no depende de ella.** Por eso las
+apps de Android e iOS, que se sirven desde `https://localhost` y `capacitor://localhost`,
+inician sesión sin añadir nada aquí.
+
+Ya vienen `localhost`, `PROJECT_ID.firebaseapp.com` y `PROJECT_ID.web.app`. Añade
+igualmente el dominio donde publiques la web:
 
 - `tu-sitio.netlify.app`
 - y tu dominio propio, si lo tienes
 
-Sin esto, el login falla en producción con `auth/unauthorized-domain` aunque todo lo
-demás esté bien.
+Es inocuo y deja preparado cualquier flujo futuro que sí la consulte. Si algún día
+aparece `auth/unauthorized-domain`, viene de uno de esos flujos y falta el dominio en
+esta lista.
 
 ---
 
@@ -221,6 +231,98 @@ node e2e/account.mjs
 3. Mira **Firestore → Data**: debe existir `users/{tu-uid}` y, tras entrenar, sus
    subcolecciones.
 4. Entrena algo, cierra sesión, entra desde otro navegador y comprueba que vuelve todo.
+
+---
+
+## Apps nativas (Android e iOS)
+
+Las apps de Android e iOS son la misma web dentro de un WebView (Capacitor), con el
+mismo SDK de JavaScript de Firebase y las mismas variables `VITE_FIREBASE_*`,
+incrustadas en el build igual que en la web: `npm run android:sync` y
+`npm run ios:sync` compilan con el `.env` que haya en ese momento.
+
+### Lo que NO hace falta
+
+- **Registrar las apps en la consola de Firebase.** No hay `google-services.json` ni
+  `GoogleService-Info.plist`: son para los SDK nativos de Firebase, que no se usan.
+  `.gitignore` los excluye por si algún día aparecen, y `npm run ios:verify` falla si
+  `GoogleService-Info.plist` entra en git.
+- **Tocar Authorized domains** (paso 8): el login con email y contraseña no la consulta.
+
+### El origen de cada plataforma
+
+| Plataforma | Origen de sus peticiones |
+| --- | --- |
+| Web | `https://<tu-dominio>` (por ejemplo `https://trainingfitt.netlify.app`) |
+| Android | `https://localhost` |
+| iOS | `capacitor://localhost` |
+
+Hay dos ajustes de Google Cloud que miran ese origen: el CORS del bucket y las
+restricciones de la clave de API.
+
+### CORS del bucket de Storage — necesario para ver las fotos
+
+Las fotos de progreso se bajan con `getBlob` (`src/lib/sync/engine.ts`), que es una
+petición a otro origen: el bucket tiene que permitirla explícitamente. Sin esto, subir
+una foto funciona, pero verla en otro dispositivo — o en el mismo, después de una
+instalación limpia — falla con un error de CORS en la consola. La foto de perfil no
+depende de esto: se muestra con su URL de descarga dentro de una `<img>`. La web
+necesita lo mismo para bajar fotos, por eso su dominio también está en la lista.
+
+Los orígenes están en [`firebase/storage-cors.json`](firebase/storage-cors.json):
+Android, iOS y la web en Netlify. Si publicas la web en otro dominio (uno propio, o
+Firebase Hosting: `https://PROJECT_ID.web.app` y `https://PROJECT_ID.firebaseapp.com`),
+añádelo antes de aplicarlo.
+
+Se aplica con el SDK de Google Cloud (`gcloud`), con una cuenta con permisos sobre el
+proyecto. Si no lo tienes instalado, **Cloud Shell** en la consola de Google Cloud ya lo
+trae: sube el fichero y ejecútalo ahí.
+
+```bash
+gcloud storage buckets update gs://<BUCKET> --cors-file=firebase/storage-cors.json
+
+# Con la herramienta antigua, equivalente:
+gsutil cors set firebase/storage-cors.json gs://<BUCKET>
+
+# Comprobar lo que ha quedado:
+gcloud storage buckets describe gs://<BUCKET> --format="default(cors_config)"
+```
+
+`<BUCKET>` es el valor de `VITE_FIREBASE_STORAGE_BUCKET` (`PROJECT_ID.firebasestorage.app`
+o `PROJECT_ID.appspot.com`, ver el paso 5).
+
+Dos cosas a saber:
+
+- **Sustituye la configuración entera.** Si el bucket ya tenía un CORS, junta sus
+  orígenes en el fichero antes de aplicarlo.
+- **No va con `firebase deploy`.** Es un ajuste del bucket, no una regla: si cambia la
+  lista de orígenes, hay que volver a aplicarlo a mano.
+
+### Restricciones de la clave de API
+
+Consola de Google Cloud → **APIs & Services → Credentials** → la clave del navegador que
+creó Firebase (*Browser key (auto created by Firebase)*) → **Application restrictions**:
+
+- **None**: funciona en las tres plataformas. Es una opción legítima: la clave no es
+  secreta (paso 2) y lo que protege los datos son las reglas (paso 7).
+- **Websites (HTTP referrers)**: entonces la lista tiene que incluir, además del dominio
+  de la web, los orígenes de las apps, `capacitor://localhost` y `https://localhost`. Si
+  falta alguno, el login de esa app falla con un error del tipo
+  `auth/requests-from-referer-…-are-blocked`. Si con esas entradas la app sigue sin
+  entrar, vuelve a **None**.
+
+Las *API restrictions* (qué API puede llamar la clave) son otra cosa: déjalas como las
+dejó Firebase.
+
+### App Check
+
+Hoy no está activado (`docs/ARQUITECTURA.md`, D20, y `docs/ROLLBACK.md`). Antes de
+pasarlo a obligatorio, ten en cuenta las apps: el proveedor web (reCAPTCHA) va ligado a
+dominios registrados, y dentro de las apps el origen es `https://localhost` o
+`capacitor://localhost`. Las apps necesitarían un proveedor nativo (Play Integrity en
+Android, App Attest o DeviceCheck en iOS), que requiere el SDK nativo o un plugin que hoy
+no existen en el proyecto. Activarlo como obligatorio sin eso dejaría a las apps sin
+acceso a Firestore y Storage. Hasta entonces, como mucho en **modo monitorización**.
 
 ---
 
@@ -280,7 +382,14 @@ detección de secretos de verdad en todo el proyecto.
 
 ## Problemas frecuentes
 
-**`auth/unauthorized-domain`** — falta el dominio en el paso 8.
+**`auth/unauthorized-domain`** — falta el dominio en el paso 8. Con email y contraseña no
+debería aparecer: viene de un flujo con redirección o ventana emergente.
+
+**`auth/requests-from-referer-…-are-blocked`** — la clave de API tiene restricción por
+sitios web y no incluye ese origen. Ver «Apps nativas», restricciones de la clave.
+
+**En la app de Android o iOS las fotos de progreso no se ven (en la web sí)** — falta el
+origen de la app en el CORS del bucket. Ver «Apps nativas» y `firebase/storage-cors.json`.
 
 **`auth/operation-not-allowed`** — el proveedor Email/Password no está activado (paso 3).
 

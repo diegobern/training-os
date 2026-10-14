@@ -66,11 +66,12 @@
         ======================================================================
         Busca la palabra COMPLETAR en este fichero. Son:
           1. El nombre del responsable del tratamiento (persona o empresa).
-          2. El correo de contacto (el mismo que la ficha de Google Play).
+          2. El correo de contacto (el mismo que las fichas de Google Play y del App Store).
           3. El país o región desde el que operas.
         Google Play exige que esta página sea pública, accesible sin instalar
         la app y sin iniciar sesión, y que la URL esté en la ficha de la app.
-        Ver docs/GOOGLE-PLAY-CHECKLIST.md.
+        App Store Connect también exige su URL en la ficha de la app de iOS.
+        Ver docs/GOOGLE-PLAY-CHECKLIST.md y docs/APP-STORE-CHECKLIST.md.
       -->
 
       <p class="lang">Español</p>
@@ -84,7 +85,7 @@
 
       <h2>Qué datos se recogen</h2>
       <ul>
-        <li><strong>Cuenta:</strong> tu dirección de correo electrónico y tu nombre de usuario. La contraseña la gestiona Firebase Authentication y nunca se almacena en claro; Training OS no puede leerla.</li>
+        <li><strong>Cuenta:</strong> tu dirección de correo electrónico, el nombre que eliges mostrar y tu nombre de usuario. La contraseña la gestiona Firebase Authentication y nunca se almacena en claro; Training OS no puede leerla.</li>
         <li><strong>Entrenamiento:</strong> rutinas, ejercicios, series, repeticiones, pesos, duraciones, historial de sesiones, récords personales y marcas conseguidas.</li>
         <li><strong>Cuestionario inicial:</strong> tus respuestas sobre objetivo, experiencia, días disponibles y material, que se usan para proponerte una rutina.</li>
         <li><strong>Cuerpo:</strong> peso corporal y medidas, si decides registrarlos.</li>
@@ -97,7 +98,7 @@
         <li>Ubicación, de ningún tipo.</li>
         <li>Contactos, agenda, llamadas, mensajes o calendario.</li>
         <li>Identificadores de publicidad. La aplicación no muestra anuncios.</li>
-        <li>Datos de salud del sistema. Training OS no se integra con Health Connect ni con ninguna otra plataforma de salud.</li>
+        <li>Datos de salud del sistema. Training OS no se integra con Health Connect (Android), con Salud de Apple (HealthKit) ni con ninguna otra plataforma de salud.</li>
         <li>Grabaciones de pantalla, pulsaciones o telemetría de uso.</li>
       </ul>
 
@@ -159,7 +160,7 @@
 
       <h2>What is collected</h2>
       <ul>
-        <li><strong>Account:</strong> your email address and username. Your password is handled by Firebase Authentication and never stored in plain text; Training OS cannot read it.</li>
+        <li><strong>Account:</strong> your email address, the display name you choose and your username. Your password is handled by Firebase Authentication and never stored in plain text; Training OS cannot read it.</li>
         <li><strong>Training:</strong> routines, exercises, sets, reps, weights, durations, session history, personal records and milestones.</li>
         <li><strong>Onboarding questionnaire:</strong> your answers about goal, experience, available days and equipment, used to propose a routine.</li>
         <li><strong>Body:</strong> body weight and measurements, if you choose to log them.</li>
@@ -172,7 +173,7 @@
         <li>Location, of any kind.</li>
         <li>Contacts, calls, messages or calendar.</li>
         <li>Advertising identifiers. The app shows no ads.</li>
-        <li>System health data. Training OS does not integrate with Health Connect or any health platform.</li>
+        <li>System health data. Training OS does not integrate with Health Connect (Android), Apple Health (HealthKit) or any other health platform.</li>
         <li>Screen recordings, keystrokes or usage telemetry.</li>
       </ul>
 

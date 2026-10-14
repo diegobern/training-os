@@ -1,0 +1,12 @@
+[
+  {
+    "origin": [
+      "https://localhost",
+      "capacitor://localhost",
+      "https://trainingfitt.netlify.app"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type"],
+    "maxAgeSeconds": 3600
+  }
+]

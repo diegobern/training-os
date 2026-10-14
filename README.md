@@ -1,12 +1,26 @@
 # TRAINING OS
 
-Aplicación web para **registrar, analizar y mejorar** tus entrenamientos de gimnasio.
-Mobile-first, instalable como app (PWA), funciona sin conexión, y tus datos viven en tu
-cuenta: cambias de móvil, inicias sesión y vuelve todo.
+Aplicación para **registrar, analizar y mejorar** tus entrenamientos de gimnasio, en la
+web y como app de Android y de iPhone. Mobile-first, instalable como app (PWA), funciona
+sin conexión, y tus datos viven en tu cuenta: cambias de móvil, inicias sesión y vuelve
+todo.
 
 ```
 ENTRENO → REGISTRO → ANÁLISIS → RECOMENDACIÓN → PROGRESO → SIGUIENTE ENTRENAMIENTO
 ```
+
+**Tres plataformas, un solo código.** El mismo `src/` (React + TypeScript) se publica así:
+
+| Plataforma | Cómo llega | Lo propio de cada una | Guía |
+|------------|------------|-----------------------|------|
+| **Web** | PWA estática (Netlify) | Instalable, service worker, sin conexión | [DESPLIEGUE.md](DESPLIEGUE.md) |
+| **Android** | Google Play (Capacitor 8.5.2, `android/`) | Notificación de entrenamiento con cronómetro en la pantalla de bloqueo, aviso «Descanso terminado» con alarma exacta, botón atrás | [docs/ANDROID-SETUP.md](docs/ANDROID-SETUP.md) |
+| **iOS** (iPhone, iOS 16.2+) | App Store (Capacitor 8.5.2, `ios/`) | Live Activity en la pantalla de bloqueo y la Dynamic Island, aviso «Descanso terminado», deslizar para volver | [docs/IOS-SETUP.md](docs/IOS-SETUP.md) |
+
+Lo que es de cada sistema vive en `src/lib/native/` y en las carpetas nativas; el contrato
+entre la web y el código nativo está en [docs/NATIVE-CONTRACT.md](docs/NATIVE-CONTRACT.md).
+Qué existe y qué está verificado en cada plataforma:
+[docs/IOS-FEATURE-PARITY.md](docs/IOS-FEATURE-PARITY.md).
 
 ---
 
@@ -38,6 +52,20 @@ ENTRENO → REGISTRO → ANÁLISIS → RECOMENDACIÓN → PROGRESO → SIGUIENTE
 ---
 
 ## 2. Arquitectura
+
+### Regla permanente: paridad Web · Android · iOS
+
+> **Every user-facing feature added to Training OS must be evaluated on Web, Android and
+> iOS. Platform-specific behavior must have a native equivalent where meaningful. No
+> release is complete until the feature parity matrix is updated.**
+
+Toda función nueva que vea la persona se piensa y se comprueba en las tres plataformas
+antes de darla por terminada. Lo que una hace con su API nativa tiene su equivalente en
+las otras cuando tiene sentido (la notificación de entrenamiento de Android es la Live
+Activity de iOS; el botón atrás, el gesto de deslizar), y si no lo tiene, se explica.
+Ninguna versión está terminada hasta que la matriz de paridad,
+[docs/IOS-FEATURE-PARITY.md](docs/IOS-FEATURE-PARITY.md), dice qué existe y qué está
+verificado en cada plataforma. Detalle en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md).
 
 ### Las tres capas, y qué manda cada una
 
@@ -177,10 +205,24 @@ src/
 │   ├── firebase/     configuración, arranque diferido, cuenta, rutas, perfil
 │   ├── sync/         bandeja de salida y motor de sincronización
 │   ├── i18n/         diccionarios es / en
+│   ├── native/       la frontera con Android e iOS: plataforma, splash, avisos del entrenamiento
 │   └── training/     métricas, pesos disponibles, sobrecarga progresiva, estadísticas
 ├── routes/           una pantalla por archivo (auth/ aparte)
 ├── views/            vistas reutilizables que Progress compone
 └── store/            app, sesión activa, cuenta, sincronización, avisos
+```
+
+Fuera de `src/`, las dos apps nativas:
+
+```
+android/                     proyecto de Android (Gradle, manifiesto, plugin propio en Java)
+ios/                         proyecto de iOS (Xcode, Swift Package Manager)
+├── App/App/                 la app: arranque, plugin propio en Swift, Info.plist, privacidad
+├── App/Shared/              lo que comparten la app y la extensión (datos y vistas de la Live Activity)
+├── App/TrainingOSWidgets/   la extensión de la Live Activity (pantalla de bloqueo y Dynamic Island)
+└── App/TrainingOSUITests/   pruebas de interfaz (XCUITest)
+scripts/android/, scripts/ios/   iconos y comprobación estática de cada proyecto nativo
+docs/                        arquitectura, contrato nativo, guías de Android, iOS y de las tiendas
 ```
 
 ---
@@ -233,7 +275,8 @@ récord de peso o repeticiones ya describe la misma mejora.
 
 ## 5. Instalación y desarrollo
 
-Requisitos: **Node 18+** (probado con Node 22).
+Requisitos: **Node 18+** (probado con Node 22) para la web; las apps nativas (Capacitor 8)
+necesitan **Node 22+**.
 
 ```bash
 npm install
@@ -243,17 +286,38 @@ npm run build            # tipos + build de producción en dist/
 npm run preview
 ```
 
+### Apps nativas
+
+Las dos apps llevan dentro una copia del build web: después de cambiar algo de `src/`,
+hay que sincronizar. Guías completas: [docs/ANDROID-SETUP.md](docs/ANDROID-SETUP.md) y
+[docs/IOS-SETUP.md](docs/IOS-SETUP.md).
+
+| Comando | Qué hace |
+|---------|----------|
+| `npm run android:sync` · `android:open` | Build web + copia a `android/` · abre Android Studio |
+| `npm run ios:sync` | Build web + `npx cap sync ios` (copia a `ios/App/App/public`) |
+| `npm run ios:open` | Abre el proyecto en Xcode (compilar necesita un Mac con Xcode 26+) |
+| `npm run ios:verify` | Comprobación estática del proyecto de Xcode, sin Mac |
+| `npm run ios:assets` | Regenera el icono y la pantalla de arranque de iOS desde `public/favicon.svg` |
+| `npm run test:ios` | La web dentro de un iPhone simulado (ver «Pruebas») |
+
+Firma y tiendas: [docs/ANDROID-SIGNING.md](docs/ANDROID-SIGNING.md),
+[docs/GOOGLE-PLAY-CHECKLIST.md](docs/GOOGLE-PLAY-CHECKLIST.md),
+[docs/IOS-SIGNING.md](docs/IOS-SIGNING.md) y
+[docs/APP-STORE-CHECKLIST.md](docs/APP-STORE-CHECKLIST.md).
+
 ### Pruebas
 
 Las suites de navegador corren contra una build servida: `npx vite build --mode
 localonly --outDir dist-local` y `npx vite preview --outDir dist-local --port
 4330` (sin Firebase), o `--mode test --outDir dist-test` en el puerto 4190
 (contra los emuladores). El navegador lo elige `e2e/chromium.mjs` (variable
-`CHROMIUM_EXE`). Cifras de la última ejecución completa:
+`CHROMIUM_EXE`). Cifras de la última ejecución completa; las de `npm test` y las de las
+suites de iOS están en [docs/IOS-FEATURE-PARITY.md](docs/IOS-FEATURE-PARITY.md):
 
 | Comando | Qué comprueba | Pruebas | Necesita |
 |---------|----------------|--------:|----------|
-| `npm test` | Lógica pura (coach, 1RM, récords, formato por idioma, plurales, cronómetro, aviso Android…) + integridad del catálogo (traducciones ES, nombres, caché) | 459 + 118 | nada |
+| `npm test` | Cuatro paquetes seguidos: `unit` (lógica pura: coach, 1RM, récords, formato por idioma, plurales, cronómetro…), `unit-native` (avisos y Live Activity en ES/EN, plugin contra un iOS falso), `unit-lifecycle` (entrenamiento, cuenta y sincronización contra IndexedDB real) y `catalog` (integridad del catálogo: traducciones ES, nombres, caché) | ver docs/IOS-FEATURE-PARITY.md | nada |
 | `npm run test:auth` | Firebase Authentication real | 14 | emulador de Auth (lo arranca solo) |
 | `npm run test:rules` | `firestore.rules`: aislamiento entre usuarios, usernames, acceso anónimo | 22 | emulador de Firestore (Java) |
 | `npm run test:account` | Alta → cuestionario, sync, dispositivo limpio, aislamiento, entrenar sin red | 10 | build de test en :4190 + emuladores completos |
@@ -266,7 +330,9 @@ localonly --outDir dist-local` y `npx vite preview --outDir dist-local --port
 | `npm run test:onboarding` | Cuestionario inicial | 33 | build local-only en :4295 |
 | `npm run test:nav` | Logo animado del menú (sin congelarse al hacer scroll) | 13 | build local-only |
 | `npm run test:boot` · `test:sw` · `test:cache` | Arranque y actualizaciones, offline, caché antigua | 14 · 4 · 4 | despliegues en `E2E_TMP/deploy` · build local-only |
-| `npm run android:verify` | Manifiesto, permisos mínimos, recursos y plugin nativo | 26 | nada |
+| `npm run test:ios` | Capa nativa de iPhone simulada: sin service worker, splash y barra de estado, enlaces externos, Live Activity sin permiso de notificaciones, aviso de descanso con él, toque en la Live Activity, deslizar para volver | ver docs/IOS-FEATURE-PARITY.md | build local-only en :4361 (`dist-native`) |
+| `npm run android:verify` | Manifiesto, permisos mínimos (alarma exacta incluida), recursos, receptores y plugin nativo frente al contrato | 33 | nada |
+| `npm run ios:verify` | Proyecto de Xcode, targets y extensión, Info.plist, manifiesto de privacidad, icono, secretos fuera de git y plugin frente al contrato | ver docs/IOS-FEATURE-PARITY.md | nada (ni Mac) |
 
 `e2e/flow.mjs`, `audit.mjs`, `shots.mjs` y `t1.mjs` son guiones antiguos que
 dependían del botón «Cargar datos DEMO» (retirado) y de rutas de otra máquina;
@@ -328,6 +394,9 @@ Despliega de nuevo. La app detecta la versión nueva y muestra
 entrenamiento, y **una actualización no borra datos**: el service worker solo cachea
 archivos de la app, nunca toca IndexedDB ni Firestore.
 
+Las apps de Android e iOS no usan service worker: se actualizan desde su tienda, con una
+compilación nueva (ver las guías de cada una).
+
 ---
 
 ## 7. Copias de seguridad
@@ -376,14 +445,23 @@ datos locales y sincronización offline. El código está completo y las pruebas
 (`npm run test:rules`, `node e2e/account.mjs`); lo que falta es un entorno donde el
 emulador de Firestore pueda arrancar. Ver el informe de estado y [FIREBASE.md](FIREBASE.md).
 
+### Apps de Android e iOS
+
+Qué existe en cada plataforma y qué está verificado (pruebas, simulador, dispositivo
+real): [docs/IOS-FEATURE-PARITY.md](docs/IOS-FEATURE-PARITY.md).
+
 ### Deliberadamente fuera
 
 - **LEARN** (feed de vídeos) — fuera de alcance por decisión tuya.
 - **Login por nombre de usuario** — ver la sección de arquitectura.
-- **Notificación del sistema al acabar el descanso** — hay sonido y vibración, que
-  funcionan con la app abierta. Lo que sí hay en Android es el aviso de
-  «entrenamiento en curso» en la pantalla de bloqueo, con el tiempo subiendo
-  (ver docs/ANDROID-SETUP.md).
+- **Botones en la Live Activity** (iOS) — en esta versión sólo muestra el entrenamiento;
+  tocarla abre la app. Una acción desde la pantalla de bloqueo cambiaría la sesión sin
+  pasar por la lógica de la app.
+- **iPad y horizontal** — la app de iOS es sólo para iPhone, en vertical.
+
+El aviso del sistema al acabar el descanso, que antes estaba en esta lista, **ya existe**
+en Android y en iOS, junto al de «entrenamiento en curso» en la pantalla de bloqueo (ver
+D42 en [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md)).
 
 ---
 
@@ -402,6 +480,9 @@ persistente* desde Ajustes.
 **Las rutas dan 404 al recargar** — falta `_redirects`; asegúrate de subir `dist` entera.
 
 **El temporizador no suena** — iOS necesita una interacción antes de permitir audio.
+
+**Problemas de las apps nativas** — [docs/ANDROID-SETUP.md](docs/ANDROID-SETUP.md),
+sección 8, y [docs/IOS-SETUP.md](docs/IOS-SETUP.md), sección 13.
 
 ---
 
