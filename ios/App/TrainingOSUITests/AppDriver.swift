@@ -37,6 +37,30 @@ final class AppDriver {
 
     var web: XCUIElement { app.webViews.firstMatch }
 
+    /// Deja en el resultado del test, pase o falle, cómo quedó todo: una
+    /// captura de pantalla, el árbol de accesibilidad de la app (lo que
+    /// XCUITest «ve» del WKWebView) y quién está delante. Es lo que permite
+    /// saber, sin un Mac delante, por qué un paso no encontró lo que buscaba.
+    @MainActor
+    static func attachFinalState(to test: XCTestCase) {
+        let app = XCUIApplication(bundleIdentifier: "com.trainingos.app")
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        shot.name = "Final: pantalla"
+        shot.lifetime = .keepAlways
+        test.add(shot)
+        let state = XCTAttachment(string: "estado de la app: \(app.state.rawValue) (4 = en primer plano)
+
+" + app.debugDescription)
+        state.name = "Final: árbol de la app"
+        state.lifetime = .keepAlways
+        test.add(state)
+        let board = XCTAttachment(string: springboard.debugDescription)
+        board.name = "Final: árbol de SpringBoard"
+        board.lifetime = .keepAlways
+        test.add(board)
+    }
+
     // MARK: - Esperas
 
     func pause(_ seconds: TimeInterval) {

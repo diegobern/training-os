@@ -18,6 +18,11 @@ final class AuthFlowUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    @MainActor
+    override func tearDownWithError() throws {
+        AppDriver.attachFinalState(to: self)
+    }
+
     /// Instalación nueva: crear la cuenta A, responder el cuestionario,
     /// entrenar (un ejercicio, una serie), finalizar y dar tiempo a que suba.
     /// El CI comprueba después en Firestore que A tiene al menos una sesión.

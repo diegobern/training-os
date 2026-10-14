@@ -16,6 +16,11 @@ final class TrainingOSUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    @MainActor
+    override func tearDownWithError() throws {
+        AppDriver.attachFinalState(to: self)
+    }
+
     /// El WKWebView aparece y, en menos de 30 s, algo suyo se puede tocar: la
     /// pantalla de arranque se ha ido (`SplashScreen.hide` desde JavaScript).
     @MainActor
