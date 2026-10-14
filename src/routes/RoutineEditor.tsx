@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Page } from '../components/layout/Page'
 import {
@@ -27,14 +27,30 @@ import { useLiveQuery } from '../hooks/useLiveQuery'
 import { getRoutine, makeRoutineDay, makeRoutineExercise, saveRoutine } from '../lib/db/repo.routines'
 import { getExercisesByIds } from '../lib/db/repo.exercises'
 import { newId, type Routine, type RoutineExercise } from '../lib/db/schema'
-import { useT } from '../store/useApp'
+import { useApp, useT } from '../store/useApp'
 import { toast } from '../store/useToast'
 import { fmtDuration } from '../lib/format'
+import { inEveryLanguage } from '../lib/i18n'
+import { parseIntensity, parseRepRange } from '../lib/training/routineTargets'
+
+/**
+ * True when a day is still called what the editor named it on creation for
+ * this position — "DÍA 2" for the second day — in either language. The day
+ * chip already prints that label above the name, and a fresh routine read
+ * "DÍA 1 / DÍA 1".
+ */
+function isGeneratedDayName(name: string, position: number): boolean {
+  const clean = name.trim().toLocaleLowerCase()
+  return inEveryLanguage('routines.dayN', { n: position }).some((label) => label.toLocaleLowerCase() === clean)
+}
+
+type TargetField = 'repMin' | 'repMax' | 'rir' | 'rpe'
 
 export default function RoutineEditor() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const t = useT()
+  const locale = useApp((s) => s.locale)
 
   const [routine, setRoutine] = useState<Routine | null>(null)
   const [dayIndex, setDayIndex] = useState(0)
@@ -44,6 +60,16 @@ export default function RoutineEditor() {
   const [editing, setEditing] = useState<RoutineExercise | null>(null)
   const [confirmDeleteDay, setConfirmDeleteDay] = useState<string | null>(null)
   const [moveFor, setMoveFor] = useState<RoutineExercise | null>(null)
+  // Why a target field was not saved. The fields save on every keystroke, so
+  // a value they refuse has to say so or the routine silently keeps the old one.
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<TargetField, string>>>({})
+  // What the two rep fields hold right now, so each can be checked against the other.
+  const repDraft = useRef({ min: '', max: '' })
+
+  useEffect(() => {
+    repDraft.current = { min: String(editing?.repMin ?? ''), max: String(editing?.repMax ?? '') }
+    setFieldErrors({})
+  }, [editing?.id])
 
   const { data: loaded } = useLiveQuery(() => getRoutine(id), ['routines'], [id])
 
@@ -92,6 +118,44 @@ export default function RoutineEditor() {
 
   const totalSets = day?.exercises.reduce((a, e) => a + e.targetSets, 0) ?? 0
 
+  /** Saves a RIR/RPE target only when it is a number on its scale; empty clears it. */
+  function saveIntensity(kind: 'rir' | 'rpe', raw: string) {
+    const target = editing
+    if (!target) return
+    const res = parseIntensity(raw, kind)
+    const message = t(kind === 'rir' ? 'routines.invalidRir' : 'routines.invalidRpe')
+    setFieldErrors((e) => ({ ...e, [kind]: res.ok ? undefined : message }))
+    if (!res.ok) return
+    mutateDay((d) => {
+      const x = d.exercises.find((z) => z.id === target.id)
+      if (!x) return
+      if (kind === 'rir') x.rirTarget = res.value
+      else x.rpeTarget = res.value
+    })
+  }
+
+  /** Saves both ends of the rep range once they make sense together. */
+  function saveRepRange() {
+    const target = editing
+    if (!target) return
+    const res = parseRepRange(repDraft.current.min, repDraft.current.max)
+    if (!res.ok) {
+      setFieldErrors((e) => ({
+        ...e,
+        repMin: res.invalidMin ? t('routines.invalidReps') : undefined,
+        repMax: res.invalidMax ? t('routines.invalidReps') : res.reversed ? t('routines.invalidRepRange') : undefined,
+      }))
+      return
+    }
+    setFieldErrors((e) => ({ ...e, repMin: undefined, repMax: undefined }))
+    mutateDay((d) => {
+      const x = d.exercises.find((z) => z.id === target.id)
+      if (!x) return
+      x.repMin = res.min
+      x.repMax = res.max
+    })
+  }
+
   return (
     <Page
       title={routine.name}
@@ -102,7 +166,7 @@ export default function RoutineEditor() {
           <IconButton label={t('common.edit')} onClick={() => setMetaOpen(true)}>
             <IconPencil size={19} />
           </IconButton>
-          <IconButton label={t('routines.addDay')} onClick={() => setDaysOpen(true)}>
+          <IconButton label={t('routines.days')} onClick={() => setDaysOpen(true)}>
             <IconList size={20} />
           </IconButton>
         </>
@@ -138,7 +202,13 @@ export default function RoutineEditor() {
                 <span className={cx('text-2xs font-bold tracking-wide', i === dayIndex ? 'text-accent' : 'text-faint')}>
                   {t('routines.dayN', { n: i + 1 })}
                 </span>
-                <span className="max-w-[9rem] truncate text-sm font-semibold">{d.name}</span>
+                {isGeneratedDayName(d.name, i + 1) ? (
+                  <span className="max-w-[9rem] truncate text-sm text-muted">
+                    {t('routines.exerciseCount', { n: d.exercises.length })}
+                  </span>
+                ) : (
+                  <span className="max-w-[9rem] truncate text-sm font-semibold">{d.name}</span>
+                )}
               </button>
             ))}
             <button
@@ -156,7 +226,8 @@ export default function RoutineEditor() {
               <div className="mb-3 flex items-baseline justify-between">
                 <h2 className="text-xl font-bold tracking-tight">{day.name}</h2>
                 <p className="tnum text-xs text-faint">
-                  {day.exercises.length} {t('common.exercises')} · {totalSets} {t('common.sets')}
+                  {day.exercises.length} {t('common.exercises', { n: day.exercises.length })} · {totalSets}{' '}
+                  {t('common.sets', { n: totalSets })}
                 </p>
               </div>
 
@@ -183,7 +254,8 @@ export default function RoutineEditor() {
                               <p className="truncate text-card-sm">{ex?.name ?? t('common.unknown')}</p>
                               <p className="tnum truncate text-xs text-faint">
                                 {re.targetSets} × {re.repMin}–{re.repMax}
-                                {re.rirTarget !== null && ` · RIR ${re.rirTarget}`} · {fmtDuration(re.restSeconds)}
+                                {re.rirTarget !== null && ` · RIR ${re.rirTarget.toLocaleString(locale)}`} ·{' '}
+                                {fmtDuration(re.restSeconds)}
                               </p>
                             </button>
                             <IconButton label={t('common.more')} size="sm" onClick={() => setEditing(re)}>
@@ -229,6 +301,9 @@ export default function RoutineEditor() {
           <div className="flex gap-2">
             <Button
               variant="secondary"
+              // Its own width, on one line: squeezed by the full-width delete
+              // button next to it, "Mover a otro día" broke in two.
+              className="shrink-0 whitespace-nowrap"
               onClick={() => {
                 setMoveFor(editing)
                 setEditing(null)
@@ -284,49 +359,40 @@ export default function RoutineEditor() {
                 label={`${t('library.repRange')} ${t('common.min')}`}
                 inputMode="numeric"
                 defaultValue={String(editing.repMin)}
+                error={fieldErrors.repMin}
+                aria-invalid={fieldErrors.repMin ? true : undefined}
                 onChange={(e) => {
-                  const v = Math.max(1, Number(e.target.value) || 1)
-                  mutateDay((d) => {
-                    const x = d.exercises.find((z) => z.id === editing.id)
-                    if (x) x.repMin = v
-                  })
+                  repDraft.current.min = e.target.value
+                  saveRepRange()
                 }}
               />
               <TextField
                 label={`${t('library.repRange')} ${t('common.max')}`}
                 inputMode="numeric"
                 defaultValue={String(editing.repMax)}
+                error={fieldErrors.repMax}
+                aria-invalid={fieldErrors.repMax ? true : undefined}
                 onChange={(e) => {
-                  const v = Math.max(1, Number(e.target.value) || 1)
-                  mutateDay((d) => {
-                    const x = d.exercises.find((z) => z.id === editing.id)
-                    if (x) x.repMax = v
-                  })
+                  repDraft.current.max = e.target.value
+                  saveRepRange()
                 }}
               />
               <TextField
                 label={t('library.rirTarget')}
-                inputMode="numeric"
-                defaultValue={editing.rirTarget === null ? '' : String(editing.rirTarget)}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? null : Number(e.target.value)
-                  mutateDay((d) => {
-                    const x = d.exercises.find((z) => z.id === editing.id)
-                    if (x) x.rirTarget = v
-                  })
-                }}
+                // Decimal, not numeric: "1,5" needs its comma on a phone keyboard.
+                inputMode="decimal"
+                defaultValue={editing.rirTarget === null ? '' : editing.rirTarget.toLocaleString(locale)}
+                error={fieldErrors.rir}
+                aria-invalid={fieldErrors.rir ? true : undefined}
+                onChange={(e) => saveIntensity('rir', e.target.value)}
               />
               <TextField
                 label={t('library.rpeTarget')}
-                inputMode="numeric"
-                defaultValue={editing.rpeTarget === null ? '' : String(editing.rpeTarget)}
-                onChange={(e) => {
-                  const v = e.target.value === '' ? null : Number(e.target.value)
-                  mutateDay((d) => {
-                    const x = d.exercises.find((z) => z.id === editing.id)
-                    if (x) x.rpeTarget = v
-                  })
-                }}
+                inputMode="decimal"
+                defaultValue={editing.rpeTarget === null ? '' : editing.rpeTarget.toLocaleString(locale)}
+                error={fieldErrors.rpe}
+                aria-invalid={fieldErrors.rpe ? true : undefined}
+                onChange={(e) => saveIntensity('rpe', e.target.value)}
               />
             </div>
             <TextArea
@@ -374,7 +440,7 @@ export default function RoutineEditor() {
       </Sheet>
 
       {/* ------------------------------------------------------- manage days */}
-      <Sheet open={daysOpen} onClose={() => setDaysOpen(false)} title={t('routines.title')} size="full">
+      <Sheet open={daysOpen} onClose={() => setDaysOpen(false)} title={t('routines.days')} size="full">
         <SortableList
           ids={routine.days.map((d) => d.id)}
           onReorder={(from, to) => {

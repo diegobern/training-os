@@ -30,26 +30,39 @@ const toggle = <T,>(list: T[], value: T): T[] =>
 
 /* ============================================================ 1. about you */
 
+/** The stored metric height as text in the given unit (inches for LB). */
+const heightTextFor = (cm: number | null | undefined, imperial: boolean) =>
+  cm == null ? '' : imperial ? String(Math.round(cm / 2.54)) : String(cm)
+
+/** The stored metric weight as text in the given unit. */
+const weightTextFor = (kg: number | null | undefined, imperial: boolean) =>
+  kg == null ? '' : imperial ? String(Math.round(kg * 2.2046 * 10) / 10) : String(kg)
+
 /**
  * Height and weight are entered in the unit the person just chose, and stored
  * in metric. Doing the conversion here rather than at save time means the
- * number on screen is always the number they typed, even after they switch
- * units mid-step.
+ * stored value is always right for the unit on screen.
+ *
+ * Switching units converts what is already written. It used to leave the text
+ * alone, so "180" typed as centimetres read as 180 inches the moment LB was
+ * tapped — and was stored as such (457 cm) at the next keystroke; 80 kg became
+ * 80 lb the same way. The text is rebuilt from the metric values, which do not
+ * change with the unit.
  */
 export function Step1({ answers, set }: StepProps) {
   const t = useT()
   const imperial = answers.units === 'lb'
 
-  const [heightText, setHeightText] = useState(() =>
-    answers.heightCm == null ? '' : imperial ? String(Math.round(answers.heightCm / 2.54)) : String(answers.heightCm),
-  )
-  const [weightText, setWeightText] = useState(() =>
-    answers.bodyweightKg == null
-      ? ''
-      : imperial
-        ? String(Math.round(answers.bodyweightKg * 2.2046 * 10) / 10)
-        : String(answers.bodyweightKg),
-  )
+  const [heightText, setHeightText] = useState(() => heightTextFor(answers.heightCm, imperial))
+  const [weightText, setWeightText] = useState(() => weightTextFor(answers.bodyweightKg, imperial))
+
+  const changeUnits = (units: Units) => {
+    if (units === answers.units) return
+    const toImperial = units === 'lb'
+    setHeightText(heightTextFor(answers.heightCm, toImperial))
+    setWeightText(weightTextFor(answers.bodyweightKg, toImperial))
+    set({ units })
+  }
 
   const commitHeight = (raw: string) => {
     setHeightText(raw)
@@ -71,7 +84,7 @@ export function Step1({ answers, set }: StepProps) {
         <div className="mt-3">
           <Segmented<Units>
             value={answers.units}
-            onChange={(v) => set({ units: v })}
+            onChange={changeUnits}
             options={[
               { value: 'kg', label: 'KG' },
               { value: 'lb', label: 'LB' },

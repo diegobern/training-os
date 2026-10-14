@@ -7,7 +7,9 @@ import { useWorkout } from '../store/useWorkout'
 import { useApp, useT } from '../store/useApp'
 import { fmtDuration, fmtVolumeFull, fmtWeight, trimNum } from '../lib/format'
 import { logsForExercise } from '../lib/db/repo.sessions'
-import { getExercise } from '../lib/db/repo.exercises'
+import { getExercise, getExercisesByIds } from '../lib/db/repo.exercises'
+import type { Exercise } from '../lib/db/schema'
+import { exerciseTitle, sessionTitle } from '../lib/i18n'
 import { buildInsight, type Suggestion } from '../lib/training/overload'
 import { awardMilestone } from '../lib/db/repo.body'
 import { listSessions } from '../lib/db/repo.sessions'
@@ -25,6 +27,9 @@ export default function WorkoutSummary() {
   const result = useWorkout((s) => s.finishResult)
   const clearFinish = useWorkout((s) => s.clearFinish)
   const [targets, setTargets] = useState<NextTarget[]>([])
+  // The session and its records keep each exercise's name as it was spelled
+  // when it was logged; this has it in the language being used now.
+  const [current, setCurrent] = useState<Map<string, Exercise>>()
 
   useEffect(() => {
     if (!result) {
@@ -34,6 +39,11 @@ export default function WorkoutSummary() {
     let alive = true
     void (async () => {
       const out: NextTarget[] = []
+      const names = await getExercisesByIds([
+        ...result.session.exercises.map((e) => e.exerciseId),
+        ...result.prs.map((p) => p.exerciseId),
+      ])
+      if (alive) setCurrent(names)
       for (const se of result.session.exercises) {
         const [logs, ex] = await Promise.all([logsForExercise(se.exerciseId), getExercise(se.exerciseId)])
         if (!logs.length) continue
@@ -45,14 +55,16 @@ export default function WorkoutSummary() {
           source: ex?.incrementSource ?? 'machine',
           weights: settings.availableWeights,
         })
-        if (insight.suggestion.weight !== null) out.push({ name: se.name, suggestion: insight.suggestion })
+        if (insight.suggestion.weight !== null) {
+          out.push({ name: exerciseTitle(se.exerciseId, se.name, names), suggestion: insight.suggestion })
+        }
       }
       if (alive) setTargets(out)
     })()
     return () => {
       alive = false
     }
-  }, [result, navigate, settings.availableWeights])
+  }, [result, navigate, settings.availableWeights, settings.language])
 
   // Milestones are awarded once, on the summary screen, from real counts.
   useEffect(() => {
@@ -72,23 +84,28 @@ export default function WorkoutSummary() {
 
   const { session, totals, prs, previousVolume } = result
   const delta = previousVolume === null ? null : totals.volume - previousVolume
+  const title = sessionTitle(session, t)
 
   return (
     <Page noNavPadding>
       <div className={animationsOn() ? 'animate-fade-up' : ''}>
         <p className="label-xs mt-6 text-accent">{t('summary.done')}</p>
         <h1 className="mt-1 text-hero">
-          {t('summary.complete', { name: session.dayName })}
+          {t('summary.complete', { name: title })}
         </h1>
         <p className="tnum mt-1 text-4xl font-bold leading-none tracking-tight text-accent">
           {fmtDuration(totals.durationSec)}
         </p>
 
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <StatTile label={t('summary.workingSets')} value={totals.effectiveSets} sub={`${totals.totalReps} ${t('common.reps')}`} />
+          <StatTile
+            label={t('summary.workingSets')}
+            value={totals.effectiveSets}
+            sub={`${totals.totalReps} ${t('common.reps', { n: totals.totalReps })}`}
+          />
           <StatTile label={t('summary.volume')} value={fmtVolumeFull(totals.volume, settings.units)} />
           <StatTile
-            label={t('summary.vsPrevious', { name: session.dayName })}
+            label={t('summary.vsPrevious', { name: title })}
             value={
               delta === null ? '—' : `${delta >= 0 ? '↑' : '↓'} ${fmtVolumeFull(Math.abs(delta), settings.units)}`
             }
@@ -111,13 +128,13 @@ export default function WorkoutSummary() {
                 <Card key={pr.id} className="flex items-center gap-3 border-pr/30 px-3.5 py-3">
                   <IconTrophy size={20} className="shrink-0 text-pr" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold">{pr.exerciseName}</p>
+                    <p className="truncate text-sm font-bold">{exerciseTitle(pr.exerciseId, pr.exerciseName, current)}</p>
                     <p className="text-xs text-faint">{t(`pr.${pr.type}`)}</p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p className="tnum text-sm font-bold">
                       {pr.type === 'reps'
-                        ? `${trimNum(pr.value)} ${t('common.reps')}`
+                        ? `${trimNum(pr.value)} ${t('common.reps', { n: pr.value })}`
                         : pr.type === 'volume'
                           ? fmtVolumeFull(pr.value, settings.units)
                           : fmtWeight(pr.value, settings.units)}
@@ -137,14 +154,17 @@ export default function WorkoutSummary() {
 
         {targets.length > 0 && (
           <section className="mt-6">
-            <SectionTitle>{t('summary.nextTargets', { name: session.dayName })}</SectionTitle>
+            <SectionTitle>{t('summary.nextTargets', { name: title })}</SectionTitle>
             <Card className="divide-y divide-line">
               {targets.map((x, i) => (
                 <div key={i} className="flex items-center gap-3 px-3.5 py-2.5">
                   <IconTarget size={15} className="shrink-0 text-accent" />
                   <p className="min-w-0 flex-1 truncate text-sm">{x.name}</p>
                   <p className="tnum shrink-0 text-sm font-bold">
-                    {fmtWeight(x.suggestion.weight as number, settings.units, false)} × {x.suggestion.reps}
+                    {x.suggestion.weight === 0
+                      ? t('workout.bodyweightShort')
+                      : fmtWeight(x.suggestion.weight as number, settings.units, false)}{' '}
+                    × {x.suggestion.reps}
                   </p>
                 </div>
               ))}

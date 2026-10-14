@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconChevronLeft } from '../ui/Icon'
 import { IconButton, cx } from '../ui/primitives'
+import { useT } from '../../store/useApp'
 
 /**
  * One page frame for the whole app, so no screen invents its own margins.
@@ -85,6 +86,7 @@ export function Page({
   titleSlot?: ReactNode
 }) {
   const navigate = useNavigate()
+  const t = useT()
   const hasBar = Boolean(back || actions)
   const titleRef = useTitleFade()
 
@@ -98,7 +100,7 @@ export function Page({
           <div className="flex h-12 items-center gap-1 px-2">
             {back ? (
               <IconButton
-                label="Back"
+                label={t('common.back')}
                 onClick={() => (typeof back === 'string' ? navigate(back) : navigate(-1))}
               >
                 <IconChevronLeft size={22} />

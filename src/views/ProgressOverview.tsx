@@ -12,6 +12,8 @@ import { addDays, fmtDate, startOfWeek } from '../lib/dates'
 import { fmtVolume } from '../lib/format'
 import { volumeByWeek, weeklySetsPerMuscle } from '../lib/training/stats'
 import { MUSCLE_GROUPS } from '../lib/db/schema'
+import { fold } from '../lib/catalog/resolve'
+import { exerciseTitle } from '../lib/i18n'
 
 export function ProgressOverview() {
   const t = useT()
@@ -26,6 +28,8 @@ export function ProgressOverview() {
       return { exercises, usage, logs, prs }
     },
     ['exercises', 'exerciseLogs', 'personalRecords'],
+    // Exercise names resolve in the active language when they are read.
+    [settings.language],
   )
 
   const weekStart = startOfWeek(Date.now(), settings.weekStartsOn).getTime()
@@ -36,12 +40,17 @@ export function ProgressOverview() {
 
   const trained = useMemo(() => {
     const usage = data?.usage ?? new Map()
-    const q = search.trim().toLowerCase()
+    // Accent-blind, like the library: "biceps" finds "Bíceps".
+    const q = fold(search.trim())
     return (data?.exercises ?? [])
       .filter((e) => (usage.get(e.id) ?? 0) > 0)
-      .filter((e) => (q ? e.name.toLowerCase().includes(q) : true))
+      .filter((e) => (q ? fold(e.name).includes(q) : true))
       .sort((a, b) => (usage.get(b.id) ?? 0) - (usage.get(a.id) ?? 0))
   }, [data, search])
+
+  // Records keep the exercise's name as it was spelled when they were set;
+  // the list of exercises has it in the language being used now.
+  const exercisesById = useMemo(() => new Map((data?.exercises ?? []).map((e) => [e.id, e])), [data])
 
   const muscleData = MUSCLE_GROUPS.filter((m) => (setsPerMuscle.get(m) ?? 0) > 0 || settings.weeklySetTargets[m])
     .map((m) => ({
@@ -54,7 +63,7 @@ export function ProgressOverview() {
   return (
     <>
       {!hasHistory ? (
-        <EmptyState icon={<IconChart size={28} />} title={t('common.notEnoughData')} body={t('progress.noDataBody')} />
+        <EmptyState icon={<IconChart size={28} />} title={t('common.notEnoughData')} body={t('progress.overviewEmptyBody')} />
       ) : (
         <>
           <section className="mb-6">
@@ -107,7 +116,9 @@ export function ProgressOverview() {
                     className="press flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left"
                   >
                     <IconTrophy size={15} className="shrink-0 text-pr" />
-                    <span className="min-w-0 flex-1 truncate text-sm">{pr.exerciseName}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      {exerciseTitle(pr.exerciseId, pr.exerciseName, exercisesById)}
+                    </span>
                     <span className="shrink-0 text-xs text-faint">{fmtDate(pr.date, locale)}</span>
                   </button>
                 ))}

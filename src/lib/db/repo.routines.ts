@@ -161,11 +161,37 @@ export async function deleteRoutine(id: string): Promise<void> {
  * Which day should come next in a routine, given what was trained last.
  * Simple, predictable and explainable: the day after the last one completed,
  * wrapping round; the first day when there is no history yet.
+ *
+ * Days with no exercises are stepped over — proposing an empty day as "next
+ * workout" offers a session with nothing in it. If every day is empty there is
+ * nothing better to offer, and the plain rotation stands.
  */
 export function nextDayIndex(routine: Routine, lastDayId: string | null): number {
-  if (!routine.days.length) return -1
-  if (!lastDayId) return 0
-  const idx = routine.days.findIndex((d) => d.id === lastDayId)
-  if (idx === -1) return 0
-  return (idx + 1) % routine.days.length
+  const n = routine.days.length
+  if (!n) return -1
+  // No history (or a day since deleted) is -1: the rotation starts from the
+  // top, as if the last day trained were a virtual one before the first.
+  const from = lastDayId ? routine.days.findIndex((d) => d.id === lastDayId) : -1
+  for (let step = 1; step <= n; step++) {
+    const i = (from + step + n) % n
+    if (routine.days[i].exercises.length > 0) return i
+  }
+  return (from + 1 + n) % n
+}
+
+/**
+ * The day of THIS routine that was trained last, from sessions newest first.
+ *
+ * The rotation used to read the very last session of any kind, so a free
+ * workout (no day) or a session of another routine in between sent it back to
+ * day one: after TORSO A and a free session, Home proposed TORSO A again.
+ * Only sessions of this routine on a day it still has can move it.
+ */
+export function lastDayIdForRoutine(
+  routine: Routine,
+  sessions: { routineId: string | null; dayId: string | null }[],
+): string | null {
+  const days = new Set(routine.days.map((d) => d.id))
+  const last = sessions.find((s) => s.routineId === routine.id && s.dayId !== null && days.has(s.dayId))
+  return last?.dayId ?? null
 }

@@ -65,7 +65,7 @@ export default function MigrateLocalData() {
       <Card className="mb-lg p-4">
         <p className="text-metric text-ink">{t('migrate.found', { n: count })}</p>
         <p className="mt-1 text-secondary text-muted">
-          {data?.sessions ?? 0} {t('common.workouts')} · {data?.routines ?? 0} {t('nav.routines').toLowerCase()}
+          {t('migrate.counts', { n: data?.sessions ?? 0, routines: t('common.routinesCount', { n: data?.routines ?? 0 }) })}
         </p>
       </Card>
 

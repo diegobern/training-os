@@ -359,6 +359,11 @@ const startCalls = (page) => page.evaluate(() => window.__notif.calls.filter((c)
     `${published?.startedAt} vs ${sessionStart}`,
   )
   check(published?.title === 'Entrenamiento en curso', 'aviso — título en el idioma de la app', published?.title)
+  check(
+    published?.channelName === 'Entrenamiento en curso' && /pantalla de bloqueo/.test(published?.channelDescription ?? ''),
+    'aviso — el canal de Ajustes del sistema también en el idioma de la app',
+    `${published?.channelName} · ${published?.channelDescription}`,
+  )
   check(/Entrenamiento libre · 0 de 0 series/.test(published?.body ?? ''), 'aviso — dice qué día y cuántas series', published?.body)
 
   // Tocar el aviso con la app en otra pantalla vuelve a la sesión.
@@ -480,6 +485,11 @@ const startCalls = (page) => page.evaluate(() => window.__notif.calls.filter((c)
   await page.waitForTimeout(2500)
   const [published] = await startCalls(page)
   check(published?.title === 'Workout in progress', 'idioma — con la app en inglés, el aviso en inglés', published?.title)
+  check(
+    published?.channelName === 'Workout in progress' && !/[áéíóúñ]|entrenamiento/i.test(`${published?.body} ${published?.channelDescription}`),
+    'idioma — y nada del aviso en español (texto, canal y descripción)',
+    `${published?.body} · ${published?.channelName} · ${published?.channelDescription}`,
+  )
   await ctx.close()
 }
 

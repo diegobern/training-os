@@ -150,11 +150,21 @@ Cómo funciona, y por qué así:
   al abrir la app. Si se deniega no se vuelve a preguntar y todo funciona igual,
   sin el aviso. Si después se activa en los ajustes del sistema, el aviso
   aparece solo en el siguiente entrenamiento.
-* **Persistente.** Es `ongoing`: no se descarta deslizando ni con «Borrar todo».
-  Desde Android 14 el sistema sí deja deslizarlo con el teléfono desbloqueado
-  (es una regla de Android que ninguna app puede quitar); por eso el plugin lo
-  vuelve a publicar cada vez que la app deja de verse — por ejemplo, al
-  bloquear el teléfono —, que es justo cuando tiene que estar ahí.
+* **Persistente.** Es `ongoing`: con el teléfono bloqueado con PIN, patrón o
+  huella no se puede descartar, y «Borrar todo» no lo quita. Desde Android 14
+  el sistema sí deja deslizarlo con el teléfono desbloqueado o con un bloqueo
+  sin PIN (es una regla de Android que ninguna app puede quitar); por eso la
+  notificación lleva un `deleteIntent` hacia
+  `WorkoutNoticeDismissedReceiver.java` (no exportado, sin permisos) que la
+  vuelve a poner en el acto mientras el entrenamiento siga abierto. Además el
+  plugin la vuelve a publicar cada vez que la app deja de verse. Lo que hay que
+  enseñar se guarda en las preferencias de la app, así que esto funciona aunque
+  el proceso de la app esté muerto.
+* **En el idioma de la app**, no en el del teléfono: el título, el texto y
+  también el nombre y la descripción del canal que se ven en Ajustes del
+  sistema → Notificaciones los manda el código web con `t()`. Los textos de
+  `res/values*/strings.xml` sólo se usan si todavía no ha llegado ninguno. El
+  diálogo de permiso es del propio Android y sale en el idioma del teléfono.
 * **Tocarlo abre la app en la sesión**, también si estaba cerrada.
 * **Marca**: icono del rayo en la barra de estado, tintado en `#CDFF4F`, e icono
   grande con el rayo verde sobre tinta `#0A0B0D`.
@@ -164,6 +174,13 @@ Cómo funciona, y por qué así:
 
 Para probarlo a mano: instala el APK de depuración, empieza un entrenamiento,
 acepta el permiso y bloquea el teléfono.
+
+Verificado en un emulador de Android 16 (API 36): sin diálogo al abrir la app;
+el permiso se pide al empezar el primer entrenamiento; aviso en la pantalla de
+bloqueo con el cronómetro subiendo; con PIN no se puede descartar; sin PIN o
+desbloqueado vuelve al instante tras deslizarlo; tocarlo abre la sesión, también
+con la app cerrada; al terminar o descartar desaparece y no vuelve; con el
+permiso denegado la app funciona igual y no vuelve a preguntar.
 
 El temporizador de **descanso** sigue sin avisar con la app en segundo plano:
 guarda una marca de tiempo absoluta (`endsAt`, en `src/store/useWorkout.ts`) y

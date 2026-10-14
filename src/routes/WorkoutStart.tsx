@@ -4,13 +4,14 @@ import { Page } from '../components/layout/Page'
 import { Button, Card, ConfirmDialog, EmptyState, SectionTitle } from '../components/ui/primitives'
 import { IconBolt, IconRoutines, IconTarget } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
-import { listRoutines, nextDayIndex } from '../lib/db/repo.routines'
+import { lastDayIdForRoutine, listRoutines, nextDayIndex } from '../lib/db/repo.routines'
 import { listSessions } from '../lib/db/repo.sessions'
 import { useT, useApp } from '../store/useApp'
 import { useWorkout } from '../store/useWorkout'
 import { estimateDurationMinutes } from '../lib/training/stats'
 import { fmtDuration } from '../lib/format'
 import { useElapsed } from '../hooks/useElapsed'
+import { sessionTitle } from '../lib/i18n'
 
 export default function WorkoutStart() {
   const t = useT()
@@ -27,15 +28,17 @@ export default function WorkoutStart() {
 
   const { data } = useLiveQuery(
     async () => {
-      const [routines, sessions] = await Promise.all([listRoutines(), listSessions({ limit: 1 })])
-      return { routines, last: sessions[0] ?? null }
+      // All of them, not the last one: the rotation needs the last session of
+      // the active routine, which a free workout may have pushed down the list.
+      const [routines, sessions] = await Promise.all([listRoutines(), listSessions()])
+      return { routines, sessions }
     },
     ['routines', 'sessions'],
   )
 
   const routines = data?.routines ?? []
   const active = routines.find((r) => r.isActive) ?? routines[0]
-  const suggestedIdx = active ? nextDayIndex(active, data?.last?.dayId ?? null) : -1
+  const suggestedIdx = active ? nextDayIndex(active, lastDayIdForRoutine(active, data?.sessions ?? [])) : -1
 
   async function start(routineId: string | null, dayId: string | null) {
     if (starting) return
@@ -55,7 +58,7 @@ export default function WorkoutStart() {
       <Page title={t('workout.title')}>
         <Card className="border-accent/40 bg-accent/[0.07] p-5">
           <p className="label-xs text-accent">{t('workout.inProgressTitle')}</p>
-          <h2 className="mt-1.5 text-2xl font-bold tracking-tight">{session.dayName}</h2>
+          <h2 className="mt-1.5 text-2xl font-bold tracking-tight">{sessionTitle(session, t)}</h2>
           <p className="tnum mt-1 text-sm text-muted">{fmtDuration(elapsed)}</p>
           <p className="mt-3 text-sm leading-relaxed text-muted">{t('workout.inProgressBody')}</p>
           <div className="mt-5 flex gap-2">
@@ -129,16 +132,20 @@ export default function WorkoutStart() {
                         }`}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="truncate text-card">{day.name}</p>
-                            {suggested && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-2xs font-bold tracking-wide text-accent">
-                                <IconTarget size={11} /> {t('home.nextWorkout')}
-                              </span>
-                            )}
-                          </div>
+                          {/* The label sits on its own line, above the name. Side
+                              by side, at 320 px "PRÓXIMO ENTRENAMIENTO" took the
+                              row and the day's own name was truncated to a few
+                              letters — the one thing on the card that matters. */}
+                          {suggested && (
+                            <span className="mb-1 inline-flex max-w-full items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-2xs font-bold tracking-wide text-accent">
+                              <IconTarget size={11} className="shrink-0" />
+                              <span className="truncate">{t('home.nextWorkout')}</span>
+                            </span>
+                          )}
+                          <p className="truncate text-card">{day.name}</p>
                           <p className="mt-1 text-xs text-faint">
-                            {day.exercises.length} {t('common.exercises')} · {sets} {t('common.sets')}
+                            {day.exercises.length} {t('common.exercises', { n: day.exercises.length })} · {sets}{' '}
+                            {t('common.sets', { n: sets })}
                             {est > 0 && ` · ${t('home.estimated', { min: est })}`}
                           </p>
                         </div>

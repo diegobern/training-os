@@ -421,6 +421,7 @@ export function Sheet({
    */
   const closeRef = useRef(onClose)
   closeRef.current = onClose
+  const t = useT()
 
   useEffect(() => {
     if (!open) return
@@ -457,7 +458,7 @@ export function Sheet({
         <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
           <div className="mx-auto absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-line sm:hidden" />
           <h3 className="truncate pt-1 text-base font-bold tracking-tight">{title}</h3>
-          <IconButton label="Close" size="sm" onClick={onClose}>
+          <IconButton label={t('common.close')} size="sm" onClick={onClose}>
             <IconX size={18} />
           </IconButton>
         </div>

@@ -77,6 +77,7 @@ public class WorkoutNotificationPlugin extends Plugin {
         long startedAt = ((Number) rawStartedAt).longValue();
         String body = call.getString("body", "");
 
+        WorkoutNotice.rememberChannel(getContext(), call.getString("channelName"), call.getString("channelDescription", ""));
         WorkoutNotice.remember(getContext(), startedAt, title, body);
         JSObject result = new JSObject();
         result.put("shown", WorkoutNotice.post(getContext(), startedAt, title, body));

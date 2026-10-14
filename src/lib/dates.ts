@@ -78,6 +78,14 @@ export function periodStart(period: Period, from: Date = new Date()): number {
 export type BodyPeriod = '7D' | '30D' | '3M' | '6M' | '1Y' | 'ALL'
 export const BODY_PERIODS: BodyPeriod[] = ['7D', '30D', '3M', '6M', '1Y', 'ALL']
 
+/**
+ * The i18n key that labels a period chip. The ids above are identifiers, not
+ * text: painted as they are, a Spanish screen read "1Y" and "ALL".
+ */
+export function periodKey(period: Period | BodyPeriod): string {
+  return `period.${period}`
+}
+
 export function bodyPeriodStart(period: BodyPeriod, from: Date = new Date()): number {
   const d = new Date(from)
   switch (period) {

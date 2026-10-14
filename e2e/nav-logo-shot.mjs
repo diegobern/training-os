@@ -8,15 +8,14 @@
  * jumps.
  */
 import { chromium } from 'playwright'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { execSync } from 'node:child_process'
+import { mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 
 import { CHROMIUM_EXE as EXE, E2E_TMP, SHOTS_DIR } from './chromium.mjs'
 const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 const SHOTS = SHOTS_DIR
 const TMP = `${E2E_TMP}/navshots`
 mkdirSync(TMP, { recursive: true })
-execSync(`rm -f ${TMP}/*.png`)
+for (const f of readdirSync(TMP)) if (f.endsWith('.png')) rmSync(`${TMP}/${f}`)
 
 const out = []
 let failures = 0
@@ -31,6 +30,37 @@ const ctx = await browser.newContext({
   deviceScaleFactor: 3, locale: 'es-ES', colorScheme: 'dark',
 })
 const page = await ctx.newPage()
+
+/*
+ * Mean absolute difference between two screenshots, 0..1 — what
+ * `compare -metric MAE` printed in brackets, worked out on a canvas in a page
+ * of its own so the suite needs nothing installed besides the browser.
+ * Averaged over the colour channels (the screenshots are opaque).
+ */
+const lab = await ctx.newPage()
+async function mae(a, b) {
+  const [da, db] = [a, b].map((f) => `data:image/png;base64,${readFileSync(f).toString('base64')}`)
+  return lab.evaluate(async ([da, db]) => {
+    const load = (src) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src })
+    const [ia, ib] = await Promise.all([load(da), load(db)])
+    if (ia.width !== ib.width || ia.height !== ib.height) return NaN
+    const px = (img) => {
+      const c = document.createElement('canvas')
+      c.width = img.width
+      c.height = img.height
+      const g = c.getContext('2d')
+      g.drawImage(img, 0, 0)
+      return g.getImageData(0, 0, c.width, c.height).data
+    }
+    const pa = px(ia)
+    const pb = px(ib)
+    let sum = 0
+    for (let i = 0; i < pa.length; i += 4) {
+      sum += Math.abs(pa[i] - pb[i]) + Math.abs(pa[i + 1] - pb[i + 1]) + Math.abs(pa[i + 2] - pb[i + 2])
+    }
+    return sum / ((pa.length / 4) * 3 * 255)
+  }, [da, db])
+}
 const failed404 = []
 page.on('response', (r) => { if (r.status() >= 400 && r.url().includes('/brand/')) failed404.push(r.url()) })
 
@@ -82,9 +112,7 @@ const diffs = []
 for (let i = 1; i < N; i++) {
   const a = `${TMP}/n${String(i - 1).padStart(2, '0')}.png`
   const b = `${TMP}/n${String(i).padStart(2, '0')}.png`
-  const raw = execSync(`compare -metric MAE "${a}" "${b}" null: 2>&1 || true`).toString()
-  const m = raw.match(/\(([0-9.]+)\)/)
-  diffs.push(m ? Number(m[1]) : NaN)
+  diffs.push(await mae(a, b))
 }
 const usable = diffs.filter((d) => Number.isFinite(d))
 const still = usable.filter((d) => d < 0.0008).length
@@ -118,9 +146,7 @@ check(failed404.length === 0, 'sin 404 en /brand/', failed404.join(' '))
   }
   const dd = []
   for (let i = 1; i < 10; i++) {
-    const raw = execSync(`compare -metric MAE "${TMP}/s${String(i - 1).padStart(2, '0')}.png" "${TMP}/s${String(i).padStart(2, '0')}.png" null: 2>&1 || true`).toString()
-    const m = raw.match(/\(([0-9.]+)\)/)
-    dd.push(m ? Number(m[1]) : NaN)
+    dd.push(await mae(`${TMP}/s${String(i - 1).padStart(2, '0')}.png`, `${TMP}/s${String(i).padStart(2, '0')}.png`))
   }
   const frozen = dd.filter((d) => Number.isFinite(d) && d < 0.0008).length
   during.push(...dd)

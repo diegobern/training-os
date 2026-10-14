@@ -18,27 +18,15 @@ import { AccountSection } from '../components/settings/AccountSection'
 import { useApp, useT } from '../store/useApp'
 import { useAuth } from '../store/useAuth'
 import { MUSCLE_GROUPS, type Language, type ThemeMode, type Units } from '../lib/db/schema'
-import { exportCsv, exportJson, importBackup, wipeEverything, type ImportMode } from '../lib/backup'
-import { getLogs, requestPersistentStorage, storageInfo, subscribeLogs } from '../lib/db/database'
+import { exportCsv, exportJson, importBackup, importErrorKey, wipeEverything, type ImportMode } from '../lib/backup'
+import { getLogs, log, requestPersistentStorage, storageInfo, subscribeLogs } from '../lib/db/database'
 import { pushSettings } from '../lib/sync/engine'
 import { toast } from '../store/useToast'
 import { useInstallPrompt } from '../hooks/useInstallPrompt'
-import { trimNum } from '../lib/format'
-
-function parseList(value: string): number[] {
-  return value
-    .split(/[,;\s]+/)
-    .map((x) => Number(x.replace(',', '.')))
-    .filter((n) => Number.isFinite(n) && n > 0)
-    .sort((a, b) => a - b)
-}
-
-function bytes(n: number | null): string {
-  if (n === null) return '—'
-  if (n < 1024) return `${n} B`
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`
-  return `${(n / 1024 / 1024).toFixed(1)} MB`
-}
+// The weight lists are parsed by `parseNumberList` (a decimal comma is a
+// decimal, not a separator) and written back with `inputNum`, a point in any
+// language: they are fields to type into, not text to read.
+import { fmtBytes, inputNum, parseNumberList as parseList } from '../lib/format'
 
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -96,7 +84,10 @@ export default function Settings() {
       toast(t('data.importOk', { n: res.imported }), 'success')
       setImportOpen(false)
     } catch (err) {
-      toast(`${t('data.importError')}: ${err instanceof Error ? err.message : String(err)}`, 'error')
+      // The person reads why, in their language; the raw (English) message
+      // goes to the technical log only.
+      log('backup', `import failed: ${err instanceof Error ? err.message : String(err)}`, 'warn')
+      toast(t(importErrorKey(err)), 'error')
     } finally {
       setBusy(false)
     }
@@ -239,25 +230,27 @@ export default function Settings() {
           <p className="text-caption leading-relaxed text-faint">{t('settings.weightsHint')}</p>
           <TextField
             label={t('settings.dumbbells')}
-            defaultValue={settings.availableWeights.dumbbells.map((n) => trimNum(n)).join(', ')}
+            defaultValue={settings.availableWeights.dumbbells.map((n) => inputNum(n)).join(', ')}
             onChange={(e) =>
               void change({ availableWeights: { ...settings.availableWeights, dumbbells: parseList(e.target.value) } })
             }
           />
           <TextField
             label={t('settings.barbellPlates')}
-            defaultValue={settings.availableWeights.barbellPlates.map((n) => trimNum(n)).join(', ')}
+            defaultValue={settings.availableWeights.barbellPlates.map((n) => inputNum(n)).join(', ')}
             onChange={(e) =>
               void change({
                 availableWeights: { ...settings.availableWeights, barbellPlates: parseList(e.target.value) },
               })
             }
           />
-          <div className="grid grid-cols-2 gap-3">
+          {/* items-end: a label that wraps on a narrow phone grows upwards and
+              the two boxes of a row stay level. */}
+          <div className="grid grid-cols-2 items-end gap-3">
             <TextField
               label={t('settings.barWeight')}
               inputMode="decimal"
-              defaultValue={trimNum(settings.availableWeights.barWeight)}
+              defaultValue={inputNum(settings.availableWeights.barWeight)}
               onChange={(e) =>
                 void change({
                   availableWeights: {
@@ -269,7 +262,7 @@ export default function Settings() {
             />
             <TextField
               label={t('settings.microPlates')}
-              defaultValue={settings.availableWeights.microPlates.map((n) => trimNum(n)).join(', ')}
+              defaultValue={settings.availableWeights.microPlates.map((n) => inputNum(n)).join(', ')}
               onChange={(e) =>
                 void change({
                   availableWeights: { ...settings.availableWeights, microPlates: parseList(e.target.value) },
@@ -279,7 +272,7 @@ export default function Settings() {
             <TextField
               label={t('settings.machineStep')}
               inputMode="decimal"
-              defaultValue={trimNum(settings.availableWeights.machineStep)}
+              defaultValue={inputNum(settings.availableWeights.machineStep)}
               onChange={(e) =>
                 void change({
                   availableWeights: {
@@ -292,7 +285,7 @@ export default function Settings() {
             <TextField
               label={t('settings.cableStep')}
               inputMode="decimal"
-              defaultValue={trimNum(settings.availableWeights.cableStep)}
+              defaultValue={inputNum(settings.availableWeights.cableStep)}
               onChange={(e) =>
                 void change({
                   availableWeights: {
@@ -341,9 +334,11 @@ export default function Settings() {
           <p className="text-caption leading-relaxed text-faint">
             {authUser ? t('sync.status') : t('settings.dataLocal')}
           </p>
+          {/* Says what it switches: whether "Export backup" carries the photos.
+              "Progress photos" alone read like a setting for the photos. */}
           <Switch
-            label={t('body.photos')}
-            hint={t('body.photoPrivacy')}
+            label={t('settings.exportPhotos')}
+            hint={t('settings.exportPhotosHint')}
             checked={includePhotos}
             onChange={setIncludePhotos}
           />
@@ -380,7 +375,7 @@ export default function Settings() {
       <Section id="about" title={t('settings.sectionAbout')}>
         <Card className="space-y-2.5 p-4">
           <p className="tnum text-body text-muted">
-            {t('settings.storageUsed', { used: bytes(storage.usage), quota: bytes(storage.quota) })}
+            {t('settings.storageUsed', { used: fmtBytes(storage.usage), quota: fmtBytes(storage.quota) })}
           </p>
           <p className="text-caption text-faint">
             {storage.persisted ? t('settings.persisted') : t('settings.notPersisted')}

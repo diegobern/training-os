@@ -222,11 +222,38 @@ export interface ImportResult {
   skipped: number
 }
 
+/**
+ * Why a file was refused, as a code the screen translates. The messages used
+ * to be English sentences shown straight to the person whatever the app's
+ * language ("No se pudo importar el archivo: Not a Training OS backup").
+ */
+export type BackupImportProblem = 'notBackup' | 'noData'
+
+export class BackupImportError extends Error {
+  constructor(readonly problem: BackupImportProblem) {
+    super(problem === 'notBackup' ? 'Not a Training OS backup' : 'Backup has no data')
+    this.name = 'BackupImportError'
+  }
+}
+
+/**
+ * The i18n key that explains a failed import to the person, by kind of error:
+ * a file that is not JSON at all, a JSON that is not one of our backups, a
+ * backup without data, a device out of space, or anything else. The raw
+ * message stays in the technical log, never on screen.
+ */
+export function importErrorKey(err: unknown): string {
+  if (err instanceof BackupImportError) return err.problem === 'notBackup' ? 'data.importNotBackup' : 'data.importNoData'
+  if (err instanceof SyntaxError) return 'data.importNotJson'
+  if (err instanceof DOMException && err.name === 'QuotaExceededError') return 'data.importNoSpace'
+  return 'data.importError'
+}
+
 export async function importBackup(json: unknown, mode: ImportMode): Promise<ImportResult> {
-  if (typeof json !== 'object' || json === null) throw new Error('Not a Training OS backup')
+  if (typeof json !== 'object' || json === null) throw new BackupImportError('notBackup')
   const file = json as Partial<BackupFile>
-  if (file.format !== BACKUP_FORMAT) throw new Error('Not a Training OS backup')
-  if (!file.data) throw new Error('Backup has no data')
+  if (file.format !== BACKUP_FORMAT) throw new BackupImportError('notBackup')
+  if (!file.data) throw new BackupImportError('noData')
 
   const db = await getDB()
   const stores = [

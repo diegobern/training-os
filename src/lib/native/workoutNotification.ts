@@ -34,6 +34,14 @@ export interface WorkoutNotice {
   startedAt: number
   title: string
   body: string
+  /**
+   * Nombre y descripción del canal, los que se ven en Ajustes del sistema →
+   * Notificaciones. Van en el idioma de la app, no en el del teléfono: con la
+   * app en español nada de ella sale en inglés, y al revés. Opcionales: si no
+   * llegan, el plugin usa los textos de los recursos de Android.
+   */
+  channelName?: string
+  channelDescription?: string
 }
 
 interface WorkoutNotificationPlugin {

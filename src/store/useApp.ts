@@ -11,6 +11,7 @@ import { migrateFavoritesOnce } from '../lib/db/repo.prefs'
 import { purgeSampleDataOnce } from '../lib/db/sampleData'
 import { defaultSettings, type Settings, type ThemeMode } from '../lib/db/schema'
 import { LOCALES, makeT, type TFn } from '../lib/i18n'
+import { setFormatLocale } from '../lib/format'
 import { applyNativeChrome } from '../lib/native/chrome'
 
 export type AppPhase = 'booting' | 'ready' | 'error'
@@ -76,6 +77,8 @@ export const useApp = create<AppState>((set, get) => ({
       applyTheme(settings.theme)
       applyMotion(settings.animations)
       document.documentElement.lang = settings.language
+      // Before `set`: the first render after it already writes "32,5 kg".
+      setFormatLocale(LOCALES[settings.language])
       set({
         settings,
         phase: 'ready',
@@ -102,6 +105,7 @@ export const useApp = create<AppState>((set, get) => ({
     if (patch.theme !== undefined) applyTheme(next.theme)
     if (patch.animations !== undefined) applyMotion(next.animations)
     if (patch.language !== undefined) document.documentElement.lang = next.language
+    setFormatLocale(LOCALES[next.language])
     set({ settings: next, t: makeT(next.language), locale: LOCALES[next.language] })
   },
 
@@ -109,6 +113,7 @@ export const useApp = create<AppState>((set, get) => ({
     const settings = await readSettings()
     applyTheme(settings.theme)
     applyMotion(settings.animations)
+    setFormatLocale(LOCALES[settings.language])
     set({ settings, t: makeT(settings.language), locale: LOCALES[settings.language] })
   },
 

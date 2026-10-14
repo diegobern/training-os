@@ -51,12 +51,13 @@ function ConnectionError() {
   const t = useT()
   const retry = useAuth((s) => s.resolve)
   const logout = useAuth((s) => s.logout)
-  const message = useAuth((s) => s.error)
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-md bg-bg px-8 text-center">
       <IconAlert size={28} className="text-warn" />
       <h1 className="text-card text-ink">{t('auth.error.network')}</h1>
-      {message && <p className="max-w-sm break-words text-caption text-faint">{message}</p>}
+      {/* Firebase's own message is English whatever the app's language; it
+          goes to the log, and the screen says what to do in the person's. */}
+      <p className="max-w-sm text-secondary text-muted">{t('auth.error.networkBody')}</p>
       <Button variant="primary" onClick={() => void retry()}>
         {t('common.retry')}
       </Button>

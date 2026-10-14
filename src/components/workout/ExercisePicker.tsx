@@ -7,6 +7,7 @@ import { listExercises, toggleFavoriteExercise } from '../../lib/db/repo.exercis
 import { recentExerciseIds } from '../../lib/db/repo.sessions'
 import { MUSCLE_GROUPS, type Exercise, type MuscleGroup } from '../../lib/db/schema'
 import { useT } from '../../store/useApp'
+import { repRangeLabel } from '../../lib/training/repRange'
 import { CustomExerciseForm } from './CustomExerciseForm'
 
 type Tab = 'all' | 'favorites' | 'recent' | 'custom'
@@ -43,7 +44,11 @@ export function ExercisePicker({
   const [muscle, setMuscle] = useState<MuscleGroup | 'all'>('all')
   const [kind, setKind] = useState<Kind>('all')
   const [tab, setTab] = useState<Tab>('all')
-  const [selected, setSelected] = useState<string[]>([])
+  // The whole exercise, keyed by id, captured at the moment it is ticked. Ids
+  // alone were resolved against the current results when "Add" was pressed,
+  // so ticking a bench press, searching "row" and ticking a row added only the
+  // row: the bench press was no longer in the list it was looked up in.
+  const [selected, setSelected] = useState<Map<string, Exercise>>(() => new Map())
   const [creating, setCreating] = useState(false)
 
   const query = useDeferredValue(search)
@@ -57,8 +62,16 @@ export function ExercisePicker({
     setMuscle('all')
     setKind('all')
     setTab('all')
-    setSelected([])
+    setSelected(new Map())
   }, [open])
+
+  const toggleSelected = (ex: Exercise) =>
+    setSelected((prev) => {
+      const next = new Map(prev)
+      if (next.has(ex.id)) next.delete(ex.id)
+      else next.set(ex.id, ex)
+      return next
+    })
 
   const { data } = useLiveQuery(
     async () => {
@@ -91,8 +104,6 @@ export function ExercisePicker({
 
   const { visible, sentinel, hasMore, total } = useIncremental(list, [query, muscle, kind, tab])
 
-  const selectedExercises = (data?.exercises ?? []).filter((e) => selected.includes(e.id))
-
   return (
     <Sheet
       open={open}
@@ -105,13 +116,14 @@ export function ExercisePicker({
             full
             size="lg"
             variant="primary"
-            disabled={selected.length === 0}
+            disabled={selected.size === 0}
             onClick={async () => {
-              await onPickMany?.(selectedExercises)
-              setSelected([])
+              // In the order they were ticked: a Map keeps insertion order.
+              await onPickMany?.([...selected.values()])
+              setSelected(new Map())
             }}
           >
-            {t('common.add')} {selected.length > 0 && `(${selected.length})`}
+            {t('common.add')} {selected.size > 0 && `(${selected.size})`}
           </Button>
         ) : undefined
       }
@@ -163,7 +175,8 @@ export function ExercisePicker({
           <p className="mb-2 text-caption text-faint">{t('library.count', { n: total })}</p>
           <ul className="flex flex-col gap-1.5">
             {visible.map((ex) => {
-              const isSelected = selected.includes(ex.id)
+              const isSelected = selected.has(ex.id)
+              const range = repRangeLabel(ex)
               return (
                 <li key={ex.id}>
                   <div
@@ -176,7 +189,7 @@ export function ExercisePicker({
                       className="press min-w-0 flex-1 text-left"
                       onClick={() => {
                         if (multi) {
-                          setSelected((s) => (s.includes(ex.id) ? s.filter((x) => x !== ex.id) : [...s, ex.id]))
+                          toggleSelected(ex)
                         } else {
                           void onPick?.(ex)
                         }
@@ -184,8 +197,8 @@ export function ExercisePicker({
                     >
                       <p className="truncate text-card-sm">{ex.name}</p>
                       <p className="truncate text-xs text-faint">
-                        {t(`muscle.${ex.muscleGroup}`)} · {t(`equipment.${ex.equipment}`)} · {ex.repMin}–{ex.repMax}{' '}
-                        {t('common.reps')}
+                        {t(`muscle.${ex.muscleGroup}`)} · {t(`equipment.${ex.equipment}`)}
+                        {range && ` · ${range} ${t('common.reps')}`}
                       </p>
                     </button>
                     {multi && isSelected && <IconCheck size={18} className="shrink-0 text-accent" />}
@@ -210,7 +223,7 @@ export function ExercisePicker({
         onClose={() => setCreating(false)}
         onCreated={(ex) => {
           setCreating(false)
-          if (multi) setSelected((s) => [...s, ex.id])
+          if (multi) setSelected((prev) => new Map(prev).set(ex.id, ex))
           else void onPick?.(ex)
         }}
       />

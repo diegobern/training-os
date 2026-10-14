@@ -1105,6 +1105,391 @@ const prof = (over: Partial<ReturnType<typeof emptyTrainingProfile>> = {}) => ({
   if (had !== undefined) g.Capacitor = had
 }
 
+/* ------------------------- lote C: límites de las series y peso corporal */
+{
+  const { parseSetField, canCompleteSet } = await import('../src/lib/training/setInput')
+
+  eq(parseSetField('weight', '-20'), { value: null, invalid: true }, 'serie: un peso negativo es inválido y no se guarda')
+  eq(parseSetField('weight', '0'), { value: 0, invalid: false }, 'serie: 0 kg es un peso válido (sin carga)')
+  eq(parseSetField('weight', '32,5'), { value: 32.5, invalid: false }, 'serie: el peso acepta coma decimal')
+  eq(parseSetField('weight', 'abc'), { value: null, invalid: true }, 'serie: un peso que no es un número es inválido')
+  eq(parseSetField('weight', '  '), { value: null, invalid: false }, 'serie: un campo vacío no es un error, es «sin registrar»')
+  eq(parseSetField('reps', '500'), { value: null, invalid: true }, 'serie: 500 repeticiones es inválido')
+  eq(parseSetField('reps', '0'), { value: null, invalid: true }, 'serie: 0 repeticiones es inválido')
+  eq(parseSetField('reps', '100'), { value: 100, invalid: false }, 'serie: 100 repeticiones es el máximo y vale')
+  eq(parseSetField('reps', '1'), { value: 1, invalid: false }, 'serie: 1 repetición es el mínimo y vale')
+  eq(parseSetField('reps', '8,6'), { value: 9, invalid: false }, 'serie: las repeticiones se redondean como antes')
+  eq(parseSetField('rir', '25'), { value: null, invalid: true }, 'serie: RIR 25 es inválido')
+  eq(parseSetField('rir', '-1'), { value: null, invalid: true }, 'serie: RIR negativo es inválido')
+  eq(parseSetField('rir', '0'), { value: 0, invalid: false }, 'serie: RIR 0 vale (al fallo)')
+  eq(parseSetField('rir', '1,5'), { value: 1.5, invalid: false }, 'serie: RIR con coma decimal vale')
+  eq(parseSetField('rpe', '0'), { value: null, invalid: true }, 'serie: RPE 0 es inválido (la escala empieza en 1)')
+  eq(parseSetField('rpe', '8.5'), { value: 8.5, invalid: false }, 'serie: RPE 8.5 vale')
+  eq(parseSetField('rpe', '11'), { value: null, invalid: true }, 'serie: RPE 11 es inválido')
+
+  eq(canCompleteSet({ weight: null, reps: 15 }, true), true, 'peso corporal: 15 reps sin peso se pueden marcar')
+  eq(canCompleteSet({ weight: null, reps: 15 }, false), false, 'con carga: sin peso no se puede marcar, como antes')
+  eq(canCompleteSet({ weight: null, reps: null }, true), false, 'peso corporal: sin repeticiones no se puede marcar')
+  eq(canCompleteSet({ weight: 20, reps: 8 }, false), true, 'con carga: peso y reps se pueden marcar')
+  // What the tick stores for an empty bodyweight set (weight 0) counts like any
+  // other set; the definition for everything else is untouched.
+  eq(isValidStrengthPerformance(set({ weight: 0, reps: 15 })), true, 'peso corporal: la serie guardada con 0 kg cuenta')
+  eq(isValidStrengthPerformance(set({ weight: null, reps: 15 })), false, 'una serie sin peso registrado sigue sin contar')
+}
+
+/* -------------------------------- lote C: rango de repeticiones en listas */
+{
+  const { repRangeLabel } = await import('../src/lib/training/repRange')
+  eq(repRangeLabel({ kind: 'cardio', repMin: 0, repMax: 0 }), null, 'rango: el cardio no muestra «0–0 reps»')
+  eq(repRangeLabel({ kind: 'cardio', repMin: 8, repMax: 12 }), null, 'rango: el cardio nunca muestra repeticiones')
+  eq(repRangeLabel({ kind: 'mobility', repMin: 0, repMax: 0 }), null, 'rango: un rango vacío no se muestra')
+  eq(repRangeLabel({ kind: 'strength', repMin: 1, repMax: 1 }), null, 'rango: «1–1 reps» no se muestra')
+  eq(repRangeLabel({ kind: 'strength', repMin: 8, repMax: 12 }), '8–12', 'rango: un rango normal se muestra')
+  eq(repRangeLabel({ kind: 'strength', repMin: 12, repMax: 12 }), '12', 'rango: mínimo igual a máximo es un solo número')
+  eq(repRangeLabel({ repMin: 6, repMax: 10 }), '6–10', 'rango: un ejercicio sin «kind» es de fuerza')
+}
+
+/* ------------------------------ lote C: rotación de días de la rutina */
+{
+  const { nextDayIndex, lastDayIdForRoutine, makeRoutine } = await import('../src/lib/db/repo.routines')
+  const re = (id: string) => ({
+    id,
+    exerciseId: id,
+    order: 0,
+    targetSets: 3,
+    repMin: 8,
+    repMax: 12,
+    rirTarget: null,
+    rpeTarget: null,
+    restSeconds: 90,
+    notes: '',
+  })
+  const day = (id: string, exercises: number) => ({
+    id,
+    name: id,
+    order: 0,
+    exercises: Array.from({ length: exercises }, (_, i) => re(`${id}-${i}`)),
+  })
+
+  const full = makeRoutine('Torso/Pierna', [day('torsoA', 2), day('piernaA', 2), day('torsoB', 2)])
+  eq(nextDayIndex(full, null), 0, 'rotación: sin historial empieza por el primer día')
+  eq(nextDayIndex(full, 'torsoA'), 1, 'rotación: tras el primer día toca el segundo')
+  eq(nextDayIndex(full, 'torsoB'), 0, 'rotación: tras el último vuelve al primero')
+  eq(nextDayIndex(full, 'borrado'), 0, 'rotación: un día que ya no existe vuelve al primero')
+  eq(nextDayIndex(makeRoutine('vacía'), null), -1, 'rotación: una rutina sin días no propone nada')
+
+  const gaps = makeRoutine('Con huecos', [day('a', 0), day('b', 3), day('c', 0), day('d', 1)])
+  eq(nextDayIndex(gaps, null), 1, 'rotación: sin historial salta el primer día si está vacío')
+  eq(nextDayIndex(gaps, 'b'), 3, 'rotación: salta los días sin ejercicios')
+  eq(nextDayIndex(gaps, 'd'), 1, 'rotación: al dar la vuelta también salta los vacíos')
+  const empty = makeRoutine('Todo vacío', [day('x', 0), day('y', 0)])
+  eq(nextDayIndex(empty, null), 0, 'rotación: si todos los días están vacíos se queda la rotación simple')
+  eq(nextDayIndex(empty, 'x'), 1, 'rotación: y sigue avanzando de uno en uno')
+
+  // Newest first, as listSessions returns them.
+  const free = { routineId: null, dayId: null }
+  const other = { routineId: 'otra-rutina', dayId: 'piernaA' }
+  const torso = { routineId: full.id, dayId: 'torsoA' }
+  eq(lastDayIdForRoutine(full, [free, torso]), 'torsoA', 'rotación: un entrenamiento libre no reinicia la rutina')
+  eq(nextDayIndex(full, lastDayIdForRoutine(full, [free, torso])), 1, 'rotación: tras TORSO A y un libre, toca PIERNA A')
+  eq(lastDayIdForRoutine(full, [other, torso]), 'torsoA', 'rotación: una sesión de otra rutina no cuenta')
+  eq(
+    lastDayIdForRoutine(full, [{ routineId: full.id, dayId: 'borrado' }, torso]),
+    'torsoA',
+    'rotación: una sesión de un día ya borrado se ignora',
+  )
+  eq(lastDayIdForRoutine(full, [free, other]), null, 'rotación: sin sesiones de esta rutina no hay día anterior')
+}
+
+/* ------------------------------------- números en el idioma de la app */
+{
+  // The formatters write for the app's language once `useApp` sets it; until
+  // then (and after a reset) they behave exactly as before.
+  const f = await import('../src/lib/format')
+  eq(f.trimNum(32.5), '32.5', 'formato: sin idioma fijado, punto decimal como siempre')
+  eq(f.trimNum(100, 0), '100', 'formato: sin decimales no se comen los ceros de las decenas')
+
+  f.setFormatLocale('es-ES')
+  eq(f.trimNum(32.5), '32,5', 'formato: en español, coma decimal')
+  eq(f.fmtWeight(32.5, 'kg'), '32,5 kg', 'formato: peso en español')
+  eq(f.fmtWeight(35, 'lb'), '77,2 lb', 'formato: kilos guardados, libras con coma en español')
+  eq(f.fmtVolume(1800, 'kg'), '1,8t', 'formato: volumen en toneladas con coma')
+  eq(f.fmtVolume(500, 'lb'), '1,1k lb', 'formato: volumen en libras es «k lb», no toneladas')
+  eq(f.fmtVolume(5000, 'lb'), '11k lb', 'formato: volumen grande en libras sin decimales')
+  eq(f.fmtVolumeFull(12345, 'kg'), '12.345 kg', 'formato: volumen completo con separador de miles español')
+  eq(f.fmtPercent(2.5), '+2,5%', 'formato: porcentaje con coma')
+  eq(f.fmtSigned(-1.5), '−1,5', 'formato: diferencia con signo y coma')
+  eq(f.inputNum(32.5), '32.5', 'formato: lo que se escribe en un campo sigue con punto en español')
+  eq(f.fmtBytes(945 * 1024), '945 KB', 'formato: almacenamiento en KB')
+  eq(f.fmtBytes(12.5 * 1024 ** 2), '12,5 MB', 'formato: almacenamiento en MB con coma')
+  eq(f.fmtBytes(10240.9 * 1024 ** 2), '10 GB', 'formato: 10240.9 MB se dice 10 GB')
+  eq(f.fmtDuration(4800, 'compact'), '1h 20min', 'formato: duración corta en español con «min», no «m» de metros')
+  eq(f.fmtDuration(2700, 'compact'), '45min', 'formato: minutos sueltos en español')
+
+  f.setFormatLocale('en-GB')
+  eq(f.trimNum(32.5), '32.5', 'formato: en inglés, punto decimal')
+  eq(f.fmtWeight(35, 'lb'), '77.2 lb', 'formato: libras con punto en inglés')
+  eq(f.fmtVolume(500, 'lb'), '1.1k lb', 'formato: «k lb» también en inglés')
+  eq(f.fmtVolume(1800, 'kg'), '1.8t', 'formato: toneladas con punto en inglés')
+  eq(f.fmtVolumeFull(12345, 'kg'), '12,345 kg', 'formato: separador de miles inglés')
+  eq(f.fmtDuration(4800, 'compact'), '1h 20m', 'formato: duración corta en inglés como siempre')
+  f.setFormatLocale(null)
+  eq(f.trimNum(32.5), '32.5', 'formato: volver al valor por defecto deja el punto')
+
+  // Lists of weights as typed in Settings: a decimal comma is a decimal.
+  eq(f.parseNumberList('1,25, 2,5'), [1.25, 2.5], 'lista de pesos: «1,25, 2,5» son dos pesos con coma decimal')
+  eq(f.parseNumberList('1,25; 2,5'), [1.25, 2.5], 'lista de pesos: separados por punto y coma')
+  eq(f.parseNumberList('2.5 5 7.5'), [2.5, 5, 7.5], 'lista de pesos: separados por espacios')
+  eq(f.parseNumberList('2.5, 5, 7.5'), [2.5, 5, 7.5], 'lista de pesos: el formato que escribe la propia app')
+  eq(f.parseNumberList('5,10,15'), [5, 10, 15], 'lista de pesos: «5,10,15» sigue siendo tres pesos')
+  eq(f.parseNumberList('1.5,2.5'), [1.5, 2.5], 'lista de pesos: coma junto a punto decimal es separador')
+  eq(f.parseNumberList('7,5; 2,5,'), [2.5, 7.5], 'lista de pesos: una coma final no rompe el último valor, y se ordena')
+  eq(f.parseNumberList('abc; -2; 0'), [], 'lista de pesos: nada que no sea un peso positivo')
+}
+
+/* --------------------------- el «¿por qué?» del asistente, con unidades */
+{
+  const { reasonParamsFor } = await import('../src/lib/training/overload')
+  const f = await import('../src/lib/format')
+  const { translate } = await import('../src/lib/i18n')
+  // The same log without any RIR written down.
+  const noRir = (weight: number, reps: number[], at: number): ExerciseLog => {
+    const l = mkLog(weight, reps, at)
+    return { ...l, sets: l.sets.map((s) => ({ ...s, rir: null })) }
+  }
+
+  const addRep = suggestNext({ ...base, logs: [mkLog(35, [8, 8, 8], 1000)] })
+  eq(addRep.reasonParams.weight, 35, 'por qué: el asistente guarda el peso en kg')
+  eq(reasonParamsFor(addRep, 'kg').weight, '35 kg', 'por qué: el peso sale con su unidad en kg')
+  eq(reasonParamsFor(addRep, 'lb').weight, '77.2 lb', 'por qué: en LB el peso sale convertido y con «lb»')
+  eq(
+    translate('en', addRep.reasonKey, reasonParamsFor(addRep, 'lb')),
+    'Last session you did 77.2 lb × 8 at RIR 1, inside your 6-10 target range.',
+    'por qué: el texto en LB no dice «kg»',
+  )
+  f.setFormatLocale('es-ES')
+  eq(
+    translate('es', addRep.reasonKey, reasonParamsFor(addRep, 'lb')),
+    'La última sesión hiciste 77,2 lb × 8 con RIR 1, dentro de tu rango objetivo de 6-10.',
+    'por qué: en español, libras con coma decimal',
+  )
+  const halfRir = suggestNext({ ...base, logs: [mkLog(35, [8, 8, 8], 1000, 1.5)] })
+  eq(reasonParamsFor(halfRir, 'kg').rir, '1,5', 'por qué: el RIR medio también con coma en español')
+  f.setFormatLocale(null)
+
+  // No RIR written down: that part of the sentence is left out, never "RIR —".
+  const addRepNoRir = suggestNext({ ...base, logs: [noRir(35, [8, 8, 8], 1000)] })
+  eq(addRepNoRir.reasonKey, 'coach.reason.addRepNoRir', 'por qué: sin RIR anotado se usa la frase sin RIR')
+  eq(
+    translate('es', addRepNoRir.reasonKey, reasonParamsFor(addRepNoRir, 'kg')),
+    'La última sesión hiciste 35 kg × 8, dentro de tu rango objetivo de 6-10.',
+    'por qué: sin RIR la frase no dice «con RIR —»',
+  )
+  const upNoRir = suggestNext({ ...base, logs: [noRir(35, [10, 10, 10], 1000)] })
+  eq(upNoRir.reasonKey, 'coach.reason.topOfRangeNoRir', 'por qué: arriba del rango sin RIR, frase sin RIR')
+  const upNoTarget = suggestNext({ ...base, rirTarget: null, logs: [mkLog(35, [10, 10, 10], 1000)] })
+  eq(upNoTarget.reasonKey, 'coach.reason.topOfRangeNoTarget', 'por qué: sin RIR objetivo no se escribe «(objetivo —)»')
+  for (const s of [addRepNoRir, upNoRir, upNoTarget]) {
+    for (const lang of ['es', 'en'] as const) {
+      const text = translate(lang, s.reasonKey, reasonParamsFor(s, 'kg'))
+      eq(/—|\{/.test(text), false, `por qué: «${s.reasonKey}» en ${lang} sin huecos ni rayas`)
+    }
+  }
+
+  const twice = suggestNext({ ...base, logs: [mkLog(35, [5, 5, 5], 900), mkLog(35, [5, 4, 4], 1000)] })
+  eq(reasonParamsFor(twice, 'lb').weight, '77.2 lb', 'por qué: bajar un escalón también nombra el peso en lb')
+
+  // One working set at the top of the range: «1 serie», never «1 series».
+  const oneSet = suggestNext({ ...base, logs: [mkLog(35, [10], 1000)] })
+  eq(oneSet.reasonKey, 'coach.reason.topOfRange', 'por qué: una sola serie arriba del rango usa la frase de arriba del rango')
+  eq(
+    translate('es', oneSet.reasonKey, reasonParamsFor(oneSet, 'kg')).includes('completaste 1 serie de 10 reps'),
+    true,
+    'por qué: con una serie se dice «1 serie» en español',
+  )
+  eq(
+    translate('en', oneSet.reasonKey, reasonParamsFor(oneSet, 'kg')).includes('completed 1 set of 10 reps'),
+    true,
+    'por qué: con una serie se dice «1 set» en inglés',
+  )
+  eq(
+    translate('es', upNoRir.reasonKey, reasonParamsFor(upNoRir, 'kg')).includes('completaste 3 series de 10 reps'),
+    true,
+    'por qué: con tres series sigue diciendo «3 series»',
+  )
+
+  // No reason text may carry a unit of its own: the weight brings it.
+  const fixedKg = [...Object.entries(es), ...Object.entries(en)].filter(
+    ([k, v]) => k.startsWith('coach.') && /\bkg\b/.test(String(v)),
+  )
+  eq(fixedKg.map(([k]) => k).join(',') || 'none', 'none', 'por qué: ningún texto del asistente lleva «kg» fijo')
+
+  // The celebrations' rep count, singular and plural, in both languages.
+  eq(translate('es', 'pr.repsDelta', { n: 1 }), '+1 repetición', 'celebración: «+1 repetición» en singular')
+  eq(translate('es', 'pr.repsDelta', { n: 2 }), '+2 repeticiones', 'celebración: «+2 repeticiones» en plural')
+  eq(translate('en', 'pr.repsDelta', { n: 1 }), '+1 rep', 'celebración: «+1 rep» en inglés')
+  eq(translate('en', 'pr.repsDelta', { n: 3 }), '+3 reps', 'celebración: «+3 reps» en inglés')
+}
+
+/* ------------------------------------------- lote B: plurales e idioma */
+/*
+ * «1 días», «1 ejercicios», «Used in 1 sessions»: translate() now picks the
+ * key's `_one` variant by the language's plural rules. And text the app saved
+ * in one language (a free workout's name, an exercise's name in a log) is
+ * shown in the current one, without touching what is stored.
+ */
+{
+  const i18n = await import('../src/lib/i18n')
+  const { translate } = i18n
+
+  eq(translate('es', 'routines.dayCount', { n: 1 }), '1 día', 'plural es: «1 día», no «1 días»')
+  eq(translate('es', 'routines.dayCount', { n: 4 }), '4 días', 'plural es: «4 días»')
+  eq(translate('es', 'routines.dayCount', { n: 0 }), '0 días', 'plural es: el cero va en plural')
+  eq(translate('es', 'routines.exerciseCount', { n: 1 }), '1 ejercicio', 'plural es: «1 ejercicio»')
+  eq(translate('es', 'library.usedIn', { n: 1 }), 'Usado en 1 sesión', 'plural es: «Usado en 1 sesión»')
+  eq(translate('es', 'history.sessionsCount', { n: 1 }), '1 sesión', 'plural es: «1 sesión»')
+  eq(translate('es', 'library.count', { n: 1 }), '1 ejercicio', 'plural es: contador de la biblioteca en singular')
+  eq(translate('es', 'workout.setsDone', { n: 1 }), '1 serie', 'plural es: «1 serie»')
+  eq(translate('es', 'common.sets', { n: 1 }), 'serie', 'plural es: la palabra suelta «serie» para 1')
+  eq(translate('es', 'common.sets', { n: 12 }), 'series', 'plural es: «series» para 12')
+  eq(translate('es', 'common.exercises', { n: 1 }), 'ejercicio', 'plural es: «ejercicio» para 1')
+  eq(translate('es', 'common.workouts', { n: 1 }), 'entrenamiento', 'plural es: «entrenamiento» para 1')
+  // Spanish has a third category, `many`, for round millions: it must fall
+  // back to the plural, not to the singular nor to the raw key.
+  eq(translate('es', 'library.count', { n: 1000000 }), '1000000 ejercicios', 'plural es: un millón cae en el plural')
+
+  eq(translate('en', 'routines.dayCount', { n: 1 }), '1 day', 'plural en: «1 day»')
+  eq(translate('en', 'routines.dayCount', { n: 2 }), '2 days', 'plural en: «2 days»')
+  eq(translate('en', 'routines.dayCount', { n: 0 }), '0 days', 'plural en: «0 days»')
+  eq(translate('en', 'library.usedIn', { n: 1 }), 'Used in 1 session', 'plural en: «Used in 1 session»')
+  eq(translate('en', 'history.sessionsCount', { n: 1 }), '1 session', 'plural en: «1 session»')
+  eq(translate('en', 'common.sets', { n: 1 }), 'set', 'plural en: «set» para 1')
+  eq(translate('en', 'common.sets', { n: 3 }), 'sets', 'plural en: «sets» para 3')
+
+  // Without a count nothing changes: a header still reads the base key.
+  eq(translate('es', 'common.sets'), 'series', 'plural: sin número se lee la clave de siempre')
+  eq(translate('es', 'common.sets', { n: '1' }), 'series', 'plural: sólo un número de verdad elige variante')
+  eq(translate('es', 'routines.dayN', { n: 1 }), 'DÍA 1', 'plural: una clave sin variantes sigue igual con número')
+
+  // A variant without its base key would be invisible to anything that asks
+  // without a count — and a typo in a suffix would never be picked.
+  const PLURAL = /_(zero|one|two|few|many|other)$/
+  const orphans = [...Object.keys(es), ...Object.keys(en)].filter(
+    (k) => PLURAL.test(k) && !(k.replace(PLURAL, '') in es && k.replace(PLURAL, '') in en),
+  )
+  eq(orphans.join(',') || 'none', 'none', 'plural: toda variante tiene su clave base en los dos idiomas')
+
+  // ---- period chips
+  const { PERIODS, BODY_PERIODS, periodKey } = await import('../src/lib/dates')
+  const periodKeys = [...new Set([...PERIODS, ...BODY_PERIODS])].map(periodKey)
+  const missing = periodKeys.filter((k) => !(k in es) || !(k in en))
+  eq(missing.join(',') || 'none', 'none', 'periodos: todos tienen texto en los dos idiomas')
+  eq(translate('es', periodKey('1Y')), '1 A', 'periodos: «1Y» en español es «1 A»')
+  eq(translate('es', periodKey('ALL')), 'Todo', 'periodos: «ALL» en español es «Todo»')
+  eq(translate('en', periodKey('ALL')), 'All', 'periodos: en inglés, «All»')
+
+  // ---- the free workout and exercise names, in the language of NOW
+  const tEn = i18n.makeT('en')
+  const tEs = i18n.makeT('es')
+  eq(i18n.sessionTitle({ dayId: null, dayName: 'Entrenamiento libre' }, tEn), 'Free workout', 'guardado: un libre guardado en español se ve en inglés')
+  eq(i18n.sessionTitle({ dayId: null, dayName: 'Free workout' }, tEs), 'Entrenamiento libre', 'guardado: y uno guardado en inglés se ve en español')
+  eq(i18n.sessionTitle({ dayId: null, dayName: 'Workout' }, tEs), 'Entrenamiento libre', 'guardado: el antiguo «Workout» fijo también se reconoce')
+  eq(i18n.sessionTitle({ dayId: 'd1', dayName: 'Entrenamiento libre' }, tEn), 'Entrenamiento libre', 'guardado: un día de rutina con ese nombre es de la persona y no se toca')
+  eq(i18n.sessionTitle({ dayId: 'd1', dayName: 'TORSO A' }, tEn), 'TORSO A', 'guardado: el nombre de un día se pinta tal cual')
+
+  const current = new Map([
+    ['lib-bench', { name: 'Barbell Bench Press', isCustom: false }],
+    ['own-1', { name: 'Mi press raro (editado)', isCustom: true }],
+  ])
+  eq(i18n.exerciseTitle('lib-bench', 'Press de banca con barra', current), 'Barbell Bench Press', 'guardado: un ejercicio del catálogo sale en el idioma actual')
+  eq(i18n.exerciseTitle('own-1', 'Mi press raro', current), 'Mi press raro', 'guardado: uno propio, siempre con el nombre que se guardó')
+  eq(i18n.exerciseTitle('gone', 'Remo antiguo', current), 'Remo antiguo', 'guardado: si ya no existe, el nombre guardado de respaldo')
+  eq(i18n.exerciseTitle('lib-bench', 'Press', undefined), 'Press', 'guardado: sin consulta todavía, el nombre guardado')
+
+  // repo.sessions used to fall back to the English word 'Workout'.
+  const { writeSettings, readSettings } = await import('../src/lib/db/database')
+  const { startSession, discardSession } = await import('../src/lib/db/repo.sessions')
+  const before = (await readSettings()).language
+  await writeSettings({ language: 'es' })
+  const s = await startSession({ routine: null, day: null })
+  eq(s.dayName, 'Entrenamiento libre', 'guardado: sin nombre, un libre se llama como en el idioma de la app, no «Workout»')
+  eq(i18n.sessionTitle(s, tEn), 'Free workout', 'guardado: y ese nombre se reconoce para traducirlo')
+  await discardSession(s.id)
+  await writeSettings({ language: before })
+}
+
+/* ------------------------------------------- lote B: objetivos de rutina */
+{
+  const { parseIntensity, parseRepRange, parseDecimal } = await import('../src/lib/training/routineTargets')
+  eq(parseDecimal('1,5'), 1.5, 'objetivos: «1,5» con coma es 1.5')
+  eq(parseDecimal('1.5'), 1.5, 'objetivos: «1.5» con punto también')
+  eq(parseDecimal('2,'), 2, 'objetivos: «2,» a medio escribir no es un error')
+  eq(parseDecimal('abc'), null, 'objetivos: texto no es un número')
+  eq(parseDecimal('-1'), null, 'objetivos: negativos fuera')
+
+  eq(parseIntensity('1,5', 'rir'), { ok: true, value: 1.5 }, 'objetivos: RIR «1,5» se guarda como 1.5, no NaN')
+  eq(parseIntensity('', 'rir'), { ok: true, value: null }, 'objetivos: RIR vacío quita el objetivo')
+  eq(parseIntensity('0', 'rir'), { ok: true, value: 0 }, 'objetivos: RIR 0 (al fallo) vale')
+  eq(parseIntensity('25', 'rir').ok, false, 'objetivos: RIR 25 no')
+  eq(parseIntensity('1,5,5', 'rir').ok, false, 'objetivos: RIR «1,5,5» no')
+  eq(parseIntensity('8,5', 'rpe'), { ok: true, value: 8.5 }, 'objetivos: RPE «8,5» vale')
+  eq(parseIntensity('0', 'rpe').ok, false, 'objetivos: RPE 0 no (la escala empieza en 1)')
+  eq(parseIntensity('11', 'rpe').ok, false, 'objetivos: RPE 11 no')
+
+  eq(parseRepRange('8', '12'), { ok: true, min: 8, max: 12 }, 'objetivos: 8–12 vale')
+  eq(parseRepRange('10', '10'), { ok: true, min: 10, max: 10 }, 'objetivos: 10–10 vale')
+  eq(parseRepRange('12', '8'), { ok: false, invalidMin: false, invalidMax: false, reversed: true }, 'objetivos: mínimo mayor que el máximo no')
+  eq(parseRepRange('0', '12').ok, false, 'objetivos: 0 repeticiones no')
+  eq(parseRepRange('8,5', '12').ok, false, 'objetivos: repeticiones con decimales no')
+  eq(parseRepRange('8', '').ok, false, 'objetivos: un extremo vacío no')
+  eq(parseRepRange('8', '500').ok, false, 'objetivos: 500 repeticiones no')
+}
+
+/* ------------------------------------------- lote B: errores de importación */
+{
+  const { importBackup, importErrorKey } = await import('../src/lib/backup')
+  const keyOf = async (json: unknown) => {
+    try {
+      await importBackup(json, 'merge')
+      return 'no error'
+    } catch (err) {
+      return importErrorKey(err)
+    }
+  }
+  eq(await keyOf({ hello: 1 }), 'data.importNotBackup', 'importar: un JSON que no es una copia lo dice')
+  eq(await keyOf(null), 'data.importNotBackup', 'importar: un JSON vacío también')
+  eq(await keyOf({ format: 'training-os-backup' }), 'data.importNoData', 'importar: una copia sin datos lo dice')
+  let parseError: unknown = null
+  try {
+    JSON.parse('{ esto no es json')
+  } catch (err) {
+    parseError = err
+  }
+  eq(importErrorKey(parseError), 'data.importNotJson', 'importar: un archivo que no es JSON lo dice')
+  eq(importErrorKey(new Error('boom')), 'data.importError', 'importar: cualquier otro fallo, el mensaje general')
+  const keys = ['data.importNotBackup', 'data.importNoData', 'data.importNotJson', 'data.importNoSpace', 'data.importError']
+  eq(keys.filter((k) => !(k in es) || !(k in en)).join(',') || 'none', 'none', 'importar: cada mensaje existe en los dos idiomas')
+  const { translate: tr } = await import('../src/lib/i18n')
+  const leftovers = ['library.deleted', 'workout.unknownExercise', 'common.routinesCount', 'migrate.counts']
+  eq(leftovers.filter((k) => !(k in es) || !(k in en)).join(',') || 'none', 'none', 'textos sueltos: existen en los dos idiomas')
+  eq(
+    tr('es', 'migrate.counts', { n: 1, routines: tr('es', 'common.routinesCount', { n: 3 }) }),
+    '1 entrenamiento · 3 rutinas',
+    'migrar: «1 entrenamiento · 3 rutinas» con su singular y su plural',
+  )
+  eq(
+    tr('en', 'migrate.counts', { n: 4, routines: tr('en', 'common.routinesCount', { n: 1 }) }),
+    '4 workouts · 1 routine',
+    'migrar: en inglés también, «4 workouts · 1 routine»',
+  )
+  const { translate } = await import('../src/lib/i18n')
+  eq(
+    translate('es', 'data.importNotBackup'),
+    'Este archivo no es una copia de seguridad de Training OS.',
+    'importar: en español se explica en español, no «Not a Training OS backup»',
+  )
+}
+
 /* --------------------------------------------------------------- report */
 
 console.log(results.join('\n'))

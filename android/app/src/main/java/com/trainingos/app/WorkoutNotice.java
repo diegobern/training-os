@@ -47,6 +47,8 @@ final class WorkoutNotice {
     private static final String KEY_STARTED_AT = "startedAt";
     private static final String KEY_TITLE = "title";
     private static final String KEY_BODY = "body";
+    private static final String KEY_CHANNEL_NAME = "channelName";
+    private static final String KEY_CHANNEL_DESCRIPTION = "channelDescription";
 
     private WorkoutNotice() {}
 
@@ -61,9 +63,21 @@ final class WorkoutNotice {
         prefs(context).edit().putLong(KEY_STARTED_AT, startedAt).putString(KEY_TITLE, title).putString(KEY_BODY, body).apply();
     }
 
+    /**
+     * El nombre y la descripción del canal en el idioma de la app, que es en
+     * el que se tiene que ver todo lo de Training OS — también en Ajustes del
+     * sistema → Notificaciones —, aunque el teléfono esté en otro idioma.
+     * Sin ellos se usan los textos de los recursos (values/ y values-es/).
+     * Se guardan aparte del entrenamiento: siguen valiendo cuando termina.
+     */
+    static void rememberChannel(Context context, String name, String description) {
+        if (name == null || name.isEmpty()) return;
+        prefs(context).edit().putString(KEY_CHANNEL_NAME, name).putString(KEY_CHANNEL_DESCRIPTION, description).apply();
+    }
+
     /** Ya no hay entrenamiento: nada vuelve a poner el aviso. */
     static void forget(Context context) {
-        prefs(context).edit().clear().apply();
+        prefs(context).edit().remove(KEY_STARTED_AT).remove(KEY_TITLE).remove(KEY_BODY).apply();
     }
 
     static boolean isActive(Context context) {
@@ -146,12 +160,13 @@ final class WorkoutNotice {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationManager system = context.getSystemService(NotificationManager.class);
         if (system == null) return;
+        SharedPreferences p = prefs(context);
         NotificationChannel channel = new NotificationChannel(
             CHANNEL_ID,
-            context.getString(R.string.workout_channel_name),
+            p.getString(KEY_CHANNEL_NAME, context.getString(R.string.workout_channel_name)),
             NotificationManager.IMPORTANCE_DEFAULT
         );
-        channel.setDescription(context.getString(R.string.workout_channel_description));
+        channel.setDescription(p.getString(KEY_CHANNEL_DESCRIPTION, context.getString(R.string.workout_channel_description)));
         channel.setSound(null, null);
         channel.enableVibration(false);
         channel.enableLights(false);

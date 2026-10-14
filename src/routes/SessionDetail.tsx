@@ -6,9 +6,11 @@ import { IconTrash, IconTrophy } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
 import { deleteSession, getSession, prsForSession, sessionTotals } from '../lib/db/repo.sessions'
 import { useApp, useT } from '../store/useApp'
+import { getExercisesByIds } from '../lib/db/repo.exercises'
+import { exerciseTitle, sessionTitle } from '../lib/i18n'
 import { fmtDate, fmtTime } from '../lib/dates'
 import { fmtDuration, fmtVolumeFull, fmtWeight, trimNum } from '../lib/format'
-import { isLogged, SET_TYPE_SHORT } from '../lib/training/metrics'
+import { isLogged } from '../lib/training/metrics'
 import { aggregateSets } from '../lib/training/metrics'
 
 export default function SessionDetail() {
@@ -21,10 +23,13 @@ export default function SessionDetail() {
   const { data } = useLiveQuery(
     async () => {
       const [session, prs] = await Promise.all([getSession(id), prsForSession(id)])
-      return { session, prs }
+      // The log keeps each exercise's name as it was spelled that day; the
+      // catalog has it in the language being used now.
+      const current = await getExercisesByIds(session?.exercises.map((e) => e.exerciseId) ?? [])
+      return { session, prs, current }
     },
-    ['sessions', 'personalRecords'],
-    [id],
+    ['sessions', 'personalRecords', 'exercises'],
+    [id, settings.language],
   )
 
   const session = data?.session
@@ -42,7 +47,7 @@ export default function SessionDetail() {
 
   return (
     <Page
-      title={session.dayName}
+      title={sessionTitle(session, t)}
       subtitle={`${fmtDate(session.startedAt, locale, { weekday: 'short', day: 'numeric', month: 'long' })} · ${fmtTime(session.startedAt, locale)}`}
       back
       actions={
@@ -53,7 +58,11 @@ export default function SessionDetail() {
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <StatTile label={t('common.duration')} value={fmtDuration(session.durationSec)} />
-        <StatTile label={t('summary.workingSets')} value={totals.effectiveSets} sub={`${totals.totalReps} ${t('common.reps')}`} />
+        <StatTile
+          label={t('summary.workingSets')}
+          value={totals.effectiveSets}
+          sub={`${totals.totalReps} ${t('common.reps', { n: totals.totalReps })}`}
+        />
         <StatTile label={t('common.volume')} value={fmtVolumeFull(totals.volume, settings.units)} />
         <StatTile
           label={t('progress.prs')}
@@ -64,7 +73,7 @@ export default function SessionDetail() {
 
       {session.notes && (
         <Card className="mt-4 px-3.5 py-3">
-          <p className="label-xs mb-1.5">{t('workout.sessionNotes')}</p>
+          <p className="label-xs mb-1.5">{t('workout.workoutNote')}</p>
           <p className="text-secondary text-muted">{session.notes}</p>
         </Card>
       )}
@@ -83,9 +92,9 @@ export default function SessionDetail() {
                     className="press min-w-0 flex-1 text-left"
                     onClick={() => navigate(`/progress/${ex.exerciseId}`)}
                   >
-                    <p className="truncate text-card">{ex.name}</p>
+                    <p className="truncate text-card">{exerciseTitle(ex.exerciseId, ex.name, data?.current)}</p>
                     <p className="tnum text-xs text-faint">
-                      {agg.effectiveSets} {t('common.sets')} · {fmtVolumeFull(agg.volume, settings.units)}
+                      {agg.effectiveSets} {t('common.sets', { n: agg.effectiveSets })} · {fmtVolumeFull(agg.volume, settings.units)}
                     </p>
                   </button>
                   {prsByExercise.has(ex.exerciseId) && (
@@ -97,7 +106,9 @@ export default function SessionDetail() {
                 <div className="flex flex-col gap-1">
                   {logged.map((s, i) => (
                     <div key={s.id} className="tnum flex items-center gap-3 text-sm">
-                      <span className="w-6 shrink-0 text-xs text-faint">{SET_TYPE_SHORT[s.type] || i + 1}</span>
+                      <span className="w-6 shrink-0 text-xs text-faint">
+                        {s.type === 'working' ? i + 1 : t(`setTypeShort.${s.type}`)}
+                      </span>
                       <span className="font-semibold">
                         {fmtWeight(s.weight, settings.units, false)} {settings.units}
                       </span>

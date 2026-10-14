@@ -7,7 +7,7 @@ import { chromium } from 'playwright'
 
 import { CHROMIUM_EXE as EXE, SHOTS_DIR } from './chromium.mjs'
 const SHOTS = SHOTS_DIR
-const BASE = 'http://127.0.0.1:4330'
+const BASE = process.env.BASE || 'http://127.0.0.1:4330'
 const steps = []
 const errors = []
 const ok = (m) => steps.push('PASS  ' + m)
@@ -131,6 +131,20 @@ const blank = after.trim().length < 20
 steps.push('INFO  after sign-up the app shows: ' + after.slice(0, 160).replace(/\s+/g, ' '))
 await page.screenshot({ path: `${SHOTS}/43-after-signup.png` })
 
+// With Firestore down the account exists but its profile cannot be written.
+// The form must not sit there forever looking busy: within the sign-up's
+// bounded wait the app moves on and says what is going on.
+let later = await body()
+const signedUpAt = Date.now()
+while (/Crea tu cuenta/.test(later) && Date.now() - signedUpAt < 30000) {
+  await page.waitForTimeout(1000)
+  later = await body()
+}
+steps.push(`INFO  ${Math.round((Date.now() - signedUpAt) / 1000) + 6} s after sign-up: ` + later.slice(0, 160).replace(/\s+/g, ' '))
+;!/Crea tu cuenta/.test(later)
+  ? ok('with Firestore down, sign-up does not leave the form hanging')
+  : fail('with Firestore down, sign-up does not leave the form hanging — ' + later.slice(0, 160).replace(/\s+/g, ' '))
+
 // Email verification is not part of this product: the address is asked for,
 // never proven. Nothing may ask for it, and nothing may send it quietly.
 ;!/Verifica tu email|Continuar sin verificar|Ya lo he verificado|Reenviar email/i.test(after)
@@ -202,3 +216,7 @@ console.log(steps.join('\n'))
 console.log('--- CONSOLE ERRORS ---')
 console.log(errors.length ? [...new Set(errors)].slice(0, 6).join('\n') : 'none')
 await browser.close()
+const failures = steps.filter((s) => s.startsWith('FAIL')).length
+console.log(`
+${steps.filter((s) => s.startsWith('PASS')).length} passed, ${failures} failed`)
+process.exit(failures > 0 ? 1 : 0)

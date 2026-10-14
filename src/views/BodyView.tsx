@@ -32,7 +32,7 @@ import {
 import { MEASUREMENT_SITES, type MeasurementSite, type PhotoPose, type ProgressPhoto } from '../lib/db/schema'
 import { ensurePhotoBlob } from '../lib/sync/engine'
 import { useApp, useT } from '../store/useApp'
-import { BODY_PERIODS, bodyPeriodStart, dateKey, fmtDate, fromDateKey, type BodyPeriod } from '../lib/dates'
+import { BODY_PERIODS, bodyPeriodStart, dateKey, fmtDate, fromDateKey, periodKey, type BodyPeriod } from '../lib/dates'
 import { fmtWeight, fromDisplayWeight, toDisplayWeight, trimNum } from '../lib/format'
 import { toast } from '../store/useToast'
 
@@ -89,6 +89,9 @@ export function BodyView({ initialTab = 'weight' }: { initialTab?: Tab }) {
   const [pendingPose, setPendingPose] = useState<PhotoPose>('front')
 
   const [weightInput, setWeightInput] = useState('')
+  // Set when "Guardar" is pressed on something that is not a weight. It used to
+  // return without a word, so the sheet just sat there and looked broken.
+  const [weightError, setWeightError] = useState<string | null>(null)
   const [dateInput, setDateInput] = useState(dateKey())
   const [noteInput, setNoteInput] = useState('')
   const [measureDate, setMeasureDate] = useState(dateKey())
@@ -119,9 +122,14 @@ export function BodyView({ initialTab = 'weight' }: { initialTab?: Tab }) {
   const avg = useMemo(() => (points.length >= 7 ? movingAverage(points, 7) : []), [points])
 
   async function submitWeight() {
-    const v = Number(weightInput.replace(',', '.'))
-    if (!Number.isFinite(v) || v <= 0) return
+    const raw = weightInput.trim().replace(',', '.')
+    const v = Number(raw)
+    if (raw === '' || !Number.isFinite(v) || v <= 0) {
+      setWeightError(t('body.invalidWeight'))
+      return
+    }
     await addBodyweight(fromDisplayWeight(v, settings.units), dateInput, noteInput)
+    setWeightError(null)
     setWeightInput('')
     setNoteInput('')
     setAddOpen(false)
@@ -215,7 +223,7 @@ export function BodyView({ initialTab = 'weight' }: { initialTab?: Tab }) {
                 <div className="scroll-x mt-3">
                   {BODY_PERIODS.map((p) => (
                     <Chip key={p} active={period === p} onClick={() => setPeriod(p)}>
-                      {p}
+                      {t(periodKey(p))}
                     </Chip>
                   ))}
                 </div>
@@ -350,7 +358,10 @@ export function BodyView({ initialTab = 'weight' }: { initialTab?: Tab }) {
       {/* --------------------------------------------------------- add weight */}
       <Sheet
         open={addOpen}
-        onClose={() => setAddOpen(false)}
+        onClose={() => {
+          setAddOpen(false)
+          setWeightError(null)
+        }}
         title={t('body.addWeight')}
         footer={
           <Button full size="lg" variant="primary" onClick={submitWeight}>
@@ -364,7 +375,12 @@ export function BodyView({ initialTab = 'weight' }: { initialTab?: Tab }) {
             inputMode="decimal"
             autoFocus
             value={weightInput}
-            onChange={(e) => setWeightInput(e.target.value)}
+            onChange={(e) => {
+              setWeightInput(e.target.value)
+              setWeightError(null)
+            }}
+            error={weightError ?? undefined}
+            aria-invalid={weightError ? true : undefined}
             placeholder={
               weights.length
                 ? trimNum(toDisplayWeight(weights[weights.length - 1].weight, settings.units), 1)

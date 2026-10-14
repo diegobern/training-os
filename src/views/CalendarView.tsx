@@ -5,6 +5,7 @@ import { IconChevronLeft, IconChevronRight } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
 import { listSessions, sessionTotals } from '../lib/db/repo.sessions'
 import { useApp, useT } from '../store/useApp'
+import { sessionTitle } from '../lib/i18n'
 import { addDays, dateKey, endOfMonth, fmtDate, startOfMonth, startOfWeek } from '../lib/dates'
 import { fmtDuration, fmtVolume } from '../lib/format'
 import { weekStreak } from '../lib/training/stats'
@@ -58,6 +59,24 @@ export function CalendarView() {
 
   const selectedSessions = selected ? (byDay.get(selected) ?? []) : []
 
+  // The tile counts the month on screen, so it has to say which one. It used
+  // to read "Este mes · 0" while showing last March.
+  const now = new Date()
+  const isCurrentMonth = monthStart.getFullYear() === now.getFullYear() && monthStart.getMonth() === now.getMonth()
+  const monthLabel = isCurrentMonth
+    ? t('calendar.thisMonthShort')
+    : fmtDate(
+        monthStart.getTime(),
+        locale,
+        monthStart.getFullYear() === now.getFullYear() ? { month: 'long' } : { month: 'short', year: 'numeric' },
+      )
+
+  function goToMonth(d: Date) {
+    setCursor(startOfMonth(d))
+    // The ring of a day from another month is not on screen any more.
+    setSelected(null)
+  }
+
   return (
     <>
       {/*
@@ -71,9 +90,9 @@ export function CalendarView() {
       */}
       <div className="mb-md grid grid-cols-2 gap-2.5 sm:grid-cols-3">
         <StatTile
-          label={t('calendar.thisMonthShort')}
+          label={monthLabel}
           value={monthSessions.length}
-          sub={t('common.workouts')}
+          sub={t('common.workouts', { n: monthSessions.length })}
           tone={monthSessions.length ? 'accent' : 'default'}
         />
         <StatTile label={t('calendar.streakShort')} value={t('home.streakWeeks', { n: streak })} />
@@ -86,13 +105,13 @@ export function CalendarView() {
 
       <Card className="p-2 sm:p-3">
         <div className="mb-2 flex items-center justify-between">
-          <IconButton label="prev" size="sm" onClick={() => setCursor(startOfMonth(addDays(monthStart, -1)))}>
+          <IconButton label={t('calendar.prevMonth')} size="sm" onClick={() => goToMonth(addDays(monthStart, -1))}>
             <IconChevronLeft size={18} />
           </IconButton>
           <p className="min-w-0 truncate px-1 text-card-sm first-letter:uppercase">
             {fmtDate(monthStart.getTime(), locale, { month: 'long', year: 'numeric' })}
           </p>
-          <IconButton label="next" size="sm" onClick={() => setCursor(startOfMonth(addDays(monthEnd, 1)))}>
+          <IconButton label={t('calendar.nextMonth')} size="sm" onClick={() => goToMonth(addDays(monthEnd, 1))}>
             <IconChevronRight size={18} />
           </IconButton>
         </div>
@@ -111,7 +130,9 @@ export function CalendarView() {
             return (
               <button
                 key={key}
-                onClick={() => setSelected(list ? key : null)}
+                // Any day can be opened: one without a workout says so, instead
+                // of the tap doing nothing at all.
+                onClick={() => setSelected(selected === key ? null : key)}
                 className={cx(
                   'press relative flex aspect-square items-center justify-center rounded-lg text-secondary tabular-nums transition-colors',
                   !inMonth && 'opacity-30',
@@ -122,7 +143,11 @@ export function CalendarView() {
                       : 'text-muted hover:bg-elevated',
                   selected === key && 'ring-2 ring-accent ring-offset-2 ring-offset-surface',
                 )}
-                aria-label={key}
+                aria-label={
+                  fmtDate(key, locale, { weekday: 'long', day: 'numeric', month: 'long' }) +
+                  (list ? ` · ${list.length} ${t('common.workouts', { n: list.length })}` : '')
+                }
+                aria-pressed={selected === key}
               >
                 {d.getDate()}
                 {list && list.length > 1 && (
@@ -151,9 +176,9 @@ export function CalendarView() {
                   <button key={s.id} onClick={() => navigate(`/history/${s.id}`)} className="press w-full text-left">
                     <Card className="flex items-center gap-3 p-3.5">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-card">{s.dayName}</p>
+                        <p className="truncate text-card">{sessionTitle(s, t)}</p>
                         <p className="tnum text-xs text-faint">
-                          {fmtDuration(s.durationSec, 'compact')} · {totals.effectiveSets} {t('common.sets')} ·{' '}
+                          {fmtDuration(s.durationSec, 'compact')} · {totals.effectiveSets} {t('common.sets', { n: totals.effectiveSets })} ·{' '}
                           {fmtVolume(totals.volume, settings.units)}
                         </p>
                       </div>

@@ -21,7 +21,9 @@ import type {
  *
  *   exercises.json          39 KB gz   the index — needed to list anything
  *   media-index.json         5 KB gz   three image paths per illustrated entry
- *   instructions.json      146 KB gz   only when HOW TO is first opened
+ *   instructions.json      303 KB gz   only when HOW TO is first opened
+ *                                     (English and Spanish since the steps
+ *                                     were translated; it was 150 KB)
  *   media-attribution.json  30 KB gz   only by the attributions screen
  */
 

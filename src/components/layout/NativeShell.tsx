@@ -4,6 +4,7 @@ import { isNativeAndroid } from '../../lib/native/platform'
 import { hideWorkoutNotice, onWorkoutNoticeTap, showWorkoutNotice } from '../../lib/native/workoutNotification'
 import { dismissTop } from '../../lib/ui/dismissStack'
 import { sessionProgress } from '../../lib/training/sessionProgress'
+import { sessionTitle } from '../../lib/i18n'
 import { useWorkout } from '../../store/useWorkout'
 import { useApp, useT } from '../../store/useApp'
 import { toast } from '../../store/useToast'
@@ -123,7 +124,11 @@ export function NativeShell() {
       // lo que haya estado en pausa.
       startedAt: Math.round(session.startedAt + session.pausedMs),
       title: t('workout.notifTitle'),
-      body: `${session.dayName} · ${t('workout.progress', { done: p.doneSets, total: p.totalSets })}`,
+      // Translated at display time, like everywhere else: a free workout
+      // started in English reads «Entrenamiento libre» once the app is in Spanish.
+      body: `${sessionTitle(session, t)} · ${t('workout.progress', { done: p.doneSets, total: p.totalSets })}`,
+      channelName: t('workout.notifChannel'),
+      channelDescription: t('workout.notifChannelBody'),
     }
   }, [session, excludeWarmups, t])
 
@@ -137,7 +142,7 @@ export function NativeShell() {
     // se retira. Con él, se publica o se actualiza: es la misma notificación.
     if (notice) void showWorkoutNotice(notice)
     else void hideWorkoutNotice()
-  }, [loaded, notice?.startedAt, notice?.title, notice?.body])
+  }, [loaded, notice?.startedAt, notice?.title, notice?.body, notice?.channelName])
 
   // React Router entrega un `navigate` nuevo en cada cambio de ruta. Pasarlo
   // por una referencia deja el oyente puesto una sola vez, en lugar de

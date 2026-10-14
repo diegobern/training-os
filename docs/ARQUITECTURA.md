@@ -560,6 +560,14 @@ la huella del inglés que traduce y deja de aplicarse si el original cambia.
 Están marcadas `machine`, no `reviewed` (D6): las hizo un modelo y las revisó
 otra pasada del modelo, no una persona.
 
+Los **nombres** siguen el mismo camino (`scripts/catalog/names-es.json`,
+`scripts/catalog/es-exercise-names.mjs`): sustituyen a los traducidos por reglas,
+que salían rotos («Press de Banca con Barra Guillotine», «Sentadilla Completo»),
+y a los 199 que seguían en inglés; los 83 escritos a mano no se tocan. La misma
+etapa traduce el músculo principal que seguía en inglés y mantiene el nombre
+del dibujo prestado igual al del ejercicio dibujado. Regla de fondo: con la app
+en español no aparece nada en inglés, y al revés.
+
 Rellenar campos no cambia la versión del catálogo, y la copia de cada fichero
 guardada en IndexedDB (y en la caché CacheFirst del service worker) se habría
 quedado en inglés para siempre en cualquier móvil que hubiera abierto CÓMO
@@ -576,3 +584,61 @@ quien la usó se borra solo — en el dispositivo y en la cuenta — al arrancar
 no vuelve desde la nube en otro dispositivo (`src/lib/db/sampleData.ts`). Sólo
 se toca lo marcado `demo: true` por la propia app; nada que haya registrado una
 persona lleva esa marca.
+
+## D39. Un idioma cada vez
+
+Todo lo que se ve sale en el idioma que la persona tiene puesto en la app, y
+sólo en ése: nada en inglés con la app en español ni al revés.
+
+- **Textos de la interfaz**: siempre por `t()`; ninguna cadena fija en los
+  componentes. Los recuentos pasan `n` y la clave elige singular o plural con
+  `Intl.PluralRules` (`clave_one`): «1 serie», «3 series».
+- **Números**: `setFormatLocale` (lo fija `useApp` con el idioma) pone coma
+  decimal y separador de miles del idioma en todos los formateadores; las
+  duraciones cortas dicen «min» en español.
+- **Lo guardado con nombre de la app** (el «Entrenamiento libre», el nombre por
+  defecto de un ejercicio que ya no existe) se traduce al pintarlo
+  (`sessionTitle`, `exerciseTitle`), no al guardarlo: una sesión empezada en
+  inglés se lee en español si luego se cambia el idioma.
+- **Catálogo**: nombres, músculo principal e instrucciones vienen en los dos
+  idiomas (D37); lo que una persona escribe — sus ejercicios, rutinas y
+  notas — se enseña tal cual lo escribió.
+- **Android**: el canal del aviso de entrenamiento lleva nombre y descripción
+  en el idioma de la app, y `values-es/strings.xml` cubre el arranque en frío.
+
+Lo vigilan `tests/unit.ts` (claves en los dos idiomas, plurales, formato),
+`e2e/fixes-texts.mjs` (una sesión guardada en un idioma y leída en el otro) y
+`e2e/language-sweep.mjs`, que recorre todas las pantallas en español y en
+inglés — texto visible, etiquetas de accesibilidad, placeholders y el diálogo
+de finalizar — buscando palabras de interfaz del otro idioma.
+
+Lo que escribe la persona no se traduce, tampoco los nombres de una rutina
+creada desde plantilla: se ponen en el idioma de ese momento y desde entonces
+son suyos, editables como cualquier otro nombre.
+
+## D40. Con cuenta, también sin conexión
+
+- **El alta decide sobre la cuenta terminada.** Firebase anuncia el usuario
+  en cuanto existe la cuenta de Auth, antes de que se guarden el nombre de
+  usuario y el perfil. `useAuth.resolve` espera al alta en curso
+  (`signUpSettled`, con un tope de 15 s para no colgarse si Firestore no
+  responde). Antes leía «sin perfil» y enseñaba «Elige tu nombre de usuario»
+  a quien acababa de elegirlo; guardar ahí reservaba un segundo nombre.
+- **Sin red se entra igual.** Si leer el perfil falla y el dispositivo ya
+  tiene los datos de esa misma cuenta y ha pasado el cuestionario, la app
+  abre con ellos: todo se guarda en local, se encola y se sube al volver la
+  conexión (`resolve` se repite con el evento `online`). Sólo un dispositivo
+  sin nada de esa cuenta ve la pantalla de reintentar, con el motivo en el
+  idioma de la app — el mensaje de Firebase, siempre en inglés, va al
+  registro.
+- **Subir los ajustes no bloquea.** `pushSettings` es una subida, no una
+  decisión; esperarla dejaba la pantalla anterior puesta indefinidamente si
+  Firestore no podía confirmar la escritura.
+
+`e2e/account.mjs` (emuladores completos) lo comprueba: alta directa al
+cuestionario, dos entrenamientos reales que llegan a Firestore, un
+dispositivo limpio que lo recupera todo, aislamiento entre usuarios, un
+entrenamiento hecho con la red cortada antes de abrir la app (nada sube
+mientras tanto; sube exactamente una vez al volver) y una recarga que no
+pierde nada. `e2e/authgate.mjs` comprueba que, con Firestore caído, el alta
+no se queda colgada en el formulario.

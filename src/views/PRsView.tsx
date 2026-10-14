@@ -8,6 +8,8 @@ import { useApp, useT } from '../store/useApp'
 import { fmtDate } from '../lib/dates'
 import { fmtVolumeFull, fmtWeight, trimNum } from '../lib/format'
 import type { PRType } from '../lib/db/schema'
+import { getExercisesByIds } from '../lib/db/repo.exercises'
+import { exerciseTitle } from '../lib/i18n'
 
 const TYPES: (PRType | 'all')[] = ['all', 'weight', 'reps', 'e1rm', 'volume']
 
@@ -17,8 +19,18 @@ export function PRsView() {
   const { settings, locale } = useApp()
   const [type, setType] = useState<PRType | 'all'>('all')
 
-  const { data } = useLiveQuery(() => listPRs(), ['personalRecords'])
-  const prs = useMemo(() => (data ?? []).filter((p) => (type === 'all' ? true : p.type === type)), [data, type])
+  const { data } = useLiveQuery(
+    async () => {
+      const list = await listPRs()
+      // A record keeps the exercise's name as it was spelled when it was set;
+      // the catalog has it in the language being used now.
+      const current = await getExercisesByIds(list.map((p) => p.exerciseId))
+      return { list, current }
+    },
+    ['personalRecords', 'exercises'],
+    [settings.language],
+  )
+  const prs = useMemo(() => (data?.list ?? []).filter((p) => (type === 'all' ? true : p.type === type)), [data, type])
 
   return (
     <>
@@ -41,7 +53,7 @@ export function PRsView() {
                 <Card className="flex items-center gap-3 px-3.5 py-3">
                   <IconTrophy size={18} className="shrink-0 text-pr" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-card-sm">{pr.exerciseName}</p>
+                    <p className="truncate text-card-sm">{exerciseTitle(pr.exerciseId, pr.exerciseName, data?.current)}</p>
                     <p className="text-xs text-faint">
                       {t(`pr.${pr.type}`)} · {fmtDate(pr.date, locale, { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
@@ -49,7 +61,7 @@ export function PRsView() {
                   <div className="shrink-0 text-right">
                     <p className="tnum text-sm font-bold">
                       {pr.type === 'reps'
-                        ? `${trimNum(pr.value)} ${t('common.reps')}`
+                        ? `${trimNum(pr.value)} ${t('common.reps', { n: pr.value })}`
                         : pr.type === 'volume'
                           ? fmtVolumeFull(pr.value, settings.units)
                           : fmtWeight(pr.value, settings.units)}

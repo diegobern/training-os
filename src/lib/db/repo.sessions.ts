@@ -15,6 +15,7 @@ import {
 import { aggregateSets, estimate1RM, isLogged } from '../training/metrics'
 import { dateKey } from '../dates'
 import { getExercisesByIds } from './repo.exercises'
+import { translate } from '../i18n'
 
 export const ACTIVE_SESSION_KEY = 'activeSessionId'
 
@@ -75,7 +76,7 @@ export async function startSession(input: StartSessionInput): Promise<WorkoutSes
         exercises.push({
           id: newId(),
           exerciseId: re.exerciseId,
-          name: ex?.name ?? 'Exercise',
+          name: ex?.name ?? translate(settings.language, 'workout.unknownExercise'),
           muscleGroup: ex?.muscleGroup ?? 'other',
           order: i,
           targetSets: re.targetSets,
@@ -95,7 +96,10 @@ export async function startSession(input: StartSessionInput): Promise<WorkoutSes
     routineId: input.routine?.id ?? null,
     routineName: input.routine?.name ?? '',
     dayId: input.day?.id ?? null,
-    dayName: input.day?.name ?? input.freeName ?? 'Workout',
+    // The fallback used to be the English word 'Workout' whatever the app's
+    // language. It is the free-workout name, translated, so the screens that
+    // paint it (sessionTitle) recognise it and show it in the current language.
+    dayName: input.day?.name ?? input.freeName ?? translate(settings.language, 'workout.startFree'),
     status: 'active',
     startedAt: now,
     endedAt: null,

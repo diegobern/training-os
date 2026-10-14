@@ -25,12 +25,14 @@ import {
 import { SetRow } from '../components/workout/SetRow'
 import { RestTimerBar } from '../components/workout/RestTimerBar'
 import { TargetCard } from '../components/workout/TargetCard'
-import { fmtDuration } from '../lib/format'
+import { fmtDuration, fmtWeight, trimNum } from '../lib/format'
 import { SET_TYPES, type Exercise, type SetType } from '../lib/db/schema'
 import { sessionProgress } from '../lib/training/sessionProgress'
+import { repRangeLabel } from '../lib/training/repRange'
+import { exerciseTitle, sessionTitle } from '../lib/i18n'
 import { useElapsed } from '../hooks/useElapsed'
 import { ExercisePicker } from '../components/workout/ExercisePicker'
-import { getExercise, saveExercise } from '../lib/db/repo.exercises'
+import { getExercise, getExercisesByIds, saveExercise } from '../lib/db/repo.exercises'
 import { toast } from '../store/useToast'
 import { HowToSheet } from '../components/exercise/HowToSheet'
 
@@ -84,7 +86,24 @@ export default function WorkoutActive() {
     return () => {
       alive = false
     }
-  }, [current?.exerciseId])
+  }, [current?.exerciseId, settings.language])
+
+  // The session keeps each exercise's name as it was when it was added; the
+  // screen shows it in the language the app is in now (the person's own
+  // exercises keep the name they gave them).
+  const exerciseIds = session?.exercises.map((e) => e.exerciseId).join('|') ?? ''
+  const [libraryNames, setLibraryNames] = useState<Map<string, Exercise>>()
+  useEffect(() => {
+    if (!exerciseIds) return
+    let alive = true
+    void getExercisesByIds(exerciseIds.split('|')).then((names) => {
+      if (alive) setLibraryNames(names)
+    })
+    return () => {
+      alive = false
+    }
+  }, [exerciseIds, settings.language])
+  const nameOf = (ex: { exerciseId: string; name: string }) => exerciseTitle(ex.exerciseId, ex.name, libraryNames)
 
   const progress = useMemo(
     () => (session ? sessionProgress(session, settings.excludeWarmupsFromStats) : null),
@@ -99,7 +118,15 @@ export default function WorkoutActive() {
   if (!session) return null
 
   const prevLog = current ? previous[current.exerciseId] : null
+  const currentRange = current
+    ? repRangeLabel({ kind: libraryExercise?.kind, repMin: current.repMin, repMax: current.repMax })
+    : null
   const insight = current ? insights[current.exerciseId] : null
+  // The session row does not carry equipment; the library row does. Checked
+  // against the id so the previous exercise's row, still loaded for a moment
+  // after switching, never decides it.
+  const isBodyweight =
+    !!current && libraryExercise?.id === current.exerciseId && libraryExercise.equipment === 'bodyweight'
 
   /*
    * Both ways out — the big button at the end and "Done" in the header — come
@@ -142,7 +169,7 @@ export default function WorkoutActive() {
             <IconChevronDown size={22} />
           </IconButton>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-card-sm font-bold leading-tight">{session.dayName}</p>
+            <p className="truncate text-card-sm font-bold leading-tight">{sessionTitle(session, t)}</p>
             <p className="tnum text-xs leading-tight text-faint">
               {fmtDuration(elapsed)} · {t('workout.progress', { done: totals.done, total: totals.total })}
             </p>
@@ -186,7 +213,7 @@ export default function WorkoutActive() {
                       : 'border-line bg-surface text-muted',
                 )}
               >
-                <span className="max-w-[9rem] truncate">{ex.name}</span>
+                <span className="max-w-[9rem] truncate">{nameOf(ex)}</span>
                 <span className="tnum opacity-70">
                   {done}/{all}
                 </span>
@@ -217,10 +244,13 @@ export default function WorkoutActive() {
           <>
             <div className="mb-3 flex items-start gap-2">
               <div className="min-w-0 flex-1">
-                <h2 className="text-metric-lg">{current.name}</h2>
+                <h2 className="text-metric-lg">{nameOf(current)}</h2>
                 <p className="mt-0.5 text-xs text-faint">
-                  {t(`muscle.${current.muscleGroup}`)} · {current.repMin}–{current.repMax} {t('common.reps')}
-                  {current.rirTarget !== null && ` · RIR ${current.rirTarget}`}
+                  {t(`muscle.${current.muscleGroup}`)}
+                  {/* No range where there is none to show: a treadmill is not
+                      «0–0 reps». Same rule as the picker and the library. */}
+                  {currentRange && ` · ${currentRange} ${t('common.reps')}`}
+                  {current.rirTarget !== null && ` · RIR ${trimNum(current.rirTarget)}`}
                 </p>
               </div>
               <IconButton label={t('common.more')} onClick={() => setNotesOpen(true)}>
@@ -242,8 +272,9 @@ export default function WorkoutActive() {
                   {prevLog.sets.map((s, i) => (
                     <span key={s.id} className="tnum text-sm text-muted">
                       <span className="text-faint">{i + 1}</span>{' '}
-                      {s.weight} × {s.reps}
-                      {s.rir !== null && <span className="text-faint"> @{s.rir}</span>}
+                      {/* Stored in kg: shown in the unit of the fields below it. */}
+                      {fmtWeight(s.weight, settings.units, false)} × {s.reps}
+                      {s.rir !== null && <span className="text-faint"> @{trimNum(s.rir)}</span>}
                     </span>
                   ))}
                 </div>
@@ -276,12 +307,15 @@ export default function WorkoutActive() {
                     intensityMetric={settings.intensityMetric}
                     placeholderWeight={prevLog?.sets[i]?.weight ?? null}
                     placeholderReps={prevLog?.sets[i]?.reps ?? null}
+                    bodyweight={isBodyweight}
                     onChange={(patch) => updateSet(current.exerciseId, s.id, patch)}
                     onToggle={() => void toggleComplete(current.exerciseId, s.id)}
                     onOpenOptions={() => setOptionsFor({ exerciseId: current.exerciseId, setId: s.id })}
                   />
                 ))}
               </div>
+
+              {isBodyweight && <p className="px-1 pt-1.5 text-caption text-faint">{t('workout.bodyweightHint')}</p>}
 
               <button
                 onClick={() => addSet(current.exerciseId)}
@@ -323,7 +357,7 @@ export default function WorkoutActive() {
 
             {current.sessionNote && (
               <Card className="mt-3 px-3.5 py-3">
-                <p className="label-xs mb-1.5">{t('workout.sessionNotes')}</p>
+                <p className="label-xs mb-1.5">{t('workout.exerciseTodayNote')}</p>
                 <p className="text-secondary text-muted">{current.sessionNote}</p>
               </Card>
             )}
@@ -423,7 +457,7 @@ export default function WorkoutActive() {
       </Sheet>
 
       {/* ------------------------------------------------------------- notes */}
-      <Sheet open={notesOpen} onClose={() => setNotesOpen(false)} title={current?.name ?? ''}>
+      <Sheet open={notesOpen} onClose={() => setNotesOpen(false)} title={current ? nameOf(current) : ''}>
         {current && (
           <div className="space-y-5">
             <div>
@@ -443,15 +477,19 @@ export default function WorkoutActive() {
             </div>
             <div>
               <TextArea
-                label={t('workout.sessionNotes')}
-                hint={t('workout.sessionNotesHint')}
+                label={t('workout.exerciseTodayNote')}
+                hint={t('workout.exerciseTodayNoteHint')}
                 defaultValue={current.sessionNote}
                 onBlur={(e) => setExerciseSessionNote(current.exerciseId, e.target.value)}
               />
             </div>
             <div>
               <TextArea
-                label={`${t('workout.sessionNotes')} — ${session.dayName}`}
+                // Three notes in one sheet: this exercise for good, this
+                // exercise today, and this one — the whole workout. Each title
+                // says which, instead of two near-identical "session notes".
+                label={t('workout.workoutNote')}
+                hint={t('workout.workoutNoteHint')}
                 defaultValue={session.notes}
                 onBlur={(e) => setSessionNote(e.target.value)}
               />

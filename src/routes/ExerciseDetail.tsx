@@ -18,7 +18,8 @@ import { logsForExercise } from '../lib/db/repo.sessions'
 import { useLiveQuery } from '../hooks/useLiveQuery'
 import { useApp, useT } from '../store/useApp'
 import { incrementSourceForEquipment, ladderFor } from '../lib/training/weights'
-import { fmtWeight, trimNum } from '../lib/format'
+import { exerciseKind } from '../lib/training/performance'
+import { fmtWeight } from '../lib/format'
 import { toast } from '../store/useToast'
 import { HowToSheet } from '../components/exercise/HowToSheet'
 
@@ -88,11 +89,14 @@ export default function ExerciseDetail() {
 
   const ladder = ladderFor(ex.incrementSource, settings.availableWeights)
   const sessions = data?.logs.length ?? 0
+  // A treadmill has no reps in reserve and no dumbbell rack: the RIR target
+  // and the weight ladder only exist for things that are lifted.
+  const isCardio = exerciseKind(ex) === 'cardio'
 
   return (
     <Page
       title={ex.name}
-      subtitle={`${t(`muscle.${ex.muscleGroup}`)} · ${sessions} ${t('progress.sessions').toLowerCase()}`}
+      subtitle={`${t(`muscle.${ex.muscleGroup}`)} · ${t('history.sessionsCount', { n: sessions })}`}
       back
       actions={
         <>
@@ -145,7 +149,9 @@ export default function ExerciseDetail() {
               <Fact label={t('common.muscle')} value={t(`muscle.${ex.muscleGroup}`)} />
               <Fact label={t('library.primaryMuscle')} value={ex.primaryMuscle} />
               <Fact label={t('common.equipment')} value={t(`equipment.${ex.equipment}`)} />
-              <Fact label={t('common.type')} value={t(`type.${ex.type}`)} />
+              {/* Two different facts — compound/isolation and strength/cardio —
+                  so they cannot both be called "Type". */}
+              <Fact label={t('library.category')} value={t(`type.${ex.type}`)} />
               {ex.kind && <Fact label={t('library.kind')} value={t(`kind.${ex.kind}`)} />}
             </dl>
             {ex.secondaryMuscles.length > 0 && (
@@ -182,7 +188,7 @@ export default function ExerciseDetail() {
                 options={EQUIPMENT.map((e) => ({ value: e, label: t(`equipment.${e}`) }))}
               />
               <Select
-                label={t('common.type')}
+                label={t('library.category')}
                 value={ex.type}
                 onChange={(v: ExerciseType) => update({ type: v })}
                 options={EXERCISE_TYPES.map((x) => ({ value: x, label: t(`type.${x}`) }))}
@@ -208,7 +214,10 @@ export default function ExerciseDetail() {
 
         {fromCatalog && <p className="label-xs !mb-0 pt-1">{t('library.yourDefaults')}</p>}
 
-        <div className="grid grid-cols-2 gap-3">
+        {/* items-end: a label that wraps to two lines on a narrow phone
+            ("DESCANSO POR DEFECTO (S)") grows upwards, so the boxes of a row
+            stay level instead of one sitting a line lower than its pair. */}
+        <div className="grid grid-cols-2 items-end gap-3">
           <TextField
             label={t('library.targetSets')}
             inputMode="numeric"
@@ -233,12 +242,14 @@ export default function ExerciseDetail() {
             defaultValue={String(ex.repMax)}
             onChange={(e) => update({ repMax: Math.max(1, Number(e.target.value) || 1) })}
           />
-          <TextField
-            label={t('library.rirTarget')}
-            inputMode="numeric"
-            defaultValue={ex.rirTarget === null ? '' : String(ex.rirTarget)}
-            onChange={(e) => update({ rirTarget: e.target.value === '' ? null : Number(e.target.value) })}
-          />
+          {!isCardio && (
+            <TextField
+              label={t('library.rirTarget')}
+              inputMode="numeric"
+              defaultValue={ex.rirTarget === null ? '' : String(ex.rirTarget)}
+              onChange={(e) => update({ rirTarget: e.target.value === '' ? null : Number(e.target.value) })}
+            />
+          )}
           {!fromCatalog && (
             <TextField
               label={t('library.rpeTarget')}
@@ -265,27 +276,30 @@ export default function ExerciseDetail() {
           />
         )}
 
-        <Card className="p-4">
-          <p className="label-xs mb-2">{t('settings.availableWeights')}</p>
-          <p className="text-xs leading-relaxed text-faint">
-            {t('settings.weightsHint')}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {ladder.slice(0, 18).map((w) => (
-              <span key={w} className="tnum rounded-md bg-elevated px-2 py-0.5 text-caption text-muted">
-                {trimNum(w)}
-              </span>
-            ))}
-            {ladder.length > 18 && <span className="text-caption text-faint">+{ladder.length - 18}</span>}
-          </div>
-          <p className="mt-2 text-caption text-faint">
-            {t('common.min')}: {fmtWeight(ladder[0] ?? 0, settings.units)} · {t('common.max')}:{' '}
-            {fmtWeight(ladder[ladder.length - 1] ?? 0, settings.units)}
-          </p>
-          <Button size="sm" variant="ghost" className="mt-2" onClick={() => navigate('/settings')}>
-            {t('settings.title')} →
-          </Button>
-        </Card>
+        {!isCardio && (
+          /* Read-only here: they are edited in Settings, which is where the
+             "how to type the list" hint lives — not over chips nobody can type
+             into. The ladder is kg like every stored weight; chips and the
+             min/max line below are both in the person's unit. */
+          <Card className="p-4">
+            <p className="label-xs mb-2">{t('settings.availableWeights')}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {ladder.slice(0, 18).map((w) => (
+                <span key={w} className="tnum rounded-md bg-elevated px-2 py-0.5 text-caption text-muted">
+                  {fmtWeight(w, settings.units, false)}
+                </span>
+              ))}
+              {ladder.length > 18 && <span className="text-caption text-faint">+{ladder.length - 18}</span>}
+            </div>
+            <p className="mt-2 text-caption text-faint">
+              {t('common.min')}: {fmtWeight(ladder[0] ?? 0, settings.units)} · {t('common.max')}:{' '}
+              {fmtWeight(ladder[ladder.length - 1] ?? 0, settings.units)}
+            </p>
+            <Button size="sm" variant="ghost" className="mt-2" onClick={() => navigate('/settings')}>
+              {t('settings.title')} →
+            </Button>
+          </Card>
+        )}
 
         {fromCatalog && (
           /* A catalog exercise cannot be deleted — it is not the user's to
@@ -321,7 +335,7 @@ export default function ExerciseDetail() {
         onCancel={() => setConfirmDelete(false)}
         onConfirm={async () => {
           await deleteExercise(ex.id)
-          toast(t('common.delete'), 'success')
+          toast(t('library.deleted'), 'success')
           navigate('/library', { replace: true })
         }}
       />

@@ -16,6 +16,7 @@ import {
   type MuscleGroup,
 } from '../lib/db/schema'
 import { useT } from '../store/useApp'
+import { repRangeLabel } from '../lib/training/repRange'
 import { CustomExerciseForm } from '../components/workout/CustomExerciseForm'
 
 type Tab = 'all' | 'favorites' | 'recent' | 'custom'
@@ -84,9 +85,28 @@ export default function Library() {
     return all.filter((e) => order.has(e.id)).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0))
   }, [data, tab])
 
+  // Grouping is decided on the WHOLE list, before anything is cut for
+  // rendering. It used to group only the rows already loaded, so the sections
+  // reshuffled and their counts climbed while scrolling ("CHEST · 6", then 59,
+  // then 103) as later pages added rows to groups already on screen. Ordered by
+  // muscle first, each group is complete before the next one starts loading;
+  // the sort is stable, so the order within a group is the catalog's own.
+  const ordered = useMemo(
+    () =>
+      tab === 'recent'
+        ? list
+        : [...list].sort((a, b) => MUSCLE_GROUPS.indexOf(a.muscleGroup) - MUSCLE_GROUPS.indexOf(b.muscleGroup)),
+    [list, tab],
+  )
+  const groupCounts = useMemo(() => {
+    const counts = new Map<MuscleGroup, number>()
+    for (const e of list) counts.set(e.muscleGroup, (counts.get(e.muscleGroup) ?? 0) + 1)
+    return counts
+  }, [list])
+
   // Grouped by muscle the list is already broken into digestible sections, but
   // "all" is still 1096 rows of DOM. It grows as the user reaches the bottom.
-  const { visible, sentinel, hasMore } = useIncremental(list, [query, muscle, equipment, type, kind, difficulty, tab], 60)
+  const { visible, sentinel, hasMore } = useIncremental(ordered, [query, muscle, equipment, type, kind, difficulty, tab], 60)
 
   const activeFilters =
     (muscle !== 'all' ? 1 : 0) +
@@ -169,7 +189,7 @@ export default function Library() {
           grouped.map(([group, items]) => (
             <section key={group} className="mb-5">
               <h2 className="label-xs mb-2">
-                {t(`muscle.${group}`)} <span className="text-faint/70">· {items.length}</span>
+                {t(`muscle.${group}`)} <span className="text-faint/70">· {groupCounts.get(group) ?? items.length}</span>
               </h2>
               <div className="flex flex-col gap-1.5">
                 {items.map((ex) => (
@@ -177,7 +197,8 @@ export default function Library() {
                     <button className="press min-w-0 flex-1 text-left" onClick={() => navigate(`/library/${ex.id}`)}>
                       <p className="truncate text-card-sm">{ex.name}</p>
                       <p className="truncate text-xs text-faint">
-                        {t(`equipment.${ex.equipment}`)} · {ex.repMin}–{ex.repMax} {t('common.reps')}
+                        {t(`equipment.${ex.equipment}`)}
+                        {repRangeLabel(ex) && ` · ${repRangeLabel(ex)} ${t('common.reps')}`}
                         {(data?.usage.get(ex.id) ?? 0) > 0 && ` · ${t('library.usedIn', { n: data!.usage.get(ex.id)! })}`}
                       </p>
                     </button>

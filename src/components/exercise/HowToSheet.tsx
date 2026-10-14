@@ -137,19 +137,23 @@ export function HowToSheet({
               <Fact label={t('common.muscle')} value={exercise.primaryMuscle} />
               <Fact label={t('common.equipment')} value={t(`equipment.${exercise.equipment}`)} />
               <Fact label={t('common.type')} value={t(`type.${exercise.type}`)} />
-              <Fact
-                label={t('howto.target')}
-                value={
-                  exercise.kind === 'cardio'
-                    ? t('howto.targetCardio', { rest: exercise.restSeconds })
-                    : t('howto.targetValue', {
-                        sets: exercise.defaultSets,
-                        min: exercise.repMin,
-                        max: exercise.repMax,
-                        rest: exercise.restSeconds,
-                      })
-                }
-              />
+              {/* Cardio has no sets and reps to state; with no rest either,
+                  the line would only say "0s rest", so it is left out. */}
+              {!(exercise.kind === 'cardio' && !exercise.restSeconds) && (
+                <Fact
+                  label={t('howto.target')}
+                  value={
+                    exercise.kind === 'cardio'
+                      ? t('howto.targetCardio', { rest: exercise.restSeconds })
+                      : t('howto.targetValue', {
+                          sets: exercise.defaultSets,
+                          min: exercise.repMin,
+                          max: exercise.repMax,
+                          rest: exercise.restSeconds,
+                        })
+                  }
+                />
+              )}
             </dl>
           </Section>
         )}

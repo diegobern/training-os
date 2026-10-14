@@ -39,6 +39,14 @@ Las **instrucciones** siguen la misma convención y hoy están todas en inglés
 (`esStatus: missing`). El texto original en inglés nunca se modifica; una
 traducción corregida a mano lo sustituye en la capa española sin tocarlo.
 
+> **Actualización (13 de octubre de 2026).** Este informe describe la
+> importación. Después, una etapa propia del pipeline (`npm run catalog:es`)
+> traduce sobre el catálogo publicado las 877 instrucciones con pasos
+> (`esStatus: machine`, ver `docs/GLOSARIO-INSTRUCCIONES-ES.md`) y sustituye los
+> nombres traducidos por reglas y los que seguían en inglés
+> (`scripts/catalog/names-es.json`); los 83 `reviewed` no se tocan. Ver D37 en
+> `docs/ARQUITECTURA.md`.
+
 ## Deduplicación
 
 35 entradas del dataset se reconocieron como ejercicios que ya

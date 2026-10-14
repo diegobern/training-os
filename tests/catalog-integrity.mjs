@@ -390,6 +390,60 @@ const mediaKeys = new Set(Object.keys(media.entries))
   )
 }
 
+/* --------------------------------------------------- nombres en español */
+/*
+ * With the app in Spanish nothing may show up in English: names, the primary
+ * muscle, the name of a borrowed drawing. Checked on the file that ships.
+ */
+{
+  const { applyNames, checkName, SAME_IN_BOTH, NAMES_PATH } = await import('../scripts/catalog/es-exercise-names.mjs')
+  const ids = (list) => list.slice(0, 5).map((e) => e.id).join(', ')
+
+  const translated = entries.filter((e) => e.ns !== 'missing')
+  const badNames = translated.filter((e) => checkName(e.n.en, e.n.es).length > 0)
+  check(
+    badNames.length === 0,
+    `nombres ES — ningún nombre traducido deja inglés sin traducir (${translated.length} con nombre en español)`,
+    badNames.slice(0, 5).map((e) => `${e.id}: ${e.n.es} (${checkName(e.n.en, e.n.es).join(', ')})`).join(' · '),
+  )
+  const stillEnglish = entries.filter((e) => e.ns === 'missing')
+  check(stillEnglish.length <= 10, `nombres ES — como mucho un puñado se dice igual en los dos idiomas (${stillEnglish.length})`, ids(stillEnglish))
+
+  const byEs = new Map()
+  for (const e of entries) {
+    const key = e.n.es.toLocaleLowerCase('es')
+    if (!byEs.has(key)) byEs.set(key, [])
+    byEs.get(key).push(e)
+  }
+  const clashes = [...byEs.values()].filter((list) => new Set(list.map((e) => e.n.en.toLowerCase())).size > 1)
+  check(
+    clashes.length === 0,
+    'nombres ES — dos ejercicios distintos no se llaman igual en español',
+    clashes.slice(0, 4).map((l) => `${l[0].n.es} ← ${l.map((e) => e.n.en).join(' / ')}`).join(' · '),
+  )
+
+  const pmEnglish = entries.filter((e) => e.pm && e.pm.es === e.pm.en && !SAME_IN_BOTH.has(e.pm.en))
+  check(pmEnglish.length === 0, 'nombres ES — el músculo principal está en español en todos', ids(pmEnglish))
+
+  const byId = new Map(entries.map((e) => [e.id, e]))
+  const mvStale = entries.filter((e) => e.mv && (byId.get(e.mv.id)?.n.es !== e.mv.es || byId.get(e.mv.id)?.n.en !== e.mv.en))
+  check(mvStale.length === 0, 'nombres ES — el dibujo prestado se nombra igual que el ejercicio dibujado', ids(mvStale))
+
+  const statusLies = entries.filter(
+    (e) => e.translationStatus.name !== e.ns || e.translationStatus.instructions !== (instructions[e.id]?.esStatus ?? e.translationStatus.instructions),
+  )
+  check(statusLies.length === 0, 'nombres ES — translationStatus dice el estado real del nombre y de las instrucciones', ids(statusLies))
+
+  const source = JSON.parse(readFileSync(NAMES_PATH, 'utf8'))
+  const touchesReviewed = Object.keys(source).filter((id) => byId.get(id)?.ns === 'reviewed')
+  check(touchesReviewed.length === 0, 'nombres ES — los nombres revisados por una persona no se sustituyen', touchesReviewed.slice(0, 5).join(', '))
+  const regenerated = applyNames(catalog, source, instructions).catalog
+  check(
+    JSON.stringify(regenerated) === JSON.stringify(catalog),
+    'nombres ES — el catálogo publicado es exactamente lo que genera scripts/catalog/names-es.json',
+  )
+}
+
 console.log(out.join('\n'))
 console.log(`\n${pass} passed, ${fail} failed`)
 if (fail > 0) process.exit(1)

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useWorkout } from '../../store/useWorkout'
-import { useApp } from '../../store/useApp'
-import { fmtWeight, trimNum } from '../../lib/format'
+import { useApp, useT } from '../../store/useApp'
+import { fmtWeight } from '../../lib/format'
 import { IconArrowUp, IconTrophy } from '../ui/Icon'
 import { useCountUp } from '../../hooks/useCountUp'
 import { animationsOn } from '../../lib/feedback'
@@ -43,12 +43,13 @@ function Confetti() {
 }
 
 function PRCard({ name, headline, delta }: { name: string; headline: string; delta: string | null }) {
+  const t = useT()
   return (
     <div className="anim-pop anim-pr-glow relative flex flex-col items-center gap-1 rounded-3xl border border-pr/40 bg-elevated/95 px-8 py-6 text-center shadow-lift backdrop-blur-xl">
       <Confetti />
       <span className="absolute inset-0 -z-10 rounded-3xl bg-pr/5" />
       <IconTrophy size={26} className="text-pr" />
-      <p className="mt-1 text-xs font-bold tracking-[0.18em] text-pr">NEW PR</p>
+      <p className="mt-1 text-xs font-bold tracking-[0.18em] text-pr">{t('pr.new')}</p>
       <p className="max-w-[16rem] text-sm font-semibold leading-tight text-muted">{name}</p>
       <p className="tnum mt-1 text-3xl font-bold leading-none tracking-tight text-ink">{headline}</p>
       {delta && (
@@ -61,17 +62,20 @@ function PRCard({ name, headline, delta }: { name: string; headline: string; del
 }
 
 function WeightUpBadge({ from, to, units }: { from: number; to: number; units: 'kg' | 'lb' }) {
+  const t = useT()
   const shown = useCountUp(from, to, 520)
   return (
     <div className="anim-pop anim-glow flex items-center gap-3 rounded-2xl border border-accent/40 bg-elevated/95 px-5 py-3 shadow-lift backdrop-blur-xl">
       <IconArrowUp size={18} className="text-accent" />
       <div>
-        <p className="text-2xs font-bold tracking-[0.16em] text-accent">WEIGHT UP</p>
+        <p className="text-2xs font-bold tracking-[0.16em] text-accent">{t('workout.weightUp')}</p>
         <p className="tnum text-xl font-bold leading-tight tracking-tight text-ink">
           {fmtWeight(shown, units)}
         </p>
       </div>
-      <p className="tnum text-sm font-bold text-up">+{trimNum(to - from)}</p>
+      {/* `from` and `to` are kg, like every stored weight: the step is
+          converted and labelled too, not shown as bare kilos. */}
+      <p className="tnum text-sm font-bold text-up">+{fmtWeight(to - from, units)}</p>
     </div>
   )
 }
@@ -81,6 +85,7 @@ function WeightUpBadge({ from, to, units }: { from: number; to: number; units: '
  * pointer-transparent and dismisses itself.
  */
 export function CelebrationLayer() {
+  const t = useT()
   const celebration = useWorkout((s) => s.celebration)
   const dismiss = useWorkout((s) => s.dismissCelebration)
   const units = useApp((s) => s.settings.units)
@@ -107,13 +112,13 @@ export function CelebrationLayer() {
     pr.type === 'volume'
       ? fmtWeight(pr.value, units)
       : pr.type === 'e1rm'
-        ? `${fmtWeight(pr.value, units)} e1RM`
+        ? `${fmtWeight(pr.value, units)} ${t('pr.e1rmShort')}`
         : `${fmtWeight(pr.weight ?? 0, units, false)} ${units} × ${pr.reps ?? 0}`
   const delta =
     pr.delta === null
       ? null
       : pr.type === 'reps'
-        ? `+${trimNum(pr.delta)} ${pr.delta === 1 ? 'rep' : 'reps'}`
+        ? t('pr.repsDelta', { n: pr.delta })
         : `+${fmtWeight(pr.delta, units)}`
 
   return (

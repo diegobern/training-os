@@ -22,9 +22,11 @@ import {
   listRoutines,
   setActiveRoutine,
 } from '../lib/db/repo.routines'
-import { useT } from '../store/useApp'
-import type { Routine } from '../lib/db/schema'
+import { useApp, useT } from '../store/useApp'
+import type { Routine, Settings } from '../lib/db/schema'
 import { toast } from '../store/useToast'
+import { suggestTemplate } from '../lib/training/personalize'
+import { mergeTrainingProfile, type TrainingProfile } from '../lib/training/profile'
 
 /**
  * The starter templates.
@@ -46,15 +48,40 @@ const TEMPLATES: { key: string; nameKey: string | null; dayKeys: string[] }[] = 
   { key: 'fullbody', nameKey: 'template.fullbody', dayKeys: ['day.fullBodyA', 'day.fullBodyB', 'day.fullBodyC'] },
 ]
 
+/**
+ * The template the questionnaire said it would suggest, as one of the keys
+ * above; PPL when there are no answers to go on.
+ *
+ * The summary at the end of onboarding promises "we will suggest a Torso /
+ * Pierna routine of 4 days", and this sheet then opened on PPL regardless.
+ * The suggestion's id is the very translation key the template carries, so
+ * the match is exact rather than a second table to keep in step.
+ */
+function suggestedTemplateKey(settings: Settings): string | null {
+  if (!settings.onboardingVersion || !settings.trainingProfile) return null
+  const profile = mergeTrainingProfile(settings.trainingProfile as Partial<TrainingProfile>, settings.units)
+  const { templateId } = suggestTemplate(profile)
+  return TEMPLATES.find((x) => x.nameKey === templateId)?.key ?? null
+}
+
 export default function Routines() {
   const t = useT()
   const navigate = useNavigate()
+  const settings = useApp((s) => s.settings)
+  const suggestedKey = suggestedTemplateKey(settings)
   const [creating, setCreating] = useState(false)
   const [name, setName] = useState('')
-  const [template, setTemplate] = useState('ppl')
+  const [template, setTemplate] = useState(suggestedKey ?? 'ppl')
   const [menuFor, setMenuFor] = useState<Routine | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<Routine | null>(null)
   const [showArchived, setShowArchived] = useState(false)
+
+  // Each opening starts on the suggestion, read from the settings as they are
+  // now rather than as they were when this screen first rendered.
+  const openCreate = () => {
+    setTemplate(suggestedKey ?? 'ppl')
+    setCreating(true)
+  }
 
   const { data } = useLiveQuery(() => listRoutines(true), ['routines'])
   const all = data ?? []
@@ -75,7 +102,7 @@ export default function Routines() {
       title={t('routines.title')}
       subtitle={t('routines.subtitle')}
       actions={
-        <IconButton label={t('routines.new')} tone="accent" onClick={() => setCreating(true)}>
+        <IconButton label={t('routines.new')} tone="accent" onClick={openCreate}>
           <IconPlus size={22} />
         </IconButton>
       }
@@ -86,7 +113,7 @@ export default function Routines() {
           title={t('routines.empty')}
           body={t('routines.emptyBody')}
           action={
-            <Button variant="primary" size="lg" onClick={() => setCreating(true)}>
+            <Button variant="primary" size="lg" onClick={openCreate}>
               {t('routines.new')}
             </Button>
           }
@@ -135,7 +162,8 @@ export default function Routines() {
                 <button
                   onClick={async () => {
                     await setActiveRoutine(r.id)
-                    toast(t('routines.setActive'), 'success')
+                    // What happened, not the button's own label ("Activar").
+                    toast(t('routines.activated'), 'success')
                   }}
                   className="press w-full border-t border-line py-2.5 text-xs font-bold tracking-wide text-accent"
                 >
@@ -205,7 +233,14 @@ export default function Routines() {
                 template === tpl.key ? 'border-accent/60 bg-accent/[0.07]' : 'border-line bg-elevated',
               )}
             >
-              <p className="text-sm font-semibold">{tpl.nameKey ? t(tpl.nameKey) : t('routines.blank')}</p>
+              <p className="text-sm font-semibold">
+                {tpl.nameKey ? t(tpl.nameKey) : t('routines.blank')}
+                {tpl.key === suggestedKey && (
+                  <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 text-2xs font-bold tracking-wide text-accent">
+                    {t('routines.suggested')}
+                  </span>
+                )}
+              </p>
               {tpl.dayKeys.length > 0 && (
                 <p className="mt-0.5 text-xs text-faint">{tpl.dayKeys.map((k) => t(k)).join(' · ')}</p>
               )}

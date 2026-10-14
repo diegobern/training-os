@@ -287,12 +287,12 @@ if (only(2)) {
   await page.locator('div.fixed.inset-0.z-50 p.text-card-sm').first().click()
   await page.waitForTimeout(3000)
   check(page.url().endsWith('/workout/active'), 'finalizar — empieza un entrenamiento con un ejercicio', page.url())
-  check((await page.getByLabel('weight').count()) > 1, 'finalizar — el ejercicio trae varias series que registrar')
+  check((await page.getByLabel('Peso', { exact: true }).count()) > 1, 'finalizar — el ejercicio trae varias series que registrar')
 
   // Log one set for real: weight, reps, tick.
-  await page.getByLabel('weight').first().fill('60')
-  await page.getByLabel('reps').first().fill('8')
-  await page.getByRole('button', { name: 'set 1', exact: true }).first().click()
+  await page.getByLabel('Peso', { exact: true }).first().fill('60')
+  await page.getByLabel('Repeticiones', { exact: true }).first().fill('8')
+  await page.getByRole('button', { name: 'Serie 1 completada', exact: true }).first().click()
   await page.waitForTimeout(1200)
   // The rest timer starts on its own after a set; get it out of the way.
   const skip = page.getByRole('button', { name: 'Saltar' })
@@ -316,7 +316,7 @@ if (only(2)) {
   await page.waitForTimeout(700)
   check((await dialog(page).count()) === 0, 'finalizar — «Seguir entrenando» cierra el diálogo')
   check(page.url().endsWith('/workout/active'), 'finalizar — y vuelve a la sesión sin perder nada', page.url())
-  const kept = await page.getByLabel('weight').first().inputValue()
+  const kept = await page.getByLabel('Peso', { exact: true }).first().inputValue()
   check(kept === '60', 'finalizar — la serie escrita sigue ahí', kept)
 
   // ---- the big button at the end

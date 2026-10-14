@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useWorkout } from '../../store/useWorkout'
 import { useT } from '../../store/useApp'
+import { sessionTitle } from '../../lib/i18n'
 import { useElapsed } from '../../hooks/useElapsed'
 import { fmtDuration } from '../../lib/format'
 import { IconChevronRight } from '../ui/Icon'
@@ -39,6 +40,7 @@ export const WORKOUT_BAR_SPACE = '4.25rem'
  */
 export function WorkoutTimerBar() {
   const session = useWorkout((s) => s.session)
+  const t = useT()
   const { pathname } = useLocation()
   const visible = session !== null && !pathname.startsWith('/workout/active')
 
@@ -52,7 +54,7 @@ export function WorkoutTimerBar() {
   }, [visible])
 
   if (!visible || !session) return null
-  return <Bar dayName={session.dayName} startedAt={session.startedAt} pausedMs={session.pausedMs} />
+  return <Bar dayName={sessionTitle(session, t)} startedAt={session.startedAt} pausedMs={session.pausedMs} />
 }
 
 function Bar({ dayName, startedAt, pausedMs }: { dayName: string; startedAt: number; pausedMs: number }) {

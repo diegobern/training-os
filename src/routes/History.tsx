@@ -6,6 +6,7 @@ import { IconCalendar, IconClock, IconTrophy } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
 import { listPRs, listSessions, sessionTotals } from '../lib/db/repo.sessions'
 import { useApp, useT } from '../store/useApp'
+import { sessionTitle } from '../lib/i18n'
 import { fmtDate, fmtTime, monthKey } from '../lib/dates'
 import { fmtDuration, fmtVolume } from '../lib/format'
 
@@ -82,7 +83,7 @@ export default function History() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <p className="truncate text-card">{s.dayName}</p>
+                          <p className="truncate text-card">{sessionTitle(s, t)}</p>
                           {prCount > 0 && (
                             <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-pr/15 px-1.5 py-0.5 text-2xs font-bold text-pr">
                               <IconTrophy size={10} /> {prCount}
@@ -91,7 +92,8 @@ export default function History() {
                         </div>
                         <p className="tnum mt-0.5 text-xs text-faint">
                           {fmtTime(s.startedAt, locale)} · {fmtDuration(s.durationSec, 'compact')} ·{' '}
-                          {totals.effectiveSets} {t('common.sets')} · {fmtVolume(totals.volume, settings.units)}
+                          {totals.effectiveSets} {t('common.sets', { n: totals.effectiveSets })} ·{' '}
+                          {fmtVolume(totals.volume, settings.units)}
                         </p>
                       </div>
                     </Card>

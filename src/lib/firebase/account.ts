@@ -137,7 +137,41 @@ export interface SignUpInput {
  * `finishUsernameSetup`. Nothing is orphaned and nothing is rolled back behind
  * the user's back.
  */
-export async function signUp(input: SignUpInput): Promise<{ user: User; usernameTaken: boolean }> {
+export function signUp(input: SignUpInput): Promise<{ user: User; usernameTaken: boolean }> {
+  const run = createAccount(input)
+  signUpInFlight = run
+  const clear = () => {
+    if (signUpInFlight === run) signUpInFlight = null
+  }
+  run.then(clear, clear)
+  return run
+}
+
+/*
+ * Firebase announces the new user the moment the auth account exists — before
+ * the username and the profile are written. The auth store must not decide
+ * which screen comes next on that half-made account: it read "no profile",
+ * showed «Elige tu nombre de usuario» to someone who had just chosen one, and
+ * saving there reserved a second name. `signUpSettled` lets it wait for the
+ * sign-up under way, whatever its outcome.
+ */
+let signUpInFlight: Promise<unknown> | null = null
+
+export function signUpSettled(maxWaitMs = 15_000): Promise<void> {
+  if (!signUpInFlight) return Promise.resolve()
+  // Bounded: with Firestore unreachable the username transaction can retry
+  // for a long time, and the person must get a screen (the retry one) rather
+  // than a form that never answers.
+  return Promise.race([
+    signUpInFlight.then(
+      () => undefined,
+      () => undefined,
+    ),
+    new Promise<void>((resolve) => setTimeout(resolve, maxWaitMs)),
+  ])
+}
+
+async function createAccount(input: SignUpInput): Promise<{ user: User; usernameTaken: boolean }> {
   const { auth } = await authOnly()
   const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
 

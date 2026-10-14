@@ -5,6 +5,7 @@ import {
   onAuth,
   readProfile,
   signOutUser,
+  signUpSettled,
   writeProfile,
 } from '../lib/firebase/account'
 import type { UserProfile } from '../lib/firebase/profile'
@@ -101,6 +102,29 @@ async function topUpDeclined(): Promise<boolean> {
   }
 }
 
+/** This device already holds this account's data, past the questionnaire. */
+async function canOpenOffline(uid: string): Promise<boolean> {
+  try {
+    if ((await checkLocalOwnership(uid)) !== 'same-user') return false
+    return (useApp.getState().settings.onboardingVersion ?? 0) > 0
+  } catch {
+    return false
+  }
+}
+
+let onlineWaiter: (() => void) | null = null
+
+/** Runs `fn` once, the next time the browser reports a connection. */
+function whenOnline(fn: () => void) {
+  if (typeof window === 'undefined') return
+  if (onlineWaiter) window.removeEventListener('online', onlineWaiter)
+  onlineWaiter = () => {
+    onlineWaiter = null
+    fn()
+  }
+  window.addEventListener('online', onlineWaiter, { once: true })
+}
+
 export const useAuth = create<AuthState>((set, get) => ({
   phase: firebaseEnabled() ? 'checking' : 'local-only',
   user: null,
@@ -138,6 +162,9 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (!user) return
     set({ busy: true })
     try {
+      // A sign-up still writing the username and profile: decide on the
+      // finished account, not on the half-made one Firebase announced.
+      await signUpSettled()
       const profile = await readProfile(user.uid)
       set({ profile })
 
@@ -158,7 +185,12 @@ export const useAuth = create<AuthState>((set, get) => ({
       }
 
       if (profile?.settings) await applyRemoteSettings(profile)
-      else await pushSettings(user.uid)
+      else {
+        // An upload, not a decision: nothing below depends on it. Awaited, a
+        // write Firestore cannot acknowledge (no server reachable) held the
+        // person on the previous screen indefinitely.
+        void pushSettings(user.uid).catch((err) => log('sync', `settings upload deferred: ${String(err)}`, 'warn'))
+      }
       await useApp.getState().refreshSettings()
 
       if (!profile || !profile.usernameNormalized) {
@@ -189,9 +221,29 @@ export const useAuth = create<AuthState>((set, get) => ({
     } catch (err) {
       // The session is valid; we simply could not reach Firestore. Signing the
       // user out here would look like a logout they did not ask for, so the
-      // session is kept and the screen offers a retry instead.
+      // session is kept.
       const message = err instanceof Error ? err.message : String(err)
       log('auth', `resolve failed: ${message}`, 'error')
+
+      /*
+       * No signal in the gym is the normal case, not an error. If this device
+       * already holds this account's data and has been through the
+       * questionnaire, the app opens on it — everything is written locally
+       * and queued — and the account is checked again as soon as the
+       * connection is back. Only a device with nothing of this account's to
+       * show gets the retry screen.
+       */
+      if (await canOpenOffline(user.uid)) {
+        try {
+          await startSync(user.uid)
+        } catch (syncErr) {
+          log('sync', `start deferred while offline: ${String(syncErr)}`, 'warn')
+        }
+        set({ busy: false, phase: 'ready', error: null })
+        log('auth', 'opened offline on the local copy; will re-check when online')
+        whenOnline(() => void get().resolve())
+        return
+      }
       set({ busy: false, phase: 'connection-error', error: message })
     }
   },

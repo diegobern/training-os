@@ -9,7 +9,7 @@ import { useLiveQuery } from '../hooks/useLiveQuery'
 import { logsForExercise, prsForExercise } from '../lib/db/repo.sessions'
 import { getExercise } from '../lib/db/repo.exercises'
 import { useApp, useT } from '../store/useApp'
-import { PERIODS, fmtDate, periodStart, type Period } from '../lib/dates'
+import { PERIODS, fmtDate, periodKey, periodStart, type Period } from '../lib/dates'
 import { fmtVolumeFull, fmtWeight, trimNum } from '../lib/format'
 import { buildInsight } from '../lib/training/overload'
 import { e1rmIsConfident } from '../lib/training/metrics'
@@ -93,6 +93,13 @@ export default function ExerciseProgress() {
   const bestLog = allLogs.reduce((a, b) => (b.bestE1rm > a.bestE1rm ? b : a), allLogs[0])
   const lowConfidence = bestLog.topSetReps > 0 && !e1rmIsConfident(bestLog.topSetReps)
 
+  const metrics: { value: Metric; label: string }[] = [
+    { value: 'e1rm', label: '1RM' },
+    { value: 'weight', label: t('progress.weight') },
+    { value: 'volume', label: t('progress.volume') },
+    { value: 'reps', label: t('progress.reps') },
+  ]
+
   const formatY = (v: number) =>
     metric === 'volume'
       ? fmtVolumeFull(v, settings.units)
@@ -114,13 +121,13 @@ export default function ExerciseProgress() {
           value={`${fmtWeight(best.weight, settings.units, false)} ${settings.units}`}
           sub={(() => {
             const heaviest = allLogs.reduce((a, b) => (b.topSetWeight > a.topSetWeight ? b : a), allLogs[0])
-            return `× ${heaviest.topSetReps} ${t('common.reps')}`
+            return `× ${heaviest.topSetReps} ${t('common.reps', { n: heaviest.topSetReps })}`
           })()}
         />
         <StatTile
           label={t('progress.e1rm')}
           value={fmtWeight(best.e1rm, settings.units)}
-          sub={lowConfidence ? `${bestLog.topSetReps} ${t('common.reps')} — ${t('common.notEnoughData').toLowerCase()}` : undefined}
+          sub={lowConfidence ? `${bestLog.topSetReps} ${t('common.reps', { n: bestLog.topSetReps })} — ${t('common.notEnoughData').toLowerCase()}` : undefined}
         />
         <StatTile label={t('progress.sessions')} value={allLogs.length} />
         <StatTile label={t('progress.prs')} value={data.prs.length || '—'} tone={data.prs.length ? 'pr' : 'default'} />
@@ -132,12 +139,7 @@ export default function ExerciseProgress() {
             size="sm"
             value={metric}
             onChange={setMetric}
-            options={[
-              { value: 'e1rm', label: '1RM' },
-              { value: 'weight', label: t('progress.weight') },
-              { value: 'volume', label: t('progress.volume') },
-              { value: 'reps', label: t('progress.reps') },
-            ]}
+            options={metrics}
           />
         </div>
 
@@ -147,7 +149,8 @@ export default function ExerciseProgress() {
           <LineChart
             points={points}
             height={210}
-            ariaLabel={`${data.exercise.name} — ${metric}`}
+            // The metric's label, not its id: a screen reader used to hear "e1rm".
+            ariaLabel={`${data.exercise.name} — ${metrics.find((m) => m.value === metric)?.label ?? ''}`}
             formatY={formatY}
             formatX={(v) => fmtDate(v, locale, { day: 'numeric', month: 'short' })}
             tooltipDetail={(_, i) => {
@@ -162,7 +165,7 @@ export default function ExerciseProgress() {
         <div className="scroll-x mt-3">
           {PERIODS.map((p) => (
             <Chip key={p} active={period === p} onClick={() => setPeriod(p)}>
-              {p}
+              {t(periodKey(p))}
             </Chip>
           ))}
         </div>
@@ -184,7 +187,7 @@ export default function ExerciseProgress() {
                 <div className="shrink-0 text-right">
                   <p className="tnum text-sm font-bold">
                     {pr.type === 'reps'
-                      ? `${trimNum(pr.value)} ${t('common.reps')}`
+                      ? `${trimNum(pr.value)} ${t('common.reps', { n: pr.value })}`
                       : pr.type === 'volume'
                         ? fmtVolumeFull(pr.value, settings.units)
                         : fmtWeight(pr.value, settings.units)}

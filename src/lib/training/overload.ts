@@ -17,8 +17,9 @@
  * Everything is clamped to weights that actually exist in the user's gym.
  * ========================================================================== */
 
-import type { AvailableWeights, ExerciseLog, SetEntry } from '../db/schema'
+import type { AvailableWeights, ExerciseLog, SetEntry, Units } from '../db/schema'
 import { EFFECTIVE_SET_TYPES } from '../db/schema'
+import { fmtWeight, trimNum } from '../format'
 import { estimate1RM } from './metrics'
 import { nextWeightUp, prevWeightDown, type IncrementSource } from './weights'
 
@@ -43,7 +44,11 @@ export interface Suggestion {
   /** Null when there is not enough history to suggest anything. */
   weight: number | null
   reps: number | null
-  /** i18n key + params, so the reason is translatable and never hard-coded. */
+  /**
+   * i18n key + params, so the reason is translatable and never hard-coded.
+   * The params are raw data — `weight` in kg, `rir` a number — and go through
+   * `reasonParamsFor` before `t()`, which writes them in the person's unit.
+   */
   reasonKey: string
   reasonParams: Record<string, string | number>
   lastWeight: number | null
@@ -155,17 +160,24 @@ export function suggestNext(input: SuggestInput): Suggestion {
   if (minReps >= repMax && rirOk) {
     const up = nextWeightUp(load, source, weights)
     if (up !== null) {
+      // The RIR part of the sentence exists only when there is something to
+      // say: no RIR logged reads "…top of the range.", not "at RIR —".
       return {
         ...base,
         kind: 'increase-weight',
         weight: up,
         reps: repMin,
-        reasonKey: 'coach.reason.topOfRange',
+        reasonKey:
+          rir === null
+            ? 'coach.reason.topOfRangeNoRir'
+            : rirTarget === null
+              ? 'coach.reason.topOfRangeNoTarget'
+              : 'coach.reason.topOfRange',
         reasonParams: {
           sets: atLoad.length,
           reps: repMax,
-          rir: rir === null ? '—' : String(Math.round(rir * 10) / 10),
-          rirTarget: rirTarget ?? '—',
+          ...(rir === null ? {} : { rir: Math.round(rir * 10) / 10 }),
+          ...(rirTarget === null ? {} : { rirTarget }),
         },
       }
     }
@@ -230,15 +242,35 @@ export function suggestNext(input: SuggestInput): Suggestion {
     kind: 'add-rep',
     weight: load,
     reps: target,
-    reasonKey: 'coach.reason.addRep',
+    reasonKey: rir === null ? 'coach.reason.addRepNoRir' : 'coach.reason.addRep',
     reasonParams: {
       weight: load,
       reps: maxReps,
-      rir: rir === null ? '—' : String(Math.round(rir * 10) / 10),
+      ...(rir === null ? {} : { rir: Math.round(rir * 10) / 10 }),
       repMin,
       repMax,
     },
   }
+}
+
+/**
+ * The reason's params, ready for `t()`.
+ *
+ * Weights are formatted here, at the moment the reason is shown, with the
+ * unit and the decimal mark the person is using then: "35 kg" or "77.2 lb",
+ * never a bare kilo next to a target in pounds. An insight is built once per
+ * session and outlives a switch of units or language mid-workout, which is
+ * why it keeps kilos and this runs on every render instead.
+ */
+export function reasonParamsFor(s: Pick<Suggestion, 'reasonParams'>, units: Units): Record<string, string | number> {
+  const out: Record<string, string | number> = { ...s.reasonParams }
+  const { weight, rir, rirTarget } = s.reasonParams
+  if (typeof weight === 'number') out.weight = fmtWeight(weight, units)
+  if (typeof rir === 'number') out.rir = trimNum(rir, 1)
+  if (typeof rirTarget === 'number') out.rirTarget = trimNum(rirTarget, 1)
+  // The count picks the grammatical number: «1 serie», not «1 series».
+  if (typeof s.reasonParams.sets === 'number') out.n = s.reasonParams.sets
+  return out
 }
 
 /* ------------------------------------------------------------------ plateau */

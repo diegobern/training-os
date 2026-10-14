@@ -10,10 +10,12 @@ import {
   IconTrophy,
 } from '../components/ui/Icon'
 import { useLiveQuery } from '../hooks/useLiveQuery'
-import { getActiveRoutine, listRoutines, nextDayIndex } from '../lib/db/repo.routines'
+import { getActiveRoutine, lastDayIdForRoutine, listRoutines, nextDayIndex } from '../lib/db/repo.routines'
 import { listPRs, listSessions, logsInRange, sessionTotals } from '../lib/db/repo.sessions'
 import { useApp, useT } from '../store/useApp'
 import { useWorkout } from '../store/useWorkout'
+import { exerciseTitle, sessionTitle } from '../lib/i18n'
+import { getExercisesByIds } from '../lib/db/repo.exercises'
 import { fmtDate, partOfDay, relativeDay, startOfWeek, addDays } from '../lib/dates'
 import { fmtDuration, fmtVolume, fmtWeight, trimNum } from '../lib/format'
 import { estimateDurationMinutes, statsFrom, volumeByWeek, weekStreak } from '../lib/training/stats'
@@ -42,6 +44,17 @@ export default function Home() {
     [weekStart],
   )
 
+  // A record keeps the exercise's name as it was spelled when it was set; the
+  // catalog has it in the language being used now. Looked up apart from the
+  // query above and only when there are records: it reads the catalog, and
+  // the first screen must not wait for that.
+  const prIds = (data?.prs ?? []).map((p) => p.exerciseId).join(',')
+  const { data: prNames } = useLiveQuery(
+    () => (prIds ? getExercisesByIds(prIds.split(',')) : Promise.resolve(undefined)),
+    ['exercises'],
+    [prIds, settings.language],
+  )
+
   const greeting =
     partOfDay() === 'morning'
       ? t('home.goodMorning')
@@ -54,7 +67,9 @@ export default function Home() {
   const routine = data?.activeRoutine
   const sessions = data?.sessions ?? []
   const lastSession = sessions[0]
-  const nextIdx = routine ? nextDayIndex(routine, lastSession?.dayId ?? null) : -1
+  // From the last session OF THIS ROUTINE, not the last session of any kind:
+  // a free workout in between must not send the rotation back to day one.
+  const nextIdx = routine ? nextDayIndex(routine, lastDayIdForRoutine(routine, sessions)) : -1
   const nextDay = routine && nextIdx >= 0 ? routine.days[nextIdx] : null
 
   const weekSessions = sessions.filter((s) => s.startedAt >= weekStart)
@@ -90,7 +105,7 @@ export default function Home() {
       {session && (
         <Card className="mb-4 border-accent/40 bg-accent/[0.07] p-4">
           <p className="label-xs text-accent">{t('home.inProgress')}</p>
-          <p className="mt-1 text-lg font-bold tracking-tight">{session.dayName}</p>
+          <p className="mt-1 text-lg font-bold tracking-tight">{sessionTitle(session, t)}</p>
           <Button
             full
             size="lg"
@@ -125,7 +140,8 @@ export default function Home() {
               <>
                 <h2 className="mt-1.5 text-hero">{nextDay.name}</h2>
                 <p className="mt-2 text-sm text-muted">
-                  {nextDay.exercises.length} {t('common.exercises')} · {plannedSets} {t('common.sets')}
+                  {nextDay.exercises.length} {t('common.exercises', { n: nextDay.exercises.length })} · {plannedSets}{' '}
+                  {t('common.sets', { n: plannedSets })}
                   {estMin > 0 && ` · ${t('home.estimated', { min: estMin })}`}
                 </p>
                 <p className="mt-0.5 text-xs text-faint">
@@ -162,7 +178,7 @@ export default function Home() {
               sub={
                 weekStats.workouts === 0
                   ? t('home.noSessionsWeek')
-                  : `${weekStats.effectiveSets} ${t('home.setsShort')}`
+                  : `${weekStats.effectiveSets} ${t('home.setsShort', { n: weekStats.effectiveSets })}`
               }
               tone={weekStats.workouts > 0 ? 'accent' : 'default'}
             />
@@ -184,7 +200,7 @@ export default function Home() {
             <StatTile
               label={t('common.duration')}
               value={fmtDuration(weekStats.durationSec, 'compact')}
-              sub={`${weekStats.reps} ${t('common.reps')}`}
+              sub={`${weekStats.reps} ${t('common.reps', { n: weekStats.reps })}`}
             />
           </div>
 
@@ -196,13 +212,14 @@ export default function Home() {
                 className="press card flex w-full items-center gap-3 p-4 text-left"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-card">{lastSession.dayName}</p>
+                  <p className="truncate text-card">{sessionTitle(lastSession, t)}</p>
                   <p className="mt-0.5 text-xs text-faint">
                     {fmtDate(lastSession.startedAt, locale, { day: 'numeric', month: 'short' })} ·{' '}
                     {fmtDuration(lastSession.durationSec, 'compact')}
                   </p>
                   <p className="tnum mt-1.5 text-sm text-muted">
-                    {lastTotals.effectiveSets} {t('common.sets')} · {fmtVolume(lastTotals.volume, settings.units)}
+                    {lastTotals.effectiveSets} {t('common.sets', { n: lastTotals.effectiveSets })} ·{' '}
+                    {fmtVolume(lastTotals.volume, settings.units)}
                   </p>
                 </div>
                 <IconArrowRight size={18} className="shrink-0 text-faint" />
@@ -226,7 +243,9 @@ export default function Home() {
                   <div key={pr.id} className="card flex items-center gap-3 px-3.5 py-3">
                     <IconTrophy size={18} className="shrink-0 text-pr" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{pr.exerciseName}</p>
+                      <p className="truncate text-sm font-semibold">
+                        {exerciseTitle(pr.exerciseId, pr.exerciseName, prNames)}
+                      </p>
                       <p className="text-xs text-faint">
                         {t(`pr.${pr.type}`)} · {fmtDate(pr.date, locale)}
                       </p>

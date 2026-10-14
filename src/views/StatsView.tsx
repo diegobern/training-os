@@ -10,6 +10,8 @@ import { endOfMonth, fmtDate, monthKey, startOfMonth } from '../lib/dates'
 import { fmtDuration, fmtVolume, fmtVolumeFull } from '../lib/format'
 import { statsFrom, weeklySetsPerMuscle } from '../lib/training/stats'
 import { MUSCLE_GROUPS } from '../lib/db/schema'
+import { getExercisesByIds } from '../lib/db/repo.exercises'
+import { exerciseTitle } from '../lib/i18n'
 
 export function StatsView() {
   const t = useT()
@@ -19,9 +21,13 @@ export function StatsView() {
   const { data } = useLiveQuery(
     async () => {
       const [sessions, prs, logs] = await Promise.all([listSessions(), listPRs(), logsInRange(0)])
-      return { sessions, prs, logs }
+      // Each log keeps the exercise's name as it was spelled that day; the
+      // catalog has it in the language being used now.
+      const current = await getExercisesByIds(logs.map((l) => l.exerciseId))
+      return { sessions, prs, logs, current }
     },
-    ['sessions', 'personalRecords', 'exerciseLogs'],
+    ['sessions', 'personalRecords', 'exerciseLogs', 'exercises'],
+    [settings.language],
   )
 
   const sessions = data?.sessions ?? []
@@ -61,7 +67,7 @@ export function StatsView() {
   const mostTrained = useMemo(() => {
     const counts = new Map<string, { name: string; n: number }>()
     for (const l of logs) {
-      const e = counts.get(l.exerciseId) ?? { name: l.exerciseName, n: 0 }
+      const e = counts.get(l.exerciseId) ?? { name: exerciseTitle(l.exerciseId, l.exerciseName, data?.current), n: 0 }
       e.n++
       counts.set(l.exerciseId, e)
     }
@@ -69,7 +75,7 @@ export function StatsView() {
       .sort((x, y) => y[1].n - x[1].n)
       .slice(0, 8)
       .map(([id, v]) => ({ id, ...v }))
-  }, [logs])
+  }, [logs, data])
 
   const distribution = useMemo(() => {
     const m = weeklySetsPerMuscle(logs)
@@ -170,7 +176,7 @@ export function StatsView() {
             <BarChart
               data={distribution}
               ariaLabel={t('stats.muscleDistribution')}
-              formatValue={(v) => `${Math.round(v)} ${t('common.sets')}`}
+              formatValue={(v) => `${Math.round(v)} ${t('common.sets', { n: Math.round(v) })}`}
             />
           </Card>
         </section>

@@ -9,11 +9,14 @@ import { listRoutines } from '../lib/db/repo.routines'
 import { listSessions } from '../lib/db/repo.sessions'
 import { useApp, useT } from '../store/useApp'
 import { fmtDate } from '../lib/dates'
+import { fold } from '../lib/catalog/resolve'
+import { exerciseTitle, sessionTitle } from '../lib/i18n'
 
 export default function SearchPage() {
   const t = useT()
   const navigate = useNavigate()
   const locale = useApp((s) => s.locale)
+  const language = useApp((s) => s.settings.language)
   const [q, setQ] = useState('')
 
   const { data } = useLiveQuery(
@@ -22,38 +25,45 @@ export default function SearchPage() {
       return { exercises, routines, sessions }
     },
     ['exercises', 'routines', 'sessions'],
+    // Exercise names resolve in the active language when they are read.
+    [language],
   )
 
-  const query = q.trim().toLowerCase()
+  // Accent-blind on both sides, like the library: "menton" finds "mentón",
+  // "jalon" finds "Jalón". `fold` lowercases too.
+  const query = fold(q.trim())
   const ready = query.length >= 2
+
+  // Sessions and notes keep each exercise's name as it was spelled when it was
+  // logged; this has it in the language being used now.
+  const exercisesById = useMemo(() => new Map((data?.exercises ?? []).map((e) => [e.id, e])), [data])
 
   const results = useMemo(() => {
     if (!ready || !data) return null
-    const exercises = data.exercises.filter(
-      (e) => e.name.toLowerCase().includes(query) || e.instructions.toLowerCase().includes(query),
-    )
+    const has = (text: string) => fold(text).includes(query)
+    const exercises = data.exercises.filter((e) => has(e.name) || has(e.instructions))
     const routines = data.routines.filter(
-      (r) =>
-        r.name.toLowerCase().includes(query) ||
-        r.description.toLowerCase().includes(query) ||
-        r.days.some((d) => d.name.toLowerCase().includes(query)),
+      (r) => has(r.name) || has(r.description) || r.days.some((d) => has(d.name)),
     )
+    // A session is found by what it shows now and by what was saved, so a
+    // workout logged in Spanish still turns up for "press banca" in English.
     const sessions = data.sessions.filter(
       (s) =>
-        s.dayName.toLowerCase().includes(query) ||
-        s.routineName.toLowerCase().includes(query) ||
-        s.exercises.some((e) => e.name.toLowerCase().includes(query)),
+        has(sessionTitle(s, t)) ||
+        has(s.dayName) ||
+        has(s.routineName) ||
+        s.exercises.some((e) => has(e.name) || has(exerciseTitle(e.exerciseId, e.name, exercisesById))),
     )
     const notes = data.sessions
       .flatMap((s) => [
-        ...(s.notes.toLowerCase().includes(query) ? [{ session: s, text: s.notes, exercise: null as string | null }] : []),
+        ...(has(s.notes) ? [{ session: s, text: s.notes, exercise: null as string | null }] : []),
         ...s.exercises
-          .filter((e) => e.sessionNote.toLowerCase().includes(query))
-          .map((e) => ({ session: s, text: e.sessionNote, exercise: e.name })),
+          .filter((e) => has(e.sessionNote))
+          .map((e) => ({ session: s, text: e.sessionNote, exercise: exerciseTitle(e.exerciseId, e.name, exercisesById) })),
       ])
       .slice(0, 20)
     return { exercises, routines, sessions, notes }
-  }, [data, query, ready])
+  }, [data, query, ready, t, exercisesById])
 
   const total = results ? results.exercises.length + results.routines.length + results.sessions.length + results.notes.length : 0
 
@@ -125,7 +135,7 @@ export default function SearchPage() {
                 onClick={() => navigate(`/history/${s.id}`)}
                 className="press flex w-full items-center gap-2 px-3.5 py-2.5 text-left"
               >
-                <span className="min-w-0 flex-1 truncate text-sm">{s.dayName}</span>
+                <span className="min-w-0 flex-1 truncate text-sm">{sessionTitle(s, t)}</span>
                 <span className="shrink-0 text-xs text-faint">{fmtDate(s.startedAt, locale)}</span>
               </button>
             ))}

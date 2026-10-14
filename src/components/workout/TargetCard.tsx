@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import type { ExerciseInsight } from '../../lib/training/overload'
+import { reasonParamsFor, type ExerciseInsight } from '../../lib/training/overload'
 import { useApp, useT } from '../../store/useApp'
-import { fmtWeight, trimNum } from '../../lib/format'
+import { fmtPercent, fmtWeight } from '../../lib/format'
 import { IconAlert, IconArrowDown, IconArrowUp, IconInfo, IconTarget } from '../ui/Icon'
 import { cx } from '../ui/primitives'
 
@@ -21,7 +21,7 @@ export function TrendBadge({ insight }: { insight: ExerciseInsight }) {
       {Arrow ? <Arrow size={11} /> : <span className="text-caption leading-none">→</span>}
       {t(`progress.trend.${trend}`)}
       {trendDeltaPct !== null && Math.abs(trendDeltaPct) >= 0.5 && (
-        <span className="tnum opacity-80">{trendDeltaPct > 0 ? '+' : ''}{trendDeltaPct.toFixed(1)}%</span>
+        <span className="tnum opacity-80">{fmtPercent(trendDeltaPct, 1)}</span>
       )}
     </span>
   )
@@ -34,6 +34,8 @@ export function TargetCard({ insight, compact }: { insight: ExerciseInsight; com
   const { suggestion, plateau } = insight
 
   const hasTarget = suggestion.weight !== null && suggestion.reps !== null
+  // No load is bodyweight, written the way the set rows write it — not «0 kg».
+  const load = (w: number) => (w === 0 ? t('workout.bodyweightShort') : `${fmtWeight(w, units, false)} ${units}`)
 
   return (
     <div className="card overflow-hidden">
@@ -43,7 +45,7 @@ export function TargetCard({ insight, compact }: { insight: ExerciseInsight; com
           <p className="label-xs text-accent">{t('workout.target')}</p>
           {hasTarget ? (
             <p className="tnum mt-1 text-xl font-bold leading-none tracking-tight">
-              {fmtWeight(suggestion.weight as number, units, false)} {units} × {suggestion.reps}
+              {load(suggestion.weight as number)} × {suggestion.reps}
             </p>
           ) : (
             <p className="mt-1 text-sm font-semibold text-muted">{t('common.notEnoughData')}</p>
@@ -56,7 +58,7 @@ export function TargetCard({ insight, compact }: { insight: ExerciseInsight; com
           </div>
           {suggestion.lastWeight !== null && (
             <p className="tnum mt-1.5 text-xs text-faint">
-              {t('workout.lastTime')}: {fmtWeight(suggestion.lastWeight, units, false)} {units} × {suggestion.lastReps}
+              {t('workout.lastTime')}: {load(suggestion.lastWeight)} × {suggestion.lastReps}
             </p>
           )}
         </div>
@@ -72,7 +74,7 @@ export function TargetCard({ insight, compact }: { insight: ExerciseInsight; com
       {showWhy && (
         <div className="animate-fade-up border-t border-line bg-elevated/50 px-3.5 py-3">
           <p className="text-secondary text-muted">
-            {t(suggestion.reasonKey, suggestion.reasonParams)}
+            {t(suggestion.reasonKey, reasonParamsFor(suggestion, units))}
           </p>
           <p className="mt-2 text-caption uppercase tracking-wide text-faint">{t('coach.suggestionLabel')}</p>
         </div>
@@ -85,7 +87,8 @@ export function TargetCard({ insight, compact }: { insight: ExerciseInsight; com
           </p>
           <p className="tnum mt-1 text-secondary text-muted">
             {t('coach.plateauBody', {
-              weight: `${trimNum(plateau.weight)} ${units === 'kg' ? 'kg' : 'kg'}`,
+              // Stored in kg like every weight; shown in the person's unit.
+              weight: fmtWeight(plateau.weight, units),
               reps: plateau.reps,
               sessions: plateau.sessions,
             })}

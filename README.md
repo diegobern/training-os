@@ -245,16 +245,32 @@ npm run preview
 
 ### Pruebas
 
-| Comando | Qué comprueba | Necesita |
-|---------|----------------|----------|
-| `npm test` | 102 pruebas de la lógica pura: coach, 1RM, volumen, pesos disponibles, récords, rachas, usuarios, contraseñas, rutas de la cuenta | nada |
-| `npm run test:auth` | 17 pruebas reales de Firebase Authentication | emulador de Auth (lo arranca solo) |
-| `npm run test:rules` | 22 pruebas de `firestore.rules`: aislamiento entre usuarios, usernames, acceso anónimo | emulador de Firestore |
-| `node e2e/flow.mjs` | Recorrido completo de entrenamiento en navegador | `npm run preview` |
-| `node e2e/flow2.mjs` | Rutinas, offline, idioma, tema, exportación | `npm run preview` |
-| `node e2e/authgate.mjs` | Puerta de autenticación y validación de formularios | build de test + emulador de Auth |
-| `node e2e/account.mjs` | Cambio de dispositivo, aislamiento entre usuarios, sync offline | suite completa de emuladores |
-| `node e2e/audit.mjs` | Desbordamientos y accesibilidad en 20 rutas × 6 anchos | `npm run preview` |
+Las suites de navegador corren contra una build servida: `npx vite build --mode
+localonly --outDir dist-local` y `npx vite preview --outDir dist-local --port
+4330` (sin Firebase), o `--mode test --outDir dist-test` en el puerto 4190
+(contra los emuladores). El navegador lo elige `e2e/chromium.mjs` (variable
+`CHROMIUM_EXE`). Cifras de la última ejecución completa:
+
+| Comando | Qué comprueba | Pruebas | Necesita |
+|---------|----------------|--------:|----------|
+| `npm test` | Lógica pura (coach, 1RM, récords, formato por idioma, plurales, cronómetro, aviso Android…) + integridad del catálogo (traducciones ES, nombres, caché) | 459 + 118 | nada |
+| `npm run test:auth` | Firebase Authentication real | 14 | emulador de Auth (lo arranca solo) |
+| `npm run test:rules` | `firestore.rules`: aislamiento entre usuarios, usernames, acceso anónimo | 22 | emulador de Firestore (Java) |
+| `npm run test:account` | Alta → cuestionario, sync, dispositivo limpio, aislamiento, entrenar sin red | 10 | build de test en :4190 + emuladores completos |
+| `node e2e/authgate.mjs` | Puerta de autenticación, formularios, alta con Firestore caído | 29 | build de test (`BASE`) + emulador de Auth |
+| `npm run test:workout` | Barra del cronómetro, confirmación al finalizar, HOW TO en español | 63 | build local-only |
+| `npm run test:languages` | Todas las pantallas en español y en inglés sin palabras del otro idioma | 46 | build local-only |
+| `npm run test:catalog-ui` | Biblioteca, buscador, fichas, selector de ejercicios | 58 | build local-only |
+| `node e2e/fixes-units.mjs` · `fixes-texts.mjs` · `fixes-flows.mjs` | Unidades y decimales, textos y plurales, flujos de rutinas y sesiones | 61 · 91 · 85 | build local-only |
+| `npm run test:android` | Capa nativa simulada: botón atrás, aviso de entrenamiento, permisos | 37 | build local-only |
+| `npm run test:onboarding` | Cuestionario inicial | 33 | build local-only en :4295 |
+| `npm run test:nav` | Logo animado del menú (sin congelarse al hacer scroll) | 13 | build local-only |
+| `npm run test:boot` · `test:sw` · `test:cache` | Arranque y actualizaciones, offline, caché antigua | 14 · 4 · 4 | despliegues en `E2E_TMP/deploy` · build local-only |
+| `npm run android:verify` | Manifiesto, permisos mínimos, recursos y plugin nativo | 26 | nada |
+
+`e2e/flow.mjs`, `audit.mjs`, `shots.mjs` y `t1.mjs` son guiones antiguos que
+dependían del botón «Cargar datos DEMO» (retirado) y de rutas de otra máquina;
+lo que cubrían lo cubren hoy las suites de arriba.
 
 Consulta [FIREBASE.md](FIREBASE.md) para conectar tu proyecto y ejecutar las pruebas
 contra los emuladores.
