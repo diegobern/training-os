@@ -146,12 +146,51 @@ final class AppDriver {
                 pause(0.6)
             }
         }
-        XCTAssertTrue(element.isHittable, "Está pero no se puede tocar: \(what)", file: file, line: line)
+        // En pantallas pequeñas el teclado tapa lo que hay debajo del campo
+        // (el primer resultado del buscador): se esconde y se vuelve a mirar.
+        if !element.isHittable && app.keyboards.firstMatch.exists {
+            dismissKeyboard()
+            waitUntil(3) { element.isHittable }
+        }
         // Un botón desactivado (la casilla de la serie hasta que hay peso y
         // repeticiones válidos) se toca sin efecto: mejor esperar a que no lo esté.
         waitUntil(Wait.short) { element.isEnabled }
-        element.tap()
+        if element.isHittable {
+            element.tap()
+        } else {
+            // WebKit a veces publica como «no tocable» un elemento que está a
+            // la vista (dentro de un contenedor con su propio scroll, como la
+            // hoja del buscador). Si su marco cae dentro de la ventana, se toca
+            // en su centro; si no, es que de verdad no se ve.
+            let frame = element.frame
+            let window = app.windows.firstMatch.frame
+            XCTAssertTrue(
+                !frame.isEmpty && window.intersects(frame),
+                "Está pero no se puede tocar: \(what)",
+                file: file,
+                line: line
+            )
+            element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
         pause(0.4)
+    }
+
+    /// Esconde el teclado de pantalla con su tecla de acción (que en el
+    /// buscador es «Buscar» y en los números no existe) o, si no la tiene,
+    /// enviando un salto de línea, que en estos campos no escribe nada.
+    func dismissKeyboard() {
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.exists else { return }
+        for label in ["Buscar", "Search", "Done", "OK", "Listo", "Return", "Intro", "return"] {
+            let key = keyboard.buttons[label]
+            if key.exists && key.isHittable {
+                key.tap()
+                pause(0.5)
+                return
+            }
+        }
+        app.typeText("\n")
+        pause(0.5)
     }
 
     /// Escribe en un campo del WKWebView. Borra antes lo que hubiera (un peso

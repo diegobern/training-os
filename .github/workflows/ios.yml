@@ -186,6 +186,30 @@ jobs:
             xcrun xcresulttool get test-results summary --path "$B" > "$EVIDENCE/ui-$R/summary.json" 2>/dev/null || true
           done
 
+      - name: Diagnóstico (logs del simulador, cierres, fotogramas)
+        if: always()
+        run: |
+          mkdir -p "$EVIDENCE/diagnostics"
+          for KIND in pro plain; do
+            UDID=$([ "$KIND" = pro ] && echo "${{ steps.sim.outputs.pro }}" || echo "${{ steps.sim.outputs.plain }}")
+            [ -n "$UDID" ] || continue
+            xcrun simctl spawn "$UDID" log show --last 90m --style compact \
+              --predicate 'process == "App" OR process == "TrainingOSWidgets" OR (process == "SpringBoard" AND eventMessage CONTAINS[c] "trainingos")' \
+              2>&1 | tail -n 3000 > "$EVIDENCE/diagnostics/sim-log-$KIND.txt" || true
+          done
+          ls -lt ~/Library/Logs/DiagnosticReports 2>/dev/null | head -40 > "$EVIDENCE/diagnostics/crash-reports.txt" || true
+          find ~/Library/Logs/DiagnosticReports -name 'App*' -newer "$EVIDENCE/run.txt" -exec cp {} "$EVIDENCE/diagnostics/" \; 2>/dev/null || true
+          # Las grabaciones pesan demasiado para publicarlas: una hoja de
+          # fotogramas (uno cada 3 s) por grabación.
+          if command -v ffmpeg >/dev/null; then
+            find "$EVIDENCE" -name '*.mp4' | while read -r V; do
+              ffmpeg -loglevel error -i "$V" -vf "fps=1/3,scale=200:-1,tile=8x5" -frames:v 1 "${V%.mp4}-frames.jpg" || true
+            done
+          else
+            echo "ffmpeg no disponible" > "$EVIDENCE/diagnostics/no-ffmpeg.txt"
+          fi
+          find "$EVIDENCE" -name '*.mp4' -delete
+
       - name: Publicar evidencia en ios-ci-evidence
         if: always()
         env:
