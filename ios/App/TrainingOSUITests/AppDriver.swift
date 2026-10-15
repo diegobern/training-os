@@ -416,9 +416,18 @@ final class AppDriver {
         let label = web.staticTexts
             .matching(NSPredicate(format: "label MATCHES %@", "Paso\\s+[0-9]+\\s+de\\s+[0-9]+"))
             .firstMatch
-        guard label.exists else { return nil }
-        let numbers = label.label.components(separatedBy: CharacterSet.decimalDigits.inverted).filter { !$0.isEmpty }
+        // Una sola lectura (`snapshot`): entre `exists` y `label` el paso puede
+        // cambiar en plena transición, y leer `label` de un elemento que ya no
+        // está hace fallar el test («Failed to get matching snapshot»).
+        guard let text = try? label.snapshot().label else { return nil }
+        let numbers = text.components(separatedBy: CharacterSet.decimalDigits.inverted).filter { !$0.isEmpty }
         return numbers.first.flatMap { Int($0) }
+    }
+
+    /// Lo que se ve al acabar el cuestionario: la barra de pestañas o, si hay
+    /// un resumen final, su «Hecho».
+    var appAfterOnboarding: Bool {
+        button("Entreno").exists || button("Hecho").exists
     }
 
     /// Responde el cuestionario con las mismas respuestas que
@@ -453,10 +462,16 @@ final class AppDriver {
             } else {
                 tap(button("Siguiente"), "Siguiente (paso \(step))", file: file, line: line)
             }
-            waitUntil(Wait.screen) { onboardingStep() != step }
+            // Al paso siguiente o a la app; no basta con que el paso actual
+            // desaparezca: en mitad de la transición no hay ninguno y el
+            // bucle acabaría antes de tiempo.
+            waitUntil(Wait.screen) {
+                if let next = onboardingStep() { return next != step }
+                return appAfterOnboarding
+            }
         }
         XCTAssertTrue(
-            waitUntil(Wait.screen) { button("Entreno").exists || button("Hecho").exists },
+            waitUntil(Wait.screen) { appAfterOnboarding },
             "Tras el cuestionario no aparece la app",
             file: file,
             line: line
