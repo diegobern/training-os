@@ -550,6 +550,24 @@ extension AppDriver {
     ) {
         hideKeyboard(tapping: anchor)
         type(value, into: field, what, file: file, line: line)
+        // Lo escrito tiene que estar en ESTE campo. Un registro de ios-auth
+        // acabó con «Email» vacío y «Crear cuenta» desactivado, y el test sólo
+        // lo vio dos minutos después, sin decir qué campo falló.
+        let shown = waitUntil(3) { AppDriver.fieldShows(field.value as? String ?? "", typed: value, secure: field.elementType == .secureTextField) }
+        if !shown { screenshot("\(what): no conserva lo escrito") }
+        XCTAssertTrue(shown, "«\(what)» no conserva lo escrito (muestra «\(field.value as? String ?? "")»)", file: file, line: line)
+    }
+
+    /// Lo que la accesibilidad enseña de un campo ¿es `typed`? WebKit recorta
+    /// los valores largos con «...» y las contraseñas llegan como puntos.
+    static func fieldShows(_ shown: String, typed: String, secure: Bool) -> Bool {
+        let cut = shown.hasSuffix("...")
+        let visible = cut ? String(shown.dropLast(3)) : shown
+        if secure {
+            let dots = visible.filter { $0 == "•" }.count
+            return cut ? dots > 0 && dots <= typed.count : dots == typed.count
+        }
+        return cut ? !visible.isEmpty && typed.hasPrefix(visible) : visible == typed
     }
 
     /// Sustituye lo escrito en un campo de contraseña. Su valor llega
