@@ -192,17 +192,34 @@ final class AppDriver {
                 file: file,
                 line: line
             )
+            // Bajo el teclado, el toque caería en una tecla y escribiría en el
+            // campo que tiene el foco.
+            let keyboard = app.keyboards.firstMatch
+            XCTAssertFalse(
+                keyboard.exists && keyboard.frame.contains(CGPoint(x: frame.midX, y: frame.midY)),
+                "El teclado tapa: \(what)",
+                file: file,
+                line: line
+            )
             element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
         pause(0.4)
     }
 
-    /// Esconde el teclado de pantalla con su tecla de acción (que en el
-    /// buscador es «Buscar» y en los números no existe) o, si no la tiene,
-    /// enviando un salto de línea, que en estos campos no escribe nada.
+    /// Esconde el teclado de pantalla. Primero con «OK» («Done») de la barra
+    /// que WKWebView pone encima del teclado: quita el foco sin enviar nada.
+    /// Esa barra es otra ventana, no forma parte de `app.keyboards`. Si no
+    /// está, con la tecla de acción del teclado (que en el buscador es
+    /// «Buscar» y en los números no existe) o, si no la tiene, enviando un
+    /// salto de línea, que en estos campos no escribe nada.
     func dismissKeyboard() {
         let keyboard = app.keyboards.firstMatch
         guard keyboard.exists else { return }
+        let done = app.toolbars.buttons.matching(NSPredicate(format: "label IN %@", ["OK", "Done", "Listo", "Aceptar"])).firstMatch
+        if done.exists && done.isHittable {
+            done.tap()
+            if waitUntil(2, { !keyboard.exists }) { return }
+        }
         for label in ["Buscar", "Search", "Done", "OK", "Listo", "Return", "Intro", "return"] {
             let key = keyboard.buttons[label]
             if key.exists && key.isHittable {
@@ -228,11 +245,24 @@ final class AppDriver {
         // Con teclado físico conectado en el simulador no sale el de pantalla;
         // la espera sólo da tiempo a que el campo reciba el foco.
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
+        requireFocus(field, what, file: file, line: line)
         if let current = field.value as? String, !current.isEmpty, current != field.placeholderValue {
             app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: min(current.count, 12)))
         }
         app.typeText(text)
         pause(0.4)
+    }
+
+    /// `typeText` escribe donde esté el foco: si el toque no se lo dio a
+    /// `field`, el texto acabaría en otro campo (la contraseña repetida
+    /// escrita dos veces en «Contraseña»). Mejor fallar aquí, diciendo cuál.
+    func requireFocus(_ field: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(
+            waitUntil(3) { (field.value(forKey: "hasKeyboardFocus") as? Bool) == true },
+            "El campo no recibe el foco: \(what)",
+            file: file,
+            line: line
+        )
     }
 
     // MARK: - Sistema: permisos, inicio, bloqueo, capturas

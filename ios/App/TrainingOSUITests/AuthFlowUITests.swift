@@ -566,6 +566,7 @@ extension AppDriver {
         hideKeyboard(tapping: anchor)
         tap(field, what, file: file, line: line)
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
+        requireFocus(field, what, file: file, line: line)
         app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 40))
         app.typeText(value)
         pause(0.4)
