@@ -111,3 +111,7 @@ xcuserdata/
 *.xcarchive/
 *.dSYM/
 *.dSYM.zip
+
+# Python (scripts/ios/simulators.py)
+__pycache__/
+*.pyc
