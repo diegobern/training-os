@@ -74,25 +74,13 @@ jobs:
 
       - name: Elegir simuladores
         id: sim
+        # Los dos iPhone salen del runtime del SDK (scripts/ios/simulators.py):
+        # el «iPhone 16e» del runtime 26.2 con el SDK 26.5 acabó en «Unable to
+        # find a device matching the provided destination specifier» (exit 70).
         run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, subprocess
-          data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
-          def pick(name):
-              best = None
-              for runtime, devices in data['devices'].items():
-                  if 'iOS' not in runtime:
-                      continue
-                  version = tuple(int(x) for x in runtime.rsplit('iOS-', 1)[-1].split('-') if x.isdigit())
-                  for d in devices:
-                      if d['name'] == name and (best is None or version > best[0]):
-                          best = (version, d['udid'])
-              return best[1] if best else ''
-          print(f"pro={pick('iPhone 17 Pro')}")
-          print(f"plain={pick('iPhone 16e') or pick('iPhone 17')}")
-          print(f"max={pick('iPhone 17 Pro Max')}")
-          PY
-          cat "$GITHUB_OUTPUT" | tee "$EVIDENCE/simulators.txt"
+          set -o pipefail
+          python3 scripts/ios/simulators.py pick | tee -a "$GITHUB_OUTPUT" "$EVIDENCE/simulators.txt"
+          xcrun simctl list devices available >> "$EVIDENCE/simulators.txt"
 
       - name: Compilar para simulador (Debug) y tests
         run: |
@@ -158,6 +146,10 @@ jobs:
 
       - name: Tests de interfaz (iPhone 17 Pro, con Dynamic Island)
         run: |
+          UDID=${{ steps.sim.outputs.pro }}
+          set -o pipefail
+          python3 scripts/ios/simulators.py ready "$UDID" 2>&1 | tee "$EVIDENCE/destination-pro.txt"
+          set +o pipefail
           set +e
           xcodebuild -project "$PROJECT" -scheme App -configuration Debug             -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.pro }}"             -derivedDataPath build -clonedSourcePackagesDirPath spm             -resultBundlePath "$RUNNER_TEMP/ui-pro.xcresult"             -parallel-testing-enabled NO test-without-building > "$EVIDENCE/ui-tests-pro.log" 2>&1
           rc=$?
@@ -167,8 +159,16 @@ jobs:
       - name: Tests de interfaz (iPhone sin Dynamic Island)
         if: always() && steps.sim.outputs.plain != ''
         run: |
-          xcrun simctl boot "${{ steps.sim.outputs.plain }}" || true
-          xcrun simctl bootstatus "${{ steps.sim.outputs.plain }}" -b
+          UDID=${{ steps.sim.outputs.plain }}
+          # Un simulador arrancado cada vez: el del iPhone Pro ya ha terminado.
+          xcrun simctl shutdown "${{ steps.sim.outputs.pro }}" || true
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          set -o pipefail
+          python3 scripts/ios/simulators.py ready "$UDID" 2>&1 | tee "$EVIDENCE/destination-plain.txt"
+          set +o pipefail
           set +e
           xcodebuild -project "$PROJECT" -scheme App -configuration Debug             -sdk iphonesimulator -destination "id=${{ steps.sim.outputs.plain }}"             -derivedDataPath build -clonedSourcePackagesDirPath spm             -resultBundlePath "$RUNNER_TEMP/ui-plain.xcresult"             -parallel-testing-enabled NO test-without-building > "$EVIDENCE/ui-tests-plain.log" 2>&1
           rc=$?

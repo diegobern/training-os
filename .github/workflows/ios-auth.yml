@@ -295,21 +295,9 @@ jobs:
         id: sim
         run: |
           source "$RUNNER_TEMP/auth-lib.sh"
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, subprocess
-          data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
-          def pick(name):
-              best = None
-              for runtime, devices in data['devices'].items():
-                  if 'iOS' not in runtime:
-                      continue
-                  version = tuple(int(x) for x in runtime.rsplit('iOS-', 1)[-1].split('-') if x.isdigit())
-                  for d in devices:
-                      if d['name'] == name and (best is None or version > best[0]):
-                          best = (version, d['udid'])
-              return best[1] if best else ''
-          print(f"pro={pick('iPhone 17 Pro')}")
-          PY
+          # El iPhone Pro del runtime del SDK (scripts/ios/simulators.py, el
+          # mismo selector que ios.yml).
+          python3 scripts/ios/simulators.py pick --only pro >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT" | tee "$EVIDENCE/simulator.txt"
           UDID=$(grep '^pro=' "$GITHUB_OUTPUT" | tail -n 1 | cut -d= -f2)
           if [ -z "$UDID" ]; then
@@ -343,6 +331,8 @@ jobs:
           xcrun simctl status_bar "$SIM_UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
           # El test 1 es una instalación nueva: sin restos de nada.
           xcrun simctl uninstall "$SIM_UDID" com.trainingos.app || true
+          set -o pipefail
+          python3 scripts/ios/simulators.py ready "$SIM_UDID" 2>&1 | tee "$EVIDENCE/destination.txt"
 
       # ------------------------------------------------------------------ 1
       - name: test1 — registro, cuestionario, entrenamiento y subida
