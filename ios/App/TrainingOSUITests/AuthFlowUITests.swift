@@ -722,7 +722,10 @@ extension AppDriver {
     /// lo que contiene.
     func moreRow(_ label: String) -> XCUIElement {
         let exact = button(label)
-        return exact.waitForExistence(timeout: Wait.short) ? exact : button(containing: label)
+        let row = exact.waitForExistence(timeout: Wait.short) ? exact : button(containing: label)
+        // Las últimas filas («Ajustes») quedan bajo la barra de pestañas.
+        if row.exists { scrollClearOfBottomBars(row) }
+        return row
     }
 
     func openSettings(file: StaticString = #filePath, line: UInt = #line) {

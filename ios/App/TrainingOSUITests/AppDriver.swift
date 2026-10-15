@@ -206,6 +206,38 @@ final class AppDriver {
         pause(0.4)
     }
 
+    /// Lo que la app fija abajo, encima del contenido: las pestañas y la barra
+    /// del entrenamiento en curso.
+    static let tabLabels = ["Inicio", "Rutinas", "Entreno", "Progreso", "Más"]
+
+    /// WebKit da por tocable lo que queda DEBAJO de una barra fija, y el toque
+    /// se lo lleva la barra: «Ajustes», la última fila de «Más», se tocó en
+    /// (57, 822) y abrió «Inicio». Si el elemento cae bajo una de esas
+    /// barras, se sube la página (arrastre lento, por encima de ellas) hasta
+    /// que quede libre. A las barras mismas no se les hace nada. Sólo para
+    /// páginas sin hojas ni diálogos abiertos: un arrastre sobre el fondo de
+    /// una hoja la cerraría.
+    func scrollClearOfBottomBars(_ element: XCUIElement) {
+        guard !app.keyboards.firstMatch.exists else { return }
+        let fixed = NSPredicate(
+            format: "label IN %@ OR label BEGINSWITH %@",
+            AppDriver.tabLabels,
+            "Volver al entrenamiento en curso"
+        )
+        for _ in 0..<6 {
+            let bars = (web.links.matching(fixed).allElementsBoundByIndex + web.buttons.matching(fixed).allElementsBoundByIndex)
+                .filter { $0.exists }
+                .map { $0.frame }
+                .filter { !$0.isEmpty }
+            let target = element.frame
+            guard let top = bars.map({ $0.minY }).min(), !bars.contains(target), target.maxY > top else { return }
+            let from = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6))
+            let to = web.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.42))
+            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.1)
+            pause(0.6)
+        }
+    }
+
     /// Esconde el teclado de pantalla. Primero con «OK» («Done») de la barra
     /// que WKWebView pone encima del teclado: quita el foco sin enviar nada.
     /// Esa barra es otra ventana, no forma parte de `app.keyboards`. Si no
@@ -526,8 +558,14 @@ final class AppDriver {
         tap(button("Añadir ejercicio"), "Añadir ejercicio", file: file, line: line)
         type(search, into: field(placeholder: "Buscar"), "buscador de ejercicios", file: file, line: line)
         tap(button(containing: pick), "resultado «\(pick)»", file: file, line: line)
+        // La sesión guarda el ejercicio (`await addExercise`) y sólo después
+        // cierra la hoja del buscador: mientras guarda, «Peso» ya existe
+        // debajo con la hoja todavía encima, y un toque entonces cae en su
+        // fondo y el campo no recibe el foco (test1 de ios-auth, donde guardar
+        // tarda más). Se espera también a que la hoja se vaya.
+        let search = field(placeholder: "Buscar")
         XCTAssertTrue(
-            waitUntil(Wait.screen) { field("Peso").exists },
+            waitUntil(Wait.screen) { field("Peso").exists && !search.exists },
             "El ejercicio no se añade a la sesión",
             file: file,
             line: line
