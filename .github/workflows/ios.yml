@@ -143,10 +143,15 @@ jobs:
             xcrun simctl io "$UDID" screenshot "$EVIDENCE/boot-$LANG.png" || true
             xcrun simctl terminate "$UDID" com.trainingos.app || true
           done
+          # La app guarda el idioma en su primer arranque (aquí, «en»), y
+          # reinstalar no borra sus datos: los tests, que la conducen en
+          # español, necesitan una instalación nueva.
+          xcrun simctl uninstall "$UDID" com.trainingos.app
 
       - name: Tests de interfaz (iPhone 17 Pro, con Dynamic Island)
         run: |
           UDID=${{ steps.sim.outputs.pro }}
+          xcrun simctl uninstall "$UDID" com.trainingos.app || true
           set -o pipefail
           python3 scripts/ios/simulators.py ready "$UDID" 2>&1 | tee "$EVIDENCE/destination-pro.txt"
           set +o pipefail
@@ -166,6 +171,7 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          xcrun simctl uninstall "$UDID" com.trainingos.app || true
           set -o pipefail
           python3 scripts/ios/simulators.py ready "$UDID" 2>&1 | tee "$EVIDENCE/destination-plain.txt"
           set +o pipefail
