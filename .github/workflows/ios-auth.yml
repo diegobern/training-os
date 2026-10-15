@@ -341,6 +341,27 @@ jobs:
           source "$RUNNER_TEMP/auth-lib.sh"
           run_test test1_signupOnboardTrainAndSync
 
+      # Si el test 1 falla, la app se abre una vez más con su consola
+      # conectada (simctl --console-pty): ahí salen el registro interno de la
+      # app (VITE_LOG_TO_CONSOLE en .env.test) y los avisos de Firebase. Es
+      # la única forma de ver el motivo de, p. ej., «Sin conexión con el
+      # servidor», que la pantalla no enseña. Sólo diagnóstico: no decide nada.
+      - name: Consola de la app tras el test 1 (sólo si falla)
+        if: always()
+        run: |
+          grep -q '^FAIL test1_' "$EVIDENCE/checks.txt" || exit 0
+          mkdir -p "$EVIDENCE/diagnostics"
+          OUT="$EVIDENCE/diagnostics/app-console-test1.txt"
+          xcrun simctl terminate "$SIM_UDID" com.trainingos.app 2>/dev/null || true
+          xcrun simctl launch --console-pty "$SIM_UDID" com.trainingos.app > "$OUT" 2>&1 &
+          PID=$!
+          # Lo que tarda el arranque en decidir la sesión: hasta 45 s.
+          sleep 45
+          xcrun simctl io "$SIM_UDID" screenshot "$EVIDENCE/diagnostics/app-console-test1.png" || true
+          xcrun simctl terminate "$SIM_UDID" com.trainingos.app 2>/dev/null || true
+          kill "$PID" 2>/dev/null || true
+          grep -E 'training-os:|firebase|Firestore|error' "$OUT" | tail -n 80 || true
+
       - name: Firestore tras el test 1
         run: |
           source "$RUNNER_TEMP/auth-lib.sh"

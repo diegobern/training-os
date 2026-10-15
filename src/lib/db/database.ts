@@ -361,7 +361,10 @@ export function log(scope: string, message: string, level: LogLevel = 'info') {
   logs.unshift(entry)
   if (logs.length > LOG_LIMIT) logs.length = LOG_LIMIT
   logListeners.forEach((fn) => fn())
-  if (import.meta.env.DEV) {
+  // Las pruebas con los emuladores (`.env.test`) también: en el iPhone del CI
+  // la consola es lo único que deja ver por qué falla algo (Capacitor la
+  // imprime en la salida de la app). Un paquete de producción no lo activa.
+  if (import.meta.env.DEV || import.meta.env.VITE_LOG_TO_CONSOLE === '1') {
     const fn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
     fn(`[training-os:${scope}] ${message}`)
   }
