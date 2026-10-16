@@ -353,16 +353,19 @@ final class AppDriver {
         return true
     }
 
-    /// Al inicio del sistema. Devuelve si la app ha dejado el primer plano:
-    /// un enlace abierto antes de eso lo recibe la app que todavía está
-    /// delante y, al terminar la animación, queda en segundo plano (y
-    /// `wait(for: .runningForeground)` lo daba por bueno con el estado viejo).
+    /// Al inicio del sistema. Devuelve si el inicio está a la vista: un enlace
+    /// abierto antes de eso lo recibe la app que todavía está delante y, al
+    /// terminar la animación, queda en segundo plano. Se mira el icono de la
+    /// app en SpringBoard y no `app.state`: con el inicio ya en pantalla (y
+    /// la Live Activity en la isla) `app.state` seguía diciendo «en primer
+    /// plano», también al acabar el test.
     @discardableResult
     func goHome() -> Bool {
         XCUIDevice.shared.press(.home)
-        let left = waitUntil(Wait.short) { app.state != .runningForeground }
+        let icon = springboard.icons["Training OS"]
+        let shown = waitUntil(Wait.short) { icon.exists && icon.isHittable }
         pause(3)
-        return left
+        return shown
     }
 
     /// Bloquea el simulador con el botón lateral. `pressLockButton` es un
