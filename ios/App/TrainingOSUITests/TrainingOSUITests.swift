@@ -169,7 +169,7 @@ final class TrainingOSUITests: XCTestCase {
         let bar = ui.button(startingWith: "Volver al entrenamiento en curso")
 
         // 1. La sesión activa.
-        ui.goHome()
+        XCTAssertTrue(ui.goHome(), "La app no deja el primer plano al ir al inicio")
         XCUIDevice.shared.system.open(URL(string: "trainingos://workout/active")!)
         ui.allowSystemAlertIfShown(timeout: 5)
         XCTAssertTrue(ui.app.wait(for: .runningForeground, timeout: 20), "El enlace no abre la app")
@@ -177,7 +177,7 @@ final class TrainingOSUITests: XCTestCase {
         ui.screenshot("Enlace 1: lleva a la sesión activa")
 
         // 2. Un id que no es de ninguna sesión de este dispositivo.
-        ui.goHome()
+        XCTAssertTrue(ui.goHome(), "La app no deja el primer plano al ir al inicio")
         XCUIDevice.shared.system.open(URL(string: "trainingos://workout/active?session=00000000-0000-0000-0000-000000000000")!)
         ui.allowSystemAlertIfShown(timeout: 5)
         XCTAssertTrue(ui.app.wait(for: .runningForeground, timeout: 20), "El enlace no abre la app")

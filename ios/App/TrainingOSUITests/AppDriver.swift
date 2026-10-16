@@ -346,9 +346,16 @@ final class AppDriver {
         return true
     }
 
-    func goHome() {
+    /// Al inicio del sistema. Devuelve si la app ha dejado el primer plano:
+    /// un enlace abierto antes de eso lo recibe la app que todavía está
+    /// delante y, al terminar la animación, queda en segundo plano (y
+    /// `wait(for: .runningForeground)` lo daba por bueno con el estado viejo).
+    @discardableResult
+    func goHome() -> Bool {
         XCUIDevice.shared.press(.home)
+        let left = waitUntil(Wait.short) { app.state != .runningForeground }
         pause(3)
+        return left
     }
 
     /// Bloquea el simulador con el botón lateral. `pressLockButton` es un
