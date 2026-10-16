@@ -665,14 +665,21 @@ final class AppDriver {
     /// pantalla (un «2:30» de descanso configurado más abajo) no cuenta. Si no
     /// lo encuentra, nil: mejor esperar el descanso entero que leer otro reloj.
     func restRemaining() -> Int? {
-        let clocks = web.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "[0-9]{1,2}:[0-9]{2}"))
-        let visible = web.frame
+        // De un solo `snapshot`: el contador cambia cada segundo, y leer
+        // `label` o `frame` de un texto que acaba de cambiar o desaparecer
+        // hace fallar el test (como pasó con «Paso N de M»).
+        guard let root = try? web.snapshot() else { return nil }
+        let visible = root.frame
         var lowest: (y: CGFloat, seconds: Int)?
-        for clock in clocks.allElementsBoundByIndex where clock.exists {
-            let parts = clock.label.split(separator: ":").compactMap { Int($0) }
+        var pending: [XCUIElementSnapshot] = [root]
+        while let node = pending.popLast() {
+            pending.append(contentsOf: node.children)
+            guard node.elementType == .staticText,
+                  node.label.range(of: "^[0-9]{1,2}:[0-9]{2}$", options: .regularExpression) != nil else { continue }
+            let parts = node.label.split(separator: ":").compactMap { Int($0) }
             guard parts.count == 2 else { continue }
-            let y = clock.frame.minY
-            guard y > visible.midY, clock.frame.maxY <= visible.maxY else { continue }
+            let y = node.frame.minY
+            guard y > visible.midY, node.frame.maxY <= visible.maxY else { continue }
             if let current = lowest, current.y >= y { continue }
             lowest = (y: y, seconds: parts[0] * 60 + parts[1])
         }
