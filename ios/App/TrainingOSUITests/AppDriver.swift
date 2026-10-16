@@ -299,6 +299,13 @@ final class AppDriver {
     /// mandan como texto.
     func clearFocusedField(_ field: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
         let delete = app.keys["delete"]
+        // El toque de XCTest cae en el borde izquierdo del campo y WebKit deja
+        // el cursor donde cae: DELANTE del texto (se ve «|•••••••••••» en los
+        // fotogramas de ios-auth), y borrar desde ahí no borra nada. Un toque
+        // en la parte derecha, antes del ojo de las contraseñas, lo lleva al
+        // final.
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5)).tap()
+        pause(0.3)
         for _ in 0..<3 where !isEmpty(field) {
             if delete.exists {
                 delete.press(forDuration: 3)
