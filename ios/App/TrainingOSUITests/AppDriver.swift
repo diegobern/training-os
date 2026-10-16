@@ -470,6 +470,34 @@ final class AppDriver {
         unlock()
         app.launch()
         XCTAssertTrue(web.waitForExistence(timeout: Wait.boot), "No aparece el WKWebView", file: file, line: line)
+        // En un simulador recién arrancado (el lanzamiento tardó 47 s) WebKit
+        // pintó la bienvenida pero no le pasó NADA de su contenido a la
+        // accesibilidad en toda la sesión: el árbol de la WebView acababa en
+        // un «Other» vacío y ningún test podía verla. Se reinicia la app una
+        // vez, con nota y captura; si sigue sin verse, falla.
+        if !waitUntil(Wait.boot, { webHasContent() }) {
+            screenshot("WebView sin contenido accesible")
+            note("WebKit no expone el contenido de la WebView a XCTest: se reinicia la app una vez.")
+            app.terminate()
+            app.launch()
+            XCTAssertTrue(
+                web.waitForExistence(timeout: Wait.boot) && waitUntil(Wait.boot, { webHasContent() }),
+                "WebKit no expone el contenido de la WebView a XCTest",
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    /// ¿Expone la WebView algo con texto? (Leído de un `snapshot`, de una vez.)
+    func webHasContent() -> Bool {
+        guard web.exists, let root = try? web.snapshot() else { return false }
+        var pending: [XCUIElementSnapshot] = [root]
+        while let node = pending.popLast() {
+            if !node.label.isEmpty && node.elementType != .webView { return true }
+            pending.append(contentsOf: node.children)
+        }
+        return false
     }
 
     /// Arranca y deja la app en el inicio: cuestionario hecho y sin ningún
