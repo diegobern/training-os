@@ -98,6 +98,39 @@ jobs:
               print(-1)'
           }
 
+          # Las sesiones de users/<uid>, una por línea: id, estado, series
+          # completadas, ejercicios y si está borrada. Para ver QUÉ hay en el
+          # servidor, no sólo cuántos documentos.
+          fs_sessions() {
+            curl -s -g --max-time 10 -H 'Authorization: Bearer owner' "$FS_API/users/$1/sessions?pageSize=300" |
+              python3 -c 'import json, sys
+          try:
+              d = json.load(sys.stdin)
+          except Exception:
+              print("ERROR")
+              sys.exit(0)
+          if "error" in d:
+              print("ERROR", d["error"].get("message", ""))
+              sys.exit(0)
+          for doc in d.get("documents", []):
+              f = doc.get("fields", {})
+              exercises = f.get("exercises", {}).get("arrayValue", {}).get("values", [])
+              done = sum(1 for e in exercises for s in e.get("mapValue", {}).get("fields", {}).get("sets", {}).get("arrayValue", {}).get("values", []) if s.get("mapValue", {}).get("fields", {}).get("completed", {}).get("booleanValue"))
+              deleted = "deletedAt" in f and "nullValue" not in f["deletedAt"]
+              print(doc["name"].rsplit("/", 1)[-1], f.get("status", {}).get("stringValue"), "series=%d" % done, "ejercicios=%d" % len(exercises), "borrada" if deleted else "viva", "updatedAt=%s" % f.get("updatedAt", {}).get("integerValue"))'
+          }
+
+          # La consola de la app (AppDelegate, DEBUG y TOS_CONSOLE_TO_FILE=1):
+          # a la evidencia del test y vaciada para el siguiente.
+          save_console() {
+            local data
+            data=$(xcrun simctl get_app_container "$SIM_UDID" com.trainingos.app data 2>/dev/null) || return 0
+            local file="$data/Library/Caches/tos-console.log"
+            [ -f "$file" ] || return 0
+            cut -c1-400 "$file" > "$EVIDENCE/$1-console.txt"
+            : > "$file"
+          }
+
           # Código HTTP de un documento de Firestore (200 existe, 404 no).
           fs_status() {
             curl -s -g -o /dev/null -w '%{http_code}' --max-time 10 -H 'Authorization: Bearer owner' "$FS_API/$1"
@@ -162,6 +195,7 @@ jobs:
               "-only-testing:TrainingOSUITests/AuthFlowUITests/$name" \
               test-without-building > "$log" 2>&1
             local rc=$?
+            save_console "$name"
             grep -E 'Test Case|error:|failed|passed|skipped|TEST' "$log" | tail -n 60
             xcrun xcresulttool get test-results summary --path "$bundle" > "$EVIDENCE/$name-summary.json" 2>/dev/null
             local verdict
@@ -381,6 +415,14 @@ jobs:
             sleep 2
           done
           if [ "$n" -ge 1 ]; then pass "A tiene $n sesión(es) en Firestore tras entrenar"; else fail "A no tiene ninguna sesión en Firestore tras entrenar ($n)"; fi
+          # No basta con que haya un documento: el test 1 FINALIZA el
+          # entrenamiento con una serie, y eso es lo que tiene que haber subido.
+          fs_sessions "$A_UID" | tee "$EVIDENCE/fs-sessions-A-after-test1.txt"
+          if grep -qE ' completed series=[1-9][0-9]* .* viva ' "$EVIDENCE/fs-sessions-A-after-test1.txt"; then
+            pass "la sesión del test 1 está en Firestore finalizada y con su serie"
+          else
+            fail "la sesión del test 1 no está en Firestore finalizada con su serie (ver fs-sessions-A-after-test1.txt)"
+          fi
 
       # ------------------------------------------------------------------ 2
       - name: test2 — la sesión sigue tras cerrar y abrir la app
@@ -388,6 +430,7 @@ jobs:
         run: |
           source "$RUNNER_TEMP/auth-lib.sh"
           run_test test2_sessionPersistsAcrossRelaunch
+          if [ -n "$A_UID" ]; then fs_sessions "$A_UID" > "$EVIDENCE/fs-sessions-A-after-test2.txt"; fi
 
       # ------------------------------------------------------------------ 3
       - name: test3 — cerrar sesión e iniciarla otra vez
@@ -395,6 +438,7 @@ jobs:
         run: |
           source "$RUNNER_TEMP/auth-lib.sh"
           run_test test3_logoutAndLogin
+          if [ -n "$A_UID" ]; then fs_sessions "$A_UID" > "$EVIDENCE/fs-sessions-A-after-test3.txt"; fi
 
       # ------------------------------------------------------------------ 4
       - name: test4 — recuperar la contraseña
@@ -609,7 +653,10 @@ jobs:
               2>&1 | tail -n 4000 > "$EVIDENCE/diagnostics/sim-log.txt" || true
           fi
           tail -n 400 "$RUNNER_TEMP/emulators.log" > "$EVIDENCE/diagnostics/emulators.log" 2>/dev/null || true
-          tail -n 200 firestore-debug.log > "$EVIDENCE/diagnostics/firestore-debug.log" 2>/dev/null || true
+          # Sin las dos líneas que el emulador repite en cada conexión, para que
+          # quepa lo de todo el job y no sólo el final.
+          grep -vE 'Detected non-HTTP/2 connection|HttpVersionRoutingHandler channelRead' firestore-debug.log 2>/dev/null \
+            | tail -n 4000 > "$EVIDENCE/diagnostics/firestore-debug.txt" || true
           ls -lt ~/Library/Logs/DiagnosticReports 2>/dev/null | head -40 > "$EVIDENCE/diagnostics/crash-reports.txt" || true
           find ~/Library/Logs/DiagnosticReports -name 'App*' -newer "$EVIDENCE/run.txt" -exec cp {} "$EVIDENCE/diagnostics/" \; 2>/dev/null || true
           # Las grabaciones pesan demasiado para publicarlas: hojas de

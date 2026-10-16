@@ -33,6 +33,9 @@ final class AppDriver {
         app = XCUIApplication()
         springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         app.launchArguments += ["-AppleLanguages", "(es)", "-AppleLocale", "es_ES"]
+        // La consola de la app a un fichero que el CI recoge (AppDelegate,
+        // sólo en DEBUG).
+        app.launchEnvironment["TOS_CONSOLE_TO_FILE"] = "1"
     }
 
     var web: XCUIElement { app.webViews.firstMatch }

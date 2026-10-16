@@ -7,6 +7,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        #if DEBUG
+        // Diagnóstico de los tests de interfaz: lo que la app escribe en la
+        // consola (Capacitor imprime ahí la consola del WebView) va a un
+        // fichero que el CI recoge después de cada test. Sólo con la variable
+        // TOS_CONSOLE_TO_FILE=1 y sólo en DEBUG: no existe en Release.
+        ConsoleCapture.startIfRequested()
+        #endif
+
         // Fuera del hilo principal: son operaciones de disco y no deben
         // retrasar la primera pantalla.
         DispatchQueue.global(qos: .utility).async {
@@ -55,6 +63,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return config
     }
 }
+
+#if DEBUG
+/**
+ * La salida estándar y de errores, a `Library/Caches/tos-console.log`
+ * (añadiendo). Las lanzan los tests de interfaz con TOS_CONSOLE_TO_FILE=1 en
+ * el entorno; el CI copia el fichero del contenedor de la app con
+ * `simctl get_app_container` y lo vacía entre test y test.
+ */
+private enum ConsoleCapture {
+    static func startIfRequested() {
+        guard ProcessInfo.processInfo.environment["TOS_CONSOLE_TO_FILE"] == "1",
+              let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else { return }
+        let path = caches.appending(path: "tos-console.log").path
+        guard freopen(path, "a", stdout) != nil, freopen(path, "a", stderr) != nil else { return }
+        setvbuf(stdout, nil, _IOLBF, 0)
+        setvbuf(stderr, nil, _IONBF, 0)
+        print("==== arranque \(Date()) pid \(ProcessInfo.processInfo.processIdentifier)")
+    }
+}
+#endif
 
 /**
  * Los datos de la app no van a la copia de seguridad de iCloud, igual que en
