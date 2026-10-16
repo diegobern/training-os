@@ -363,7 +363,15 @@ final class AppDriver {
     func goHome() -> Bool {
         XCUIDevice.shared.press(.home)
         let icon = springboard.icons["Training OS"]
-        let shown = waitUntil(Wait.short) { icon.exists && icon.isHittable }
+        // Con `snapshot`, de una vez: preguntar `isHittable` por un icono en
+        // plena animación hace FALLAR el test («Failed to determine
+        // hittability») en vez de responder que no.
+        let shown = waitUntil(Wait.short) {
+            guard let screen = try? springboard.snapshot().frame,
+                  let frame = try? icon.snapshot().frame,
+                  !frame.isEmpty else { return false }
+            return screen.contains(CGPoint(x: frame.midX, y: frame.midY))
+        }
         pause(3)
         return shown
     }
