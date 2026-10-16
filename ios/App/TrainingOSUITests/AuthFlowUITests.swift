@@ -570,9 +570,9 @@ extension AppDriver {
         return cut ? !visible.isEmpty && typed.hasPrefix(visible) : visible == typed
     }
 
-    /// Sustituye lo escrito en un campo de contraseña. Su valor llega
-    /// enmascarado (o vacío) a la accesibilidad, así que no se sabe cuánto
-    /// hay: se borra de más.
+    /// Sustituye lo escrito en un campo de contraseña: lo vacía (y comprueba
+    /// que queda vacío), escribe `value` y comprueba que hay tantos puntos
+    /// como caracteres.
     func replaceSecureText(
         in field: XCUIElement,
         with value: String,
@@ -585,9 +585,12 @@ extension AppDriver {
         tap(field, what, file: file, line: line)
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
         requireFocus(field, what, file: file, line: line)
-        app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 40))
+        clearFocusedField(field, what, file: file, line: line)
         app.typeText(value)
         pause(0.4)
+        let shown = waitUntil(3) { AppDriver.fieldShows(field.value as? String ?? "", typed: value, secure: true) }
+        if !shown { screenshot("\(what): no conserva lo escrito") }
+        XCTAssertTrue(shown, "«\(what)» no conserva lo escrito (muestra «\(field.value as? String ?? "")»)", file: file, line: line)
     }
 
     /// El botón que envía un formulario. Si al cerrar el teclado se pulsó

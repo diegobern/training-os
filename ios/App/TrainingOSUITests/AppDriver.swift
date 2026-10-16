@@ -278,11 +278,36 @@ final class AppDriver {
         // la espera sólo da tiempo a que el campo reciba el foco.
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
         requireFocus(field, what, file: file, line: line)
-        if let current = field.value as? String, !current.isEmpty, current != field.placeholderValue {
-            app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: min(current.count, 12)))
+        if !isEmpty(field) {
+            clearFocusedField(field, what, file: file, line: line)
         }
         app.typeText(text)
         pause(0.4)
+    }
+
+    /// Vacío o con su texto de ejemplo.
+    func isEmpty(_ field: XCUIElement) -> Bool {
+        let current = field.value as? String ?? ""
+        return current.isEmpty || current == field.placeholderValue
+    }
+
+    /// Vacía el campo que tiene el foco con la tecla de borrar del teclado,
+    /// mantenida pulsada. Mandar borrados como texto (`typeText` con
+    /// `XCUIKeyboardKey.delete`) no hizo nada en un campo de WKWebView: en
+    /// ios-auth la contraseña buena acabó escrita detrás de la equivocada.
+    /// Sin teclado en pantalla (teclado físico) no hay tecla que pulsar y se
+    /// mandan como texto.
+    func clearFocusedField(_ field: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
+        let delete = app.keys["delete"]
+        for _ in 0..<3 where !isEmpty(field) {
+            if delete.exists {
+                delete.press(forDuration: 3)
+            } else {
+                app.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 60))
+            }
+            pause(0.3)
+        }
+        XCTAssertTrue(isEmpty(field), "No se puede vaciar «\(what)» (muestra «\(field.value as? String ?? "")»)", file: file, line: line)
     }
 
     /// `typeText` escribe donde esté el foco: si el toque no se lo dio a
