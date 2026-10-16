@@ -205,11 +205,15 @@ jobs:
           done
           ls -lt ~/Library/Logs/DiagnosticReports 2>/dev/null | head -40 > "$EVIDENCE/diagnostics/crash-reports.txt" || true
           find ~/Library/Logs/DiagnosticReports -name 'App*' -newer "$EVIDENCE/run.txt" -exec cp {} "$EVIDENCE/diagnostics/" \; 2>/dev/null || true
-          # Las grabaciones pesan demasiado para publicarlas: una hoja de
-          # fotogramas (uno cada 3 s) por grabación.
+          # Las grabaciones pesan demasiado para publicarlas: hojas de
+          # fotogramas (uno cada 2 s, 24 por hoja). El runner no trae ffmpeg:
+          # se instala sólo si algún test ha fallado.
+          if ! command -v ffmpeg >/dev/null && grep -qsE '"result" *: *"Failed"' "$EVIDENCE"/ui-*/summary.json; then
+            HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install ffmpeg > "$EVIDENCE/diagnostics/brew-ffmpeg.txt" 2>&1 || true
+          fi
           if command -v ffmpeg >/dev/null; then
             find "$EVIDENCE" -name '*.mp4' | while read -r V; do
-              ffmpeg -loglevel error -i "$V" -vf "fps=1/3,scale=200:-1,tile=8x5" -frames:v 1 "${V%.mp4}-frames.jpg" || true
+              ffmpeg -loglevel error -i "$V" -vf "fps=1/2,scale=300:-1,tile=6x4" "${V%.mp4}-frames-%02d.jpg" < /dev/null || true
             done
           else
             echo "ffmpeg no disponible" > "$EVIDENCE/diagnostics/no-ffmpeg.txt"
@@ -226,8 +230,14 @@ jobs:
           git init -q
           git checkout -q -b ios-ci-evidence
           cp -R "$EVIDENCE"/. .
-          # Los registros completos pesan mucho: se guarda el final de cada uno.
-          for f in *.log; do [ -f "$f" ] && tail -n 400 "$f" > "$f.tail" && mv "$f.tail" "$f"; done
+          # Los registros completos pesan mucho, casi todo por las consultas
+          # que XCTest repite al esperar: fuera esas líneas y se guardan las
+          # 3000 últimas de lo demás.
+          for f in *.log; do
+            [ -f "$f" ] || continue
+            grep -vE 'Checking existence of .(Alert|WebView|Any|Keyboard) \(First Match\).|Find the WebView \(First Match\)|Checking .Expect predicate' "$f" | tail -n 3000 > "$f.tail"
+            mv "$f.tail" "$f"
+          done
           git add -A
           git -c user.name="training-os-ci" -c user.email="training-os-ci@users.noreply.github.com" \
             commit -qm "iOS CI evidence: run $GITHUB_RUN_NUMBER ($GITHUB_SHA)"
