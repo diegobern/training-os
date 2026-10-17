@@ -549,7 +549,7 @@ extension AppDriver {
         line: UInt = #line
     ) {
         hideKeyboard(tapping: anchor)
-        type(value, into: field, what, file: file, line: line)
+        type(value, into: field, what, keyByKey: true, file: file, line: line)
         // Lo escrito tiene que estar en ESTE campo. Un registro de ios-auth
         // acabó con «Email» vacío y «Crear cuenta» desactivado, y el test sólo
         // lo vio dos minutos después, sin decir qué campo falló.
@@ -564,8 +564,10 @@ extension AppDriver {
         let cut = shown.hasSuffix("...")
         let visible = cut ? String(shown.dropLast(3)) : shown
         if secure {
-            let dots = visible.filter { $0 == "•" }.count
-            return cut ? dots > 0 && dots <= typed.count : dots == typed.count
+            // Puntos y, durante un instante, la última letra en claro: cuenta
+            // todo lo que se ve.
+            let shownCount = visible.count
+            return cut ? shownCount > 0 && shownCount <= typed.count : shownCount == typed.count
         }
         return cut ? !visible.isEmpty && typed.hasPrefix(visible) : visible == typed
     }
@@ -586,8 +588,7 @@ extension AppDriver {
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 3)
         requireFocus(field, what, file: file, line: line)
         clearFocusedField(field, what, file: file, line: line)
-        app.typeText(value)
-        pause(0.4)
+        typeKeyByKey(value, into: field, what, file: file, line: line)
         let shown = waitUntil(3) { AppDriver.fieldShows(field.value as? String ?? "", typed: value, secure: true) }
         if !shown { screenshot("\(what): no conserva lo escrito") }
         XCTAssertTrue(shown, "«\(what)» no conserva lo escrito (muestra «\(field.value as? String ?? "")»)", file: file, line: line)

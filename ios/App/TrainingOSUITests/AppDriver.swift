@@ -273,6 +273,7 @@ final class AppDriver {
         _ text: String,
         into field: XCUIElement,
         _ what: String,
+        keyByKey: Bool = false,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -284,8 +285,33 @@ final class AppDriver {
         if !isEmpty(field) {
             clearFocusedField(field, what, file: file, line: line)
         }
-        app.typeText(text)
-        pause(0.4)
+        if keyByKey {
+            typeKeyByKey(text, into: field, what, file: file, line: line)
+        } else {
+            app.typeText(text)
+            pause(0.4)
+        }
+    }
+
+    /// Escribe tecla a tecla y espera a que cada una esté en el campo antes de
+    /// mandar la siguiente. `typeText` con todo el texto de golpe perdía
+    /// teclas en el WKWebView: en ios-auth «Nombre de usuario» se quedó en
+    /// «u» (la primera letra pinta el aviso «Mínimo 3 caracteres» y las trece
+    /// siguientes no llegaron), y otra vez el email quedó vacío. Si una tecla
+    /// no llega en 3 s, falla diciendo cuál: no se reintenta.
+    func typeKeyByKey(_ text: String, into field: XCUIElement, _ what: String, file: StaticString = #filePath, line: UInt = #line) {
+        let secure = field.elementType == .secureTextField
+        var typed = ""
+        for key in text {
+            app.typeText(String(key))
+            typed.append(key)
+            let landed = waitUntil(3) { AppDriver.fieldShows(field.value as? String ?? "", typed: typed, secure: secure) }
+            if !landed {
+                screenshot("\(what): no llega una tecla")
+                XCTFail("«\(what)» no recibe la tecla nº \(typed.count) (muestra «\(field.value as? String ?? "")»)", file: file, line: line)
+                return
+            }
+        }
     }
 
     /// Vacío o con su texto de ejemplo.
