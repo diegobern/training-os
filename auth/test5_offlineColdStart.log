@@ -1,0 +1,268 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination id=E839A11B-51B4-4AD3-ACF4-A53B95B7C957 -derivedDataPath build -clonedSourcePackagesDirPath spm -resultBundlePath /Users/runner/work/_temp/xcresult/test5_offlineColdStart.xcresult -parallel-testing-enabled NO "-only-testing:TrainingOSUITests/AuthFlowUITests/test5_offlineColdStart" test-without-building
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.5
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  CapacitorStatusBar: /Users/runner/work/training-os/training-os/node_modules/@capacitor/status-bar @ local
+  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.5.2
+  CapacitorApp: /Users/runner/work/training-os/training-os/node_modules/@capacitor/app @ local
+  CapacitorBrowser: /Users/runner/work/training-os/training-os/node_modules/@capacitor/browser @ local
+  CapApp-SPM: /Users/runner/work/training-os/training-os/ios/App/CapApp-SPM @ local
+  CapacitorFilesystem: /Users/runner/work/training-os/training-os/node_modules/@capacitor/filesystem @ local
+  CapacitorSplashScreen: /Users/runner/work/training-os/training-os/node_modules/@capacitor/splash-screen @ local
+  CapacitorKeyboard: /Users/runner/work/training-os/training-os/node_modules/@capacitor/keyboard @ local
+  IONFilesystemLib: https://github.com/ionic-team/ion-ios-filesystem.git @ 1.1.4
+  CapacitorShare: /Users/runner/work/training-os/training-os/node_modules/@capacitor/share @ local
+
+Writing result bundle at path:
+	/Users/runner/work/_temp/xcresult/test5_offlineColdStart.xcresult
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+2026-10-17 02:00:48.452711+0000 TrainingOSUITests-Runner[53683:145358] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-17 02:00:51.568.
+Test Suite 'TrainingOSUITests.xctest' started at 2026-10-17 02:00:51.569.
+Test Suite 'AuthFlowUITests' started at 2026-10-17 02:00:51.569.
+Test Case '-[TrainingOSUITests.AuthFlowUITests test5_offlineColdStart]' started.
+    t =     0.00s Start Test at 2026-10-17 02:00:51.570
+    t =     0.13s Set Up
+    t =     0.14s Pressing Home button
+objc[53683]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x106374310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x1063fc398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     1.66s Press Application 'com.apple.springboard'[0.50, 0.99] for 0.1 seconds, then drag to Application 'com.apple.springboard'[0.50, 0.35] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =     1.66s     Wait for com.apple.springboard to idle
+    t =     2.20s     Find the Application 'com.apple.springboard'
+    t =     2.30s     Check for interrupting elements affecting " " Application
+    t =     2.40s     Synthesize event
+    t =     2.40s         Find the Application 'com.apple.springboard'
+    t =     2.45s         Find the Application 'com.apple.springboard'
+    t =     2.50s         Find the Application 'com.apple.springboard'
+    t =     2.54s         Find the Application 'com.apple.springboard'
+    t =     2.58s         Find the Application 'com.apple.springboard'
+    t =     4.05s     Wait for com.apple.springboard to idle
+    t =     6.76s Open com.trainingos.app
+    t =     6.76s     Launch com.trainingos.app
+2026-10-17 02:00:58.699 xcodebuild[52863:143256] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-10-17 02:00:58.700 xcodebuild[52863:143256] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    11.44s         Setting up automation session
+    t =    12.86s         Wait for com.trainingos.app to idle
+    t =    14.78s Waiting 60.0s for WebView (First Match) to exist
+    t =    85.66s Added attachment named '5·1 Arranque en frío sin conexión'
+    t =    96.39s Find the Any (First Match)
+    t =    96.49s Find the "Entreno" Link
+    t =    96.55s Find the "Entreno" Link
+    t =    96.60s Find the "Entreno" Link
+    t =    96.65s Tap "Entreno" Link
+    t =    96.65s     Wait for com.trainingos.app to idle
+    t =    96.66s     Find the "Entreno" Link
+    t =    96.70s     Check for interrupting elements affecting "Entreno" Link
+    t =    96.77s     Synthesize event
+    t =    97.10s     Wait for com.trainingos.app to idle
+    t =    97.55s Find the Any (First Match)
+    t =    97.59s Find the "Entrenamiento libre" Button
+    t =    97.64s Find the "Entrenamiento libre" Button
+    t =    97.67s Find the "Entrenamiento libre" Button
+    t =    97.71s Tap "Entrenamiento libre" Button
+    t =    97.71s     Wait for com.trainingos.app to idle
+    t =    97.71s     Find the "Entrenamiento libre" Button
+    t =    97.74s     Check for interrupting elements affecting "Entrenamiento libre" Button
+    t =    97.77s     Synthesize event
+    t =    98.07s     Wait for com.trainingos.app to idle
+    t =    98.50s Waiting 8.0s for Alert (First Match) to exist
+    t =    99.59s         Capturing element debug description
+    t =   100.55s         Capturing element debug description
+    t =   101.63s         Capturing element debug description
+    t =   102.61s         Capturing element debug description
+    t =   103.59s         Capturing element debug description
+    t =   104.58s         Capturing element debug description
+    t =   105.56s         Capturing element debug description
+    t =   106.55s         Capturing element debug description
+    t =   106.59s Collecting debug information to assist test failure triage
+    t =   106.59s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =   106.78s Find the Any (First Match)
+    t =   106.83s Find the "Añadir ejercicio" Button
+    t =   106.98s Find the "Añadir ejercicio" Button
+    t =   107.01s Find the "Añadir ejercicio" Button
+    t =   107.06s Tap "Añadir ejercicio" Button
+    t =   107.06s     Wait for com.trainingos.app to idle
+    t =   107.06s     Find the "Añadir ejercicio" Button
+    t =   107.09s     Check for interrupting elements affecting "Añadir ejercicio" Button
+    t =   107.12s     Synthesize event
+    t =   107.51s     Wait for com.trainingos.app to idle
+    t =   108.06s Find the Any (First Match)
+    t =   108.20s Find the "Buscar" TextField
+    t =   108.34s Find the "Buscar" TextField
+    t =   108.45s Find the "Buscar" TextField
+    t =   108.61s Tap "Buscar" TextField
+    t =   108.61s     Wait for com.trainingos.app to idle
+    t =   108.61s     Find the "Buscar" TextField
+    t =   108.73s     Check for interrupting elements affecting "Buscar" TextField
+    t =   108.82s     Synthesize event
+    t =   109.12s     Wait for com.trainingos.app to idle
+    t =   110.09s Waiting 3.0s for Keyboard (First Match) to exist
+    t =   111.19s Find the "Buscar" TextField
+    t =   111.31s Find the "Buscar" TextField
+    t =   111.44s Find the "Buscar" TextField
+    t =   111.56s Type 'inclinado' into Target Application 'com.trainingos.app'
+    t =   111.56s     Wait for com.trainingos.app to idle
+    t =   111.57s     Find the Target Application 'com.trainingos.app'
+    t =   111.66s     Check for interrupting elements affecting "Training OS" Application
+    t =   111.73s     Synthesize event
+    t =   112.14s     Wait for com.trainingos.app to idle
+    t =   112.65s Find the Any (First Match)
+    t =   113.33s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   113.99s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   114.64s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   115.29s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   115.94s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.03s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.14s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.25s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.36s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.47s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.58s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.69s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.81s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   116.91s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   117.04s Checking existence of `Button (First Match)`
+    t =   117.07s Find the Button (First Match)
+    t =   117.17s Tap "OK" Button
+    t =   117.17s     Wait for com.trainingos.app to idle
+    t =   117.17s     Find the "OK" Button
+    t =   117.22s     Check for interrupting elements affecting "OK" Button
+    t =   117.28s     Synthesize event
+    t =   117.62s     Wait for com.trainingos.app to idle
+    t =   118.01s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.11s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.20s Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.29s Tap "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.30s     Wait for com.trainingos.app to idle
+    t =   118.30s     Find the "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.39s     Check for interrupting elements affecting "Press Inclinado con Mancuernas Pecho · Mancuerna · 6–10 reps" Button
+    t =   118.45s     Synthesize event
+    t =   118.76s     Wait for com.trainingos.app to idle
+    t =   119.17s Checking existence of `TextField (First Match)`
+    t =   119.28s Checking existence of `TextField (First Match)`
+    t =   119.33s Find the TextField (First Match)
+    t =   119.39s Find the "60" TextField
+    t =   119.45s Find the "60" TextField
+    t =   119.49s Find the "60" TextField
+    t =   119.55s Tap "60" TextField
+    t =   119.55s     Wait for com.trainingos.app to idle
+    t =   119.55s     Find the "60" TextField
+    t =   119.60s     Check for interrupting elements affecting "60" TextField
+    t =   119.64s     Synthesize event
+    t =   119.95s     Wait for com.trainingos.app to idle
+    t =   120.67s Waiting 3.0s for Keyboard (First Match) to exist
+    t =   121.71s Find the "60" TextField
+    t =   121.76s Find the "60" TextField
+    t =   121.81s Find the "60" TextField
+    t =   121.86s Type '60' into Target Application 'com.trainingos.app'
+    t =   121.86s     Wait for com.trainingos.app to idle
+    t =   121.86s     Find the Target Application 'com.trainingos.app'
+    t =   121.90s     Check for interrupting elements affecting "Training OS" Application
+    t =   121.94s     Synthesize event
+    t =   122.20s     Wait for com.trainingos.app to idle
+    t =   122.60s Checking existence of `TextField (First Match)`
+    t =   122.65s Find the TextField (First Match)
+    t =   122.71s Find the "8" TextField
+    t =   122.77s Find the "8" TextField
+    t =   122.82s Find the "8" TextField
+    t =   122.88s Tap "8" TextField
+    t =   122.88s     Wait for com.trainingos.app to idle
+    t =   122.88s     Find the "8" TextField
+    t =   122.93s     Check for interrupting elements affecting "8" TextField
+    t =   122.98s     Synthesize event
+    t =   123.28s     Wait for com.trainingos.app to idle
+    t =   123.84s Waiting 3.0s for Keyboard (First Match) to exist
+    t =   124.88s Find the "8" TextField
+    t =   124.92s Find the "8" TextField
+    t =   124.96s Find the "8" TextField
+    t =   125.01s Type '8' into Target Application 'com.trainingos.app'
+    t =   125.01s     Wait for com.trainingos.app to idle
+    t =   125.01s     Find the Target Application 'com.trainingos.app'
+    t =   125.04s     Check for interrupting elements affecting "Training OS" Application
+    t =   125.07s     Synthesize event
+    t =   125.31s     Wait for com.trainingos.app to idle
+    t =   125.77s Find the Any (First Match)
+    t =   125.83s Find the "Serie 1 completada" Switch
+    t =   125.89s Find the "Serie 1 completada" Switch
+    t =   125.94s Find the "Serie 1 completada" Switch
+    t =   126.00s Tap "Serie 1 completada" Switch
+    t =   126.00s     Wait for com.trainingos.app to idle
+    t =   126.00s     Find the "Serie 1 completada" Switch
+    t =   126.05s     Check for interrupting elements affecting "Serie 1 completada" Switch
+    t =   126.09s     Synthesize event
+    t =   126.42s     Wait for com.trainingos.app to idle
+    t =   127.47s Waiting 3.0s for Alert (First Match) to exist
+    t =   128.58s         Capturing element debug description
+    t =   129.59s         Capturing element debug description
+    t =   130.53s         Capturing element debug description
+    t =   130.60s Collecting debug information to assist test failure triage
+    t =   130.60s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =   130.86s Added attachment named '5·2 Serie registrada sin conexión'
+    t =   130.91s Find the Any (First Match)
+    t =   130.98s Tap "Saltar" Button
+    t =   130.98s     Wait for com.trainingos.app to idle
+    t =   130.98s     Find the "Saltar" Button
+    t =   131.03s     Check for interrupting elements affecting "Saltar" Button
+    t =   131.07s     Synthesize event
+    t =   131.36s     Wait for com.trainingos.app to idle
+    t =   132.01s Find the Any (First Match)
+    t =   132.07s Find the "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.13s Find the "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.18s Find the "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.24s Tap "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.24s     Wait for com.trainingos.app to idle
+    t =   132.24s     Find the "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.29s     Check for interrupting elements affecting "FINALIZAR ENTRENAMIENTO" Button
+    t =   132.32s     Synthesize event
+    t =   132.61s     Wait for com.trainingos.app to idle
+    t =   133.22s Find the Any (First Match)
+    t =   133.29s Find the "FINALIZAR" Button
+    t =   133.35s Find the "FINALIZAR" Button
+    t =   133.42s Find the "FINALIZAR" Button
+    t =   133.49s Tap "FINALIZAR" Button
+    t =   133.49s     Wait for com.trainingos.app to idle
+    t =   133.49s     Find the "FINALIZAR" Button
+    t =   133.56s     Check for interrupting elements affecting "FINALIZAR" Button
+    t =   133.61s     Synthesize event
+    t =   133.92s     Wait for com.trainingos.app to idle
+    t =   134.42s Find the Any (First Match)
+    t =   134.48s Tap "Hecho" Button
+    t =   134.48s     Wait for com.trainingos.app to idle
+    t =   134.49s     Find the "Hecho" Button
+    t =   134.54s     Check for interrupting elements affecting "Hecho" Button
+    t =   134.58s     Synthesize event
+    t =   134.88s     Wait for com.trainingos.app to idle
+    t =   136.00s Added attachment named '5·3 Entrenamiento guardado sin conexión'
+    t =   139.00s Terminate com.trainingos.app:54442
+    t =   140.04s Tear Down
+    t =   140.25s     Added attachment named 'Final: pantalla'
+    t =   140.25s     Added attachment named 'Final: árbol de la app'
+    t =   140.25s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =   142.68s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =   142.75s     Added attachment named 'Final: árbol de SpringBoard'
+Test Case '-[TrainingOSUITests.AuthFlowUITests test5_offlineColdStart]' passed (142.901 seconds).
+Test Suite 'AuthFlowUITests' passed at 2026-10-17 02:03:14.472.
+	 Executed 1 test, with 0 failures (0 unexpected) in 142.901 (142.903) seconds
+Test Suite 'TrainingOSUITests.xctest' passed at 2026-10-17 02:03:14.473.
+	 Executed 1 test, with 0 failures (0 unexpected) in 142.901 (142.904) seconds
+Test Suite 'Selected tests' passed at 2026-10-17 02:03:14.474.
+	 Executed 1 test, with 0 failures (0 unexpected) in 142.901 (142.905) seconds
+2026-10-17 02:03:15.425 xcodebuild[52863:143256] [MT] IDETestOperationsObserverDebug: 150.209 elapsed -- Testing started completed.
+2026-10-17 02:03:15.426 xcodebuild[52863:143256] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-17 02:03:15.426 xcodebuild[52863:143256] [MT] IDETestOperationsObserverDebug: 150.209 sec, +150.209 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/_temp/xcresult/test5_offlineColdStart.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

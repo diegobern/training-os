@@ -1,0 +1,2 @@
+runtime=com.apple.CoreSimulator.SimRuntime.iOS-26-5
+pro=E839A11B-51B4-4AD3-ACF4-A53B95B7C957

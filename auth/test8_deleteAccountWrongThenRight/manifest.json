@@ -1,0 +1,62 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "24E3D78C-85D4-4B12-BB54-091EC0C5C746.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_80DB80FB-9A76-40C9-9563-7F61E196042B.txt",
+        "timestamp" : 1792203099.91
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "51F5E75B-4150-4DFB-AAE2-08DF35EDCB25.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_F259D96B-6ECC-47DD-A434-7CED04D98B3F.txt",
+        "timestamp" : 1792203099.402
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "61125AD3-7287-49D7-957B-95A741240429.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_B99C4BCF-3271-4312-8CE5-AF3210BD2D16.png",
+        "timestamp" : 1792203099.017
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "8FEC73EA-F991-43CF-B135-CC565AF832E9.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "8·3 Cuenta B eliminada bienvenida_0_3AB7FA8E-CE4F-4486-8D12-39A070169892.png",
+        "timestamp" : 1792203098.752
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "D4B13E75-3258-4772-AE4A-21A07C32C98B.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "8·2 Error y la sesión sigue abierta_0_A8DE870F-4E5E-4B4F-9CC9-C94DA2D2EC8A.png",
+        "timestamp" : 1792203075.871
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "FF06940B-12BB-41F5-AC1A-0544FADEEDF3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "8·1 Eliminar cuenta con la contraseña equivocada_0_2A986700-4AE2-439A-9035-ED346E675F60.png",
+        "timestamp" : 1792203073.584
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test8_deleteAccountWrongThenRight()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test8_deleteAccountWrongThenRight"
+  }
+]

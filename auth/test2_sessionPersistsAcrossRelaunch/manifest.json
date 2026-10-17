@@ -1,0 +1,53 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "67C5487F-FECC-4DED-8713-0E149B4E9CC5.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_1FE321C6-2359-4B99-844F-36A9A8631D5A.txt",
+        "timestamp" : 1792202145.019
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "E1B36CA4-6037-4ED3-AF16-9BB421FF39E4.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_F53B1836-E5A1-4B6F-AF5A-A60B2549E0AB.txt",
+        "timestamp" : 1792202144.709
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "B717BC5D-AC8A-4E6C-B555-F7911C22A542.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_634195B1-897A-426B-8E86-7157411CDE07.png",
+        "timestamp" : 1792202144.369
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "6606E9BB-9DCA-4F03-90C8-9852BF4FCD52.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "2·2 Más sigue la cuenta A_0_95736F58-4142-42C7-82C0-AF1F78493071.png",
+        "timestamp" : 1792202144.26
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "31E67B6D-1680-4872-8C46-ECFD46C27E00.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "2·1 Tras cerrar y volver a abrir la app_0_C44D4458-7A4B-46B1-A26D-7AFB925EC2AC.png",
+        "timestamp" : 1792202141.857
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test2_sessionPersistsAcrossRelaunch()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test2_sessionPersistsAcrossRelaunch"
+  }
+]

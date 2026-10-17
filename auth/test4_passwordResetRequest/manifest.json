@@ -1,0 +1,71 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "9219AEB7-55F3-46DE-AA13-D24DE2BE60DB.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_207ED4EC-BAF1-4698-98D4-2E8E9800EF50.txt",
+        "timestamp" : 1792202418.25
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "73242703-7D79-45AA-A9AD-9B275B3E582C.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_D81EAB78-D2F2-484F-B76E-925A6E912B52.txt",
+        "timestamp" : 1792202417.965
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "9EC9CACE-8A74-4C93-87C6-747E544EC3DD.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_B0904DA4-F102-466B-8E31-1F3B45A571F5.png",
+        "timestamp" : 1792202417.704
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "A0DAFD52-50DF-4713-B33C-4E2FBEF49757.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "4·4 A dentro otra vez, con su historial_0_615053E7-0B9E-4260-9DFF-CAE54A2E70FB.png",
+        "timestamp" : 1792202417.566
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DF4AB840-EC14-43DC-B6AA-591A96954D49.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "4·3 Enlace de recuperación enviado_0_05DD5653-CB4D-4CAA-ADB2-159DA99CB2B5.png",
+        "timestamp" : 1792202362.838
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "FB138B1D-9D77-4B72-8684-73B1BB8FDB6F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "4·2 Recuperar contraseña email de A_0_F90D6EA4-6F12-4602-A92D-81C6C73D6FA6.png",
+        "timestamp" : 1792202360.743
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "551D3474-7FFE-4089-892A-FCA5615E5C19.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "4·1 Cerrar sesión antes de recuperar la contraseña_0_E2CCA872-D34F-4B39-9B57-F1205FAC2777.png",
+        "timestamp" : 1792202342.82
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test4_passwordResetRequest()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test4_passwordResetRequest"
+  }
+]

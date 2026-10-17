@@ -1,0 +1,53 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "C69A1738-8C70-4AC4-B362-014DB7AE6372.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_67F35D62-0813-4C35-B733-A832D4BB19BD.txt",
+        "timestamp" : 1792202688.359
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DB80C6DE-C67F-47CA-A7F5-2E9ED13FF092.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_DD934149-0031-423A-9B38-F1AC0B29DDFF.txt",
+        "timestamp" : 1792202687.703
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "A10D630B-A1B6-4F87-BF22-278570CC5842.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_6EFF23BA-6F37-4C9D-9630-2F060A816C58.png",
+        "timestamp" : 1792202686.673
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "FF8038EB-4443-4CD2-BDE5-F3F587E3393C.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "6·2 Ajustes tras volver la conexión_0_78345A5C-0F36-4F5A-8C91-9A77961CF20D.png",
+        "timestamp" : 1792202686.559
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "72018B66-FE14-452D-9219-247E05A1E0BA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "6·1 De nuevo con conexión_0_A1525898-5449-4ED8-BF32-256599F2196F.png",
+        "timestamp" : 1792202646.829
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test6_onlineResync()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test6_onlineResync"
+  }
+]

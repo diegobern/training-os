@@ -1,0 +1,47 @@
+==== arranque 2026-10-17 02:04:02 +0000 pid 64073
+2026-10-17 02:04:03.203946+0000 App[64073:172949] DiskCookieStorage changing policy from 2 to 0, cookie file: file:///Users/runner/Library/Developer/CoreSimulator/Devices/E839A11B-51B4-4AD3-ACF4-A53B95B7C957/data/Containers/Data/Application/4E798AB6-8A72-4777-89B6-8BDA1F6A5CEC/Library/Cookies/com.trainingos.app.binarycookies
+2026-10-17 02:04:03.230589+0000 App[64073:175463] [default] Failed to resolve host network app id to config: bundleID: com.apple.WebKit.Networking instance ID: Optional([_EXExtensionInstanceIdentifier: 1454FEF0-7B07-4AD8-AF9A-6CF014D01367])
+2026-10-17 02:04:03.387975+0000 App[64073:172949] KeyboardPlugin: resize mode - native
+⚡️  Loading app at capacitor://localhost...
+2026-10-17 02:04:03.784087+0000 App[64073:172949] [UIFocus] UIKeyboardLayoutStar implements focusItemsInRect: - caching for linear focus movement is limited as long as this view is on screen.
+2026-10-17 02:04:04.065935+0000 App[64073:172949] void * _Nullable NSMapGet(NSMapTable * _Nonnull, const void * _Nullable): map table argument is NULL
+2026-10-17 02:04:04.074159+0000 App[64073:172949] [RTILog] -[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  Can only perform input operation for an active session. sessionID = 72DC6D1D-0D6F-45D0-92E2-30682FF0B426
+2026-10-17 02:04:04.093797+0000 App[64073:172949] [RTILog] -[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 72DC6D1D-0D6F-45D0-92E2-30682FF0B426
+2026-10-17 02:04:04.541668+0000 App[64073:175642] [ResourceLoadStatistics] WebContent[65182] Unable to hide query parameters from script (missing data)
+2026-10-17 02:04:04.570811+0000 App[64073:172949] [RTILog] -[RTIInputSystemClient remoteTextInputSessionWithID:textSuggestionsChanged:]  Can only set suggestions for an active session. sessionID = 72DC6D1D-0D6F-45D0-92E2-30682FF0B426
+⚡️  WebView loaded
+2026-10-17 02:04:04.771543+0000 App[64073:175642] [AXRuntimeCommon] WebContent[65182] Could not register system wide server: -25204
+2026-10-17 02:04:04.772161+0000 App[64073:175642] [AXRuntimeCommon] WebContent[65182] _AXAddToElementCache was called even though the element was in the cache: <WKAccessibilityWebPageObject: 0x1017c8ff0>
+⚡️  To Native ->  Filesystem readdir 28403366
+⚡️  TO JS {"files":[{"size":64,"type":"directory","ctime":1792201904499,"mtime":1792201904499,"name":"com.apple.WebKit.Networking","uri":"file:\/\/\/Users\/runner\/Library\/Developer\/CoreSimulator\/Devices\/E839A11B-51B4-4AD3-ACF4-A53B95B7C957\/data\/Containers\/Da
+⚡️  [info] - [training-os:app] ready
+⚡️  To Native ->  WorkoutNotification addListener 28403367
+⚡️  To Native ->  StatusBar setStyle 28403368
+⚡️  TO JS {}
+⚡️  To Native ->  Keyboard setAccessoryBarVisible 28403369
+⚡️  To Native ->  Keyboard hide 28403370
+⚡️  To Native ->  App addListener 28403371
+2026-10-17 02:04:04.909072+0000 App[64073:175468] Accessory bar visible change 1
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+⚡️  [info] - [training-os:firebase] auth ready for demo-training-os (emulators)
+⚡️  [info] - [training-os:storage] persistent storage not granted
+⚡️  [info] - [training-os:firebase] connected to local emulators on 127.0.0.1
+⚡️  [info] - [training-os:firebase] firestore ready for demo-training-os
+⚡️  To Native ->  WorkoutNotification stop 28403372
+⚡️  To Native ->  StatusBar setStyle 28403373
+2026-10-17 02:04:06.120178+0000 App[64073:175642] [com.apple.WebKit.WebContent] WebContent[65182] makeImagePlus:3799: *** ERROR: 'WEBP'-_reader->initImage[0] failed err=-50
+⚡️  TO JS {}
+⚡️  TO JS undefined
+⚡️  To Native ->  SplashScreen hide 28403374
+⚡️  TO JS undefined
+⚡️  [info] - [training-os:sync] pushed 5 documents
+⚡️  [info] - [training-os:sync] pulled 5 documents
+2026-10-17 02:04:29.613394+0000 App[64073:172949] [RTILog] -[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
+⚡️  To Native ->  WorkoutNotification haptic 28403375
+⚡️  To Native ->  Keyboard hide 28403376
+⚡️  TO JS undefined
+⚡️  TO JS undefined
+2026-10-17 02:04:45.681969+0000 App[64073:172949] [RTILog] -[RTIInputSystemClient remoteTextInputSessionWithID:performInputOperation:]  perform input operation requires a valid sessionID. inputModality = Keyboard, inputOperation = <null selector>, customInfoType = UIEmojiSearchOperations
+⚡️  To Native ->  Keyboard hide 28403377
+⚡️  TO JS undefined

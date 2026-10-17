@@ -1,0 +1,252 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination id=E839A11B-51B4-4AD3-ACF4-A53B95B7C957 -derivedDataPath build -clonedSourcePackagesDirPath spm -resultBundlePath /Users/runner/work/_temp/xcresult/test6_onlineResync.xcresult -parallel-testing-enabled NO "-only-testing:TrainingOSUITests/AuthFlowUITests/test6_onlineResync" test-without-building
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.5
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.5.2
+  CapacitorApp: /Users/runner/work/training-os/training-os/node_modules/@capacitor/app @ local
+  CapacitorKeyboard: /Users/runner/work/training-os/training-os/node_modules/@capacitor/keyboard @ local
+  IONFilesystemLib: https://github.com/ionic-team/ion-ios-filesystem.git @ 1.1.4
+  CapApp-SPM: /Users/runner/work/training-os/training-os/ios/App/CapApp-SPM @ local
+  CapacitorBrowser: /Users/runner/work/training-os/training-os/node_modules/@capacitor/browser @ local
+  CapacitorFilesystem: /Users/runner/work/training-os/training-os/node_modules/@capacitor/filesystem @ local
+  CapacitorShare: /Users/runner/work/training-os/training-os/node_modules/@capacitor/share @ local
+  CapacitorSplashScreen: /Users/runner/work/training-os/training-os/node_modules/@capacitor/splash-screen @ local
+  CapacitorStatusBar: /Users/runner/work/training-os/training-os/node_modules/@capacitor/status-bar @ local
+
+Writing result bundle at path:
+	/Users/runner/work/_temp/xcresult/test6_onlineResync.xcresult
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+2026-10-17 02:03:37.733993+0000 TrainingOSUITests-Runner[63290:170635] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-17 02:03:41.776.
+Test Suite 'TrainingOSUITests.xctest' started at 2026-10-17 02:03:41.777.
+Test Suite 'AuthFlowUITests' started at 2026-10-17 02:03:41.777.
+Test Case '-[TrainingOSUITests.AuthFlowUITests test6_onlineResync]' started.
+    t =     0.00s Start Test at 2026-10-17 02:03:41.778
+    t =     0.10s Set Up
+    t =     0.11s Pressing Home button
+objc[63290]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x1092a4310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x10934c398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     1.59s Press Application 'com.apple.springboard'[0.50, 0.99] for 0.1 seconds, then drag to Application 'com.apple.springboard'[0.50, 0.35] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =     1.59s     Wait for com.apple.springboard to idle
+    t =     2.14s     Find the Application 'com.apple.springboard'
+    t =     2.44s     Check for interrupting elements affecting " " Application
+    t =     2.53s     Synthesize event
+    t =     2.54s         Find the Application 'com.apple.springboard'
+    t =     2.58s         Find the Application 'com.apple.springboard'
+    t =     2.63s         Find the Application 'com.apple.springboard'
+    t =     2.67s         Find the Application 'com.apple.springboard'
+    t =     2.72s         Find the Application 'com.apple.springboard'
+    t =     4.20s     Wait for com.apple.springboard to idle
+    t =     6.89s Open com.trainingos.app
+    t =     6.89s     Launch com.trainingos.app
+2026-10-17 02:03:49.040 xcodebuild[62429:168301] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-10-17 02:03:49.040 xcodebuild[62429:168301] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    18.01s         Setting up automation session
+    t =    21.32s         Wait for com.trainingos.app to idle
+    t =    23.35s Waiting 60.0s for WebView (First Match) to exist
+    t =    25.05s Added attachment named '6·1 De nuevo con conexión'
+    t =    45.17s Waiting 5.0s for Link (First Match) to exist
+    t =    46.22s         Checking existence of `Link (First Match)`
+    t =    46.26s Checking existence of `Link (First Match)`
+    t =    46.30s Find the Link (First Match)
+    t =    47.20s Find the "Más" Link
+    t =    47.25s Find the "Más" Link
+    t =    47.29s Find the "Más" Link
+    t =    47.35s Tap "Más" Link
+    t =    47.35s     Wait for com.trainingos.app to idle
+    t =    47.35s     Find the "Más" Link
+    t =    47.39s     Check for interrupting elements affecting "Más" Link
+    t =    47.57s     Synthesize event
+    t =    47.89s     Wait for com.trainingos.app to idle
+    t =    48.39s Waiting 5.0s for Any (First Match) to exist
+    t =    49.56s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    49.59s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    49.63s Checking existence of `Link (Element at index 0)`
+    t =    49.66s Checking existence of `Link (Element at index 1)`
+    t =    49.69s Checking existence of `Link (Element at index 2)`
+    t =    49.72s Checking existence of `Link (Element at index 3)`
+    t =    49.75s Checking existence of `Link (Element at index 4)`
+    t =    49.78s Checking existence of `Button (Element at index 0)`
+    t =    49.80s Find the Link (Element at index 0)
+    t =    49.85s Find the Link (Element at index 1)
+    t =    49.88s Find the Link (Element at index 2)
+    t =    49.92s Find the Link (Element at index 3)
+    t =    49.96s Find the Link (Element at index 4)
+    t =    50.01s Find the Button (Element at index 0)
+    t =    50.06s Find the Any (First Match)
+    t =    50.10s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    50.11s     Wait for com.trainingos.app to idle
+    t =    50.12s     Check for interrupting elements affecting WebView
+    t =    50.15s     Synthesize event
+    t =    50.15s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    50.17s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    50.19s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    50.32s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    51.35s     Wait for com.trainingos.app to idle
+    t =    51.95s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    51.98s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    52.01s Checking existence of `Link (Element at index 0)`
+    t =    52.04s Checking existence of `Link (Element at index 1)`
+    t =    52.07s Checking existence of `Link (Element at index 2)`
+    t =    52.10s Checking existence of `Link (Element at index 3)`
+    t =    52.13s Checking existence of `Link (Element at index 4)`
+    t =    52.16s Checking existence of `Button (Element at index 0)`
+    t =    52.19s Find the Link (Element at index 0)
+    t =    52.23s Find the Link (Element at index 1)
+    t =    52.27s Find the Link (Element at index 2)
+    t =    52.30s Find the Link (Element at index 3)
+    t =    52.34s Find the Link (Element at index 4)
+    t =    52.38s Find the Button (Element at index 0)
+    t =    52.42s Find the "Ajustes" Button
+    t =    52.47s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    52.47s     Wait for com.trainingos.app to idle
+    t =    52.48s     Check for interrupting elements affecting WebView
+    t =    52.51s     Synthesize event
+    t =    52.51s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    52.53s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    52.55s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    52.57s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    53.60s     Wait for com.trainingos.app to idle
+    t =    54.21s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    54.24s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    54.27s Checking existence of `Link (Element at index 0)`
+    t =    54.30s Checking existence of `Link (Element at index 1)`
+    t =    54.33s Checking existence of `Link (Element at index 2)`
+    t =    54.36s Checking existence of `Link (Element at index 3)`
+    t =    54.39s Checking existence of `Link (Element at index 4)`
+    t =    54.42s Checking existence of `Button (Element at index 0)`
+    t =    54.45s Find the Link (Element at index 0)
+    t =    54.48s Find the Link (Element at index 1)
+    t =    54.52s Find the Link (Element at index 2)
+    t =    54.56s Find the Link (Element at index 3)
+    t =    54.60s Find the Link (Element at index 4)
+    t =    54.65s Find the Button (Element at index 0)
+    t =    54.69s Find the "Ajustes" Button
+    t =    54.74s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    54.74s     Wait for com.trainingos.app to idle
+    t =    54.75s     Check for interrupting elements affecting WebView
+    t =    54.78s     Synthesize event
+    t =    54.78s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    54.80s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    54.83s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    54.85s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    55.88s     Wait for com.trainingos.app to idle
+    t =    56.48s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    56.51s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    56.54s Checking existence of `Link (Element at index 0)`
+    t =    56.57s Checking existence of `Link (Element at index 1)`
+    t =    56.60s Checking existence of `Link (Element at index 2)`
+    t =    56.63s Checking existence of `Link (Element at index 3)`
+    t =    56.66s Checking existence of `Link (Element at index 4)`
+    t =    56.69s Checking existence of `Button (Element at index 0)`
+    t =    56.73s Find the Link (Element at index 0)
+    t =    56.77s Find the Link (Element at index 1)
+    t =    56.80s Find the Link (Element at index 2)
+    t =    56.84s Find the Link (Element at index 3)
+    t =    56.88s Find the Link (Element at index 4)
+    t =    56.92s Find the Button (Element at index 0)
+    t =    56.95s Find the "Ajustes" Button
+    t =    57.00s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    57.00s     Wait for com.trainingos.app to idle
+    t =    57.01s     Check for interrupting elements affecting WebView
+    t =    57.04s     Synthesize event
+    t =    57.04s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    57.06s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    57.09s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    57.10s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    58.13s     Wait for com.trainingos.app to idle
+    t =    58.74s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    58.77s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    58.80s Checking existence of `Link (Element at index 0)`
+    t =    58.83s Checking existence of `Link (Element at index 1)`
+    t =    58.86s Checking existence of `Link (Element at index 2)`
+    t =    58.88s Checking existence of `Link (Element at index 3)`
+    t =    58.91s Checking existence of `Link (Element at index 4)`
+    t =    58.94s Checking existence of `Button (Element at index 0)`
+    t =    58.97s Find the Link (Element at index 0)
+    t =    59.01s Find the Link (Element at index 1)
+    t =    59.05s Find the Link (Element at index 2)
+    t =    59.09s Find the Link (Element at index 3)
+    t =    59.13s Find the Link (Element at index 4)
+    t =    59.17s Find the Button (Element at index 0)
+    t =    59.21s Find the "Ajustes" Button
+    t =    59.26s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    59.26s     Wait for com.trainingos.app to idle
+    t =    59.27s     Check for interrupting elements affecting WebView
+    t =    59.30s     Synthesize event
+    t =    59.30s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    59.31s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    59.34s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    59.36s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    60.40s     Wait for com.trainingos.app to idle
+    t =    61.01s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    61.04s Get all elements bound by index for: Elements matching predicate 'label IN {"Inicio", "Rutinas", "Entreno", "Progreso", "Más"} OR label BEGINSWITH "Volver al entrenamiento en curso"'
+    t =    61.07s Checking existence of `Link (Element at index 0)`
+    t =    61.10s Checking existence of `Link (Element at index 1)`
+    t =    61.13s Checking existence of `Link (Element at index 2)`
+    t =    61.15s Checking existence of `Link (Element at index 3)`
+    t =    61.18s Checking existence of `Link (Element at index 4)`
+    t =    61.22s Checking existence of `Button (Element at index 0)`
+    t =    61.25s Find the Link (Element at index 0)
+    t =    61.28s Find the Link (Element at index 1)
+    t =    61.32s Find the Link (Element at index 2)
+    t =    61.36s Find the Link (Element at index 3)
+    t =    61.40s Find the Link (Element at index 4)
+    t =    61.44s Find the Button (Element at index 0)
+    t =    61.48s Find the "Ajustes" Button
+    t =    61.53s Press WebView (First Match)[0.50, 0.60] for 0.1 seconds, then drag to WebView (First Match)[0.50, 0.42] with velocity of 250.00 pixels per second, and then hold for 0.1 seconds 
+    t =    61.53s     Wait for com.trainingos.app to idle
+    t =    61.54s     Check for interrupting elements affecting WebView
+    t =    61.57s     Synthesize event
+    t =    61.57s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    61.59s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    61.61s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    61.63s         Find the WebView at {{0.0, 0.0}, {402.0, 874.0}}
+    t =    62.66s     Wait for com.trainingos.app to idle
+    t =    63.27s Checking existence of `"Ajustes" Button`
+    t =    63.30s Find the "Ajustes" Button
+    t =    63.35s Find the "Ajustes" Button
+    t =    63.40s Find the "Ajustes" Button
+    t =    63.44s Find the "Ajustes" Button
+    t =    63.49s Tap "Ajustes" Button
+    t =    63.49s     Wait for com.trainingos.app to idle
+    t =    63.74s     Find the "Ajustes" Button
+    t =    63.78s     Check for interrupting elements affecting "Ajustes" Button
+    t =    63.81s     Synthesize event
+    t =    64.11s     Wait for com.trainingos.app to idle
+    t =    64.60s Checking existence of `StaticText (First Match)`
+    t =    64.78s Added attachment named '6·2 Ajustes tras volver la conexión'
+    t =    64.79s Tear Down
+    t =    64.90s     Added attachment named 'Final: pantalla'
+    t =    64.90s     Requesting snapshot of accessibility hierarchy for app with pid 64073
+    t =    65.75s     Requesting snapshot of accessibility hierarchy for app with pid 64073
+    t =    65.93s     Added attachment named 'Final: árbol de la app'
+    t =    65.93s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =    66.54s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =    66.58s     Added attachment named 'Final: árbol de SpringBoard'
+Test Case '-[TrainingOSUITests.AuthFlowUITests test6_onlineResync]' passed (66.953 seconds).
+Test Suite 'AuthFlowUITests' passed at 2026-10-17 02:04:48.732.
+	 Executed 1 test, with 0 failures (0 unexpected) in 66.953 (66.955) seconds
+Test Suite 'TrainingOSUITests.xctest' passed at 2026-10-17 02:04:48.733.
+	 Executed 1 test, with 0 failures (0 unexpected) in 66.953 (66.956) seconds
+Test Suite 'Selected tests' passed at 2026-10-17 02:04:48.733.
+	 Executed 1 test, with 0 failures (0 unexpected) in 66.953 (66.957) seconds
+2026-10-17 02:04:50.069 xcodebuild[62429:168301] [MT] IDETestOperationsObserverDebug: 79.047 elapsed -- Testing started completed.
+2026-10-17 02:04:50.070 xcodebuild[62429:168301] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-17 02:04:50.070 xcodebuild[62429:168301] [MT] IDETestOperationsObserverDebug: 79.047 sec, +79.047 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/_temp/xcresult/test6_onlineResync.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

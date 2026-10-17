@@ -1,0 +1,48 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x10266a800, pid: 85857, label: 'Training OS'
+Element subtree:
+ →Application, 0x10266a800, pid: 85857, label: 'Training OS'
+    Window (Main), 0x10266aa80, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x10266abc0, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x10266b480, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x10266b5c0, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x10266bd40, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x10266b340, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x10266be80, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x10266b700, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x10266b980, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x10266bac0, {{0.0, 0.0}, {402.0, 874.0}}, label: 'Training OS', Focused
+                        Other, 0x10266bc00, {{0.0, 0.0}, {402.0, 874.0}}, Focused
+                          StaticText, 0x10266b840, {{70.0, 119.0}, {97.0, 17.0}}, label: 'TRAINING OS', value: TRAINING OS, Focused
+                          Other, 0x112af7e80, {{24.0, 178.0}, {354.0, 80.0}}, label: 'Entrena más fuerte.
+Regístralo todo.', value: 1, Focused
+                            StaticText, 0x112af7700, {{24.0, 178.0}, {317.0, 44.0}}, label: 'Entrena más fuerte.', value: Entrena más fuerte., Focused
+                            StaticText, 0x112af6940, {{24.0, 214.0}, {254.0, 44.0}}, label: 'Regístralo todo.', value: Regístralo todo., Focused
+                          Other, 0x112af7840, {{24.0, 278.0}, {320.0, 42.0}}, Focused
+                            StaticText, 0x112af7d40, {{24.0, 279.0}, {275.0, 40.0}}, label: 'Tu entrenamiento. Tu progreso. Siempre contigo.', value: Tu entrenamiento. ..., Focused
+                          Other, 0x112af5680, {{24.0, 344.0}, {354.0, 337.0}}, Focused
+                          Button, 0x112af7200, {{24.0, 705.0}, {354.0, 60.0}}, label: 'CREAR CUENTA', Focused
+                          Other, 0x112af5b80, {{24.0, 781.0}, {354.0, 19.0}}, Focused
+                            StaticText, 0x112af5e00, {{88.0, 782.0}, {118.0, 17.0}}, label: '¿Ya tienes cuenta?', value: ¿Ya tienes cuenta?, Focused
+                            Button, 0x112af6d00, {{209.0, 781.0}, {105.0, 19.0}}, label: 'INICIAR SESIÓN', Focused
+                        Other, 0x112af7480, {{0.0, 0.0}, {402.0, 116.0}}, label: 'application status', Focused
+                          Button, 0x112af48c0, {{12.0, 74.0}, {378.0, 42.0}}, label: 'Cuenta eliminada', Focused
+              Other, 0x112af6a80, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x112af6440, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x112af4dc0, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x112af4000, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x112af70c0, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x112af4a00, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x112af61c0, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x112af7ac0, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x112af5040, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x112af5cc0, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x112af4640, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x10266a800, pid: 85857, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x112af4b40, pid: 85857, label: 'Training OS'
+  }

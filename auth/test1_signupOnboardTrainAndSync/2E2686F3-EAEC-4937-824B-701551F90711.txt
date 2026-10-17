@@ -1,0 +1,200 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x117c70780, pid: 21621, label: 'Training OS'
+Element subtree:
+ →Application, 0x117c70780, pid: 21621, label: 'Training OS'
+    Window (Main), 0x117c70640, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x10766ed00, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x10766ef80, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x10766f0c0, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x10766fc00, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x10766f840, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x117c54a00, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x117c54f00, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x117c56e40, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x117c55040, {{0.0, 0.0}, {402.0, 3996.0}}, label: 'Training OS', Focused
+                        Button, 0x117c56800, {{8.0, 64.0}, {44.0, 44.0}}, label: 'Volver', Focused
+                        Other, 0x117c55900, {{0.0, 62.0}, {402.0, 10.0}}, Focused
+                        Button, 0x117c55e00, {{350.0, 64.0}, {44.0, 44.0}}, label: 'Ir a', Focused
+                        Other, 0x117c54640, {{20.0, 110.0}, {362.0, 82.0}}, label: 'banner', Focused
+                          Other, 0x117c552c0, {{20.0, 116.0}, {362.0, 34.0}}, label: 'Ajustes', value: 1, Focused
+                            StaticText, 0x117c56580, {{20.0, 116.0}, {98.0, 34.0}}, label: 'Ajustes', value: Ajustes, Focused
+                          Other, 0x117c566c0, {{20.0, 155.0}, {362.0, 21.0}}, Focused
+                            StaticText, 0x117c557c0, {{20.0, 156.0}, {216.0, 19.0}}, label: 'Ajusta Training OS a tu manera.', value: Ajusta Training OS..., Focused
+                        Other, 0x117c561c0, {{20.0, 214.0}, {362.0, 17.0}}, label: 'CUENTA', value: 2, Focused
+                          StaticText, 0x117c56f80, {{20.0, 214.0}, {60.0, 17.0}}, label: 'CUENTA', value: CUENTA, Focused
+                        StaticText, 0x117c57340, {{37.0, 257.0}, {34.0, 18.0}}, label: 'Email', value: Email, Focused
+                        StaticText, 0x117c54c80, {{148.0, 256.0}, {217.0, 19.0}}, label: 'a389922749711@example.com', value: a389922749711@exam..., Focused
+                        StaticText, 0x117c56d00, {{37.0, 300.0}, {120.0, 18.0}}, label: 'Nombre de usuario', value: Nombre de usuario, Focused
+                        StaticText, 0x117c55400, {{231.0, 299.0}, {134.0, 19.0}}, label: '@ua389922749711', value: @ua389922749711, Focused
+                        StaticText, 0x117c55680, {{37.0, 343.0}, {98.0, 18.0}}, label: 'Miembro desde', value: Miembro desde, Focused
+                        StaticText, 0x117c55540, {{250.0, 342.0}, {115.0, 19.0}}, label: 'octubre de 2026', value: octubre de 2026, Focused
+                        StaticText, 0x117c55b80, {{37.0, 386.0}, {92.0, 18.0}}, label: 'Sincronización', value: Sincronización, Focused
+                        StaticText, 0x117c55f40, {{276.0, 385.0}, {89.0, 19.0}}, label: 'Sincronizado', value: Sincronizado, Focused
+                        StaticText, 0x117c56940, {{37.0, 429.0}, {134.0, 18.0}}, label: 'Última sincronización', value: Última sincronizac..., Focused
+                        StaticText, 0x117c56300, {{326.0, 428.0}, {39.0, 19.0}}, label: '01:54', value: 01:54, Focused
+                        Button, 0x117c54dc0, {{20.0, 480.0}, {362.0, 44.0}}, label: 'Sincronizar ahora', Focused
+                        Button, 0x117c55a40, {{20.0, 532.0}, {362.0, 48.0}}, label: 'Editar perfil', Focused
+                        Button, 0x117c56a80, {{20.0, 588.0}, {362.0, 44.0}}, label: 'Cambiar contraseña', Focused
+                        Button, 0x117c55180, {{20.0, 640.0}, {362.0, 44.0}}, label: 'Cerrar sesión', Focused
+                        Button, 0x117c55cc0, {{20.0, 692.0}, {362.0, 44.0}}, label: 'Eliminar cuenta', Focused
+                        Other, 0x117c57200, {{20.0, 758.0}, {362.0, 17.0}}, label: 'APARIENCIA', value: 2, Focused
+                          StaticText, 0x117c56bc0, {{20.0, 758.0}, {91.0, 17.0}}, label: 'APARIENCIA', value: APARIENCIA, Focused
+                        Other, 0x117c56440, {{37.0, 801.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x117c54b40, {{37.0, 802.0}, {37.0, 14.0}}, label: 'TEMA', value: TEMA, Focused
+                        Other, 0x117fbf5c0, {{37.0, 825.0}, {328.0, 50.0}}, Focused
+                          Button, 0x117fbdb80, {{42.0, 830.0}, {106.0, 40.0}}, label: 'Claro', Focused, Selected
+                          Button, 0x117fbcb40, {{148.0, 830.0}, {106.0, 40.0}}, label: 'Oscuro', Focused
+                          Button, 0x117fbd680, {{254.0, 830.0}, {106.0, 40.0}}, label: 'Sistema', Focused
+                        StaticText, 0x117fbee40, {{37.0, 892.0}, {49.0, 14.0}}, label: 'IDIOMA', value: IDIOMA, Focused
+                        Other, 0x117fbdcc0, {{37.0, 913.0}, {328.0, 48.0}}, Focused
+                          Other, 0x117fbe6c0, {{37.0, 913.0}, {328.0, 48.0}}, value: Español, Focused
+                        Other, 0x117fbc500, {{20.0, 1000.0}, {362.0, 17.0}}, label: 'ENTRENAMIENTO', value: 2, Focused
+                          StaticText, 0x117fbd400, {{20.0, 1000.0}, {127.0, 17.0}}, label: 'ENTRENAMIENTO', value: ENTRENAMIENTO, Focused
+                        Other, 0x117fbe580, {{37.0, 1043.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x117fbfac0, {{37.0, 1044.0}, {164.0, 14.0}}, label: 'MÉTRICA DE INTENSIDAD', value: MÉTRICA DE INTENSI..., Focused
+                        Other, 0x117fbde00, {{37.0, 1067.0}, {328.0, 46.0}}, Focused
+                          Button, 0x11803f980, {{42.0, 1072.0}, {159.0, 36.0}}, label: 'RIR', Focused, Selected
+                          Button, 0x11803f840, {{201.0, 1072.0}, {159.0, 36.0}}, label: 'RPE', Focused
+                        Other, 0x11803f200, {{37.0, 1138.0}, {328.0, 16.0}}, label: 'DESCANSO POR DEFECTO (S)', Focused
+                          StaticText, 0x11803f5c0, {{37.0, 1139.0}, {190.0, 14.0}}, label: 'DESCANSO POR DEFECTO (S)', value: DESCANSO POR DEFEC..., Focused
+                        TextField, 0x11803f700, {{37.0, 1160.0}, {328.0, 48.0}}, label: 'DESCANSO POR DEFECTO (S)', value: 120, Focused
+                        Switch, 0x11803fd40, {{37.0, 1221.0}, {328.0, 52.0}}, label: 'Iniciar descanso automáticamente', value: 1, Focused
+                        Switch, 0x11803fe80, {{37.0, 1274.0}, {328.0, 52.0}}, label: 'Precargar la sesión anterior', value: 1, Focused
+                        Switch, 0x11803fc00, {{37.0, 1327.0}, {328.0, 68.0}}, label: 'Excluir calentamiento de las estadísticas', value: 1, Focused
+                        Other, 0x11803fac0, {{37.0, 1408.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x11803f0c0, {{37.0, 1409.0}, {159.0, 14.0}}, label: 'LA SEMANA EMPIEZA EN', value: LA SEMANA EMPIEZA EN, Focused
+                        Other, 0x11803ed00, {{37.0, 1432.0}, {328.0, 46.0}}, Focused
+                          Button, 0x11803f340, {{42.0, 1437.0}, {159.0, 36.0}}, label: 'Lunes', Focused, Selected
+                          Button, 0x11803ef80, {{201.0, 1437.0}, {159.0, 36.0}}, label: 'Domingo', Focused
+                        Other, 0x11803ee40, {{20.0, 1519.0}, {362.0, 16.0}}, label: 'OBJETIVO SEMANAL DE SERIES POR MÚSCULO', value: 3, Focused
+                          StaticText, 0x11803f480, {{20.0, 1520.0}, {303.0, 14.0}}, label: 'OBJETIVO SEMANAL DE SERIES POR MÚSCULO', value: OBJETIVO SEMANAL D..., Focused
+                        Other, 0x11a6ec000, {{37.0, 1560.0}, {159.0, 16.0}}, label: 'PECHO', Focused
+                          StaticText, 0x11a6ec140, {{37.0, 1561.0}, {45.0, 14.0}}, label: 'PECHO', value: PECHO, Focused
+                        TextField, 0x11a6ec280, {{37.0, 1582.0}, {159.0, 48.0}}, label: 'PECHO', value: 9, Focused
+                        Other, 0x11a6ec3c0, {{206.0, 1560.0}, {159.0, 16.0}}, label: 'ESPALDA', Focused
+                          StaticText, 0x11a6ec500, {{206.0, 1561.0}, {59.0, 14.0}}, label: 'ESPALDA', value: ESPALDA, Focused
+                        TextField, 0x11a6ec640, {{206.0, 1582.0}, {159.0, 48.0}}, label: 'ESPALDA', value: 11, Focused
+                        Other, 0x11a6ec780, {{37.0, 1640.0}, {159.0, 16.0}}, label: 'HOMBROS', Focused
+                          StaticText, 0x11a6ec8c0, {{37.0, 1641.0}, {66.0, 14.0}}, label: 'HOMBROS', value: HOMBROS, Focused
+                        TextField, 0x11a6eca00, {{37.0, 1662.0}, {159.0, 48.0}}, label: 'HOMBROS', value: 8, Focused
+                        Other, 0x11a6ecb40, {{206.0, 1640.0}, {159.0, 16.0}}, label: 'BÍCEPS', Focused
+                          StaticText, 0x11a6ecc80, {{206.0, 1641.0}, {48.0, 14.0}}, label: 'BÍCEPS', value: BÍCEPS, Focused
+                        TextField, 0x11a6ecdc0, {{206.0, 1662.0}, {159.0, 48.0}}, label: 'BÍCEPS', value: 6, Focused
+                        Other, 0x11a6ecf00, {{37.0, 1720.0}, {159.0, 16.0}}, label: 'TRÍCEPS', Focused
+                          StaticText, 0x11a6ed040, {{37.0, 1721.0}, {56.0, 14.0}}, label: 'TRÍCEPS', value: TRÍCEPS, Focused
+                        TextField, 0x11a6ed180, {{37.0, 1742.0}, {159.0, 48.0}}, label: 'TRÍCEPS', value: 6, Focused
+                        Other, 0x11a6ed2c0, {{206.0, 1720.0}, {159.0, 16.0}}, label: 'CUÁDRICEPS', Focused
+                          StaticText, 0x11a6ed400, {{206.0, 1721.0}, {84.0, 14.0}}, label: 'CUÁDRICEPS', value: CUÁDRICEPS, Focused
+                        TextField, 0x11a6ed540, {{206.0, 1742.0}, {159.0, 48.0}}, label: 'CUÁDRICEPS', value: 9, Focused
+                        Other, 0x11a6ed680, {{37.0, 1800.0}, {159.0, 16.0}}, label: 'ISQUIOS', Focused
+                          StaticText, 0x11a6ed7c0, {{37.0, 1801.0}, {55.0, 14.0}}, label: 'ISQUIOS', value: ISQUIOS, Focused
+                        TextField, 0x11a6ed900, {{37.0, 1822.0}, {159.0, 48.0}}, label: 'ISQUIOS', value: 6, Focused
+                        Other, 0x11a6eda40, {{206.0, 1800.0}, {159.0, 16.0}}, label: 'GLÚTEOS', Focused
+                          StaticText, 0x11a6edb80, {{206.0, 1801.0}, {61.0, 14.0}}, label: 'GLÚTEOS', value: GLÚTEOS, Focused
+                        TextField, 0x11a6edcc0, {{206.0, 1822.0}, {159.0, 48.0}}, label: 'GLÚTEOS', value: 6, Focused
+                        Other, 0x11a6ede00, {{37.0, 1880.0}, {159.0, 16.0}}, label: 'GEMELOS', Focused
+                          StaticText, 0x11a6edf40, {{37.0, 1881.0}, {62.0, 14.0}}, label: 'GEMELOS', value: GEMELOS, Focused
+                        TextField, 0x11a6ee080, {{37.0, 1902.0}, {159.0, 48.0}}, label: 'GEMELOS', value: 5, Focused
+                        Other, 0x11a6ee1c0, {{206.0, 1880.0}, {159.0, 16.0}}, label: 'CORE', Focused
+                          StaticText, 0x11a6ee300, {{206.0, 1881.0}, {36.0, 14.0}}, label: 'CORE', value: CORE, Focused
+                        TextField, 0x11a6ee440, {{206.0, 1902.0}, {159.0, 48.0}}, label: 'CORE', value: 5, Focused
+                        Other, 0x11a6ee580, {{37.0, 1960.0}, {159.0, 16.0}}, label: 'ANTEBRAZOS', Focused
+                          StaticText, 0x11a6ee6c0, {{37.0, 1961.0}, {88.0, 14.0}}, label: 'ANTEBRAZOS', value: ANTEBRAZOS, Focused
+                        TextField, 0x11a6ee800, {{37.0, 1982.0}, {159.0, 48.0}}, label: 'ANTEBRAZOS', Focused
+                        Other, 0x11a6ee940, {{20.0, 2069.0}, {362.0, 17.0}}, label: 'UNIDADES', value: 2, Focused
+                          StaticText, 0x11a6eea80, {{20.0, 2069.0}, {77.0, 17.0}}, label: 'UNIDADES', value: UNIDADES, Focused
+                        Other, 0x11a6eebc0, {{37.0, 2112.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x11a6eed00, {{37.0, 2113.0}, {68.0, 14.0}}, label: 'UNIDADES', value: UNIDADES, Focused
+                        Other, 0x11a6eee40, {{37.0, 2136.0}, {328.0, 50.0}}, Focused
+                          Button, 0x11a6eef80, {{42.0, 2141.0}, {159.0, 40.0}}, label: 'KG', Focused, Selected
+                          Button, 0x11a6ef0c0, {{201.0, 2141.0}, {159.0, 40.0}}, label: 'LB', Focused
+                        Other, 0x11a6ef200, {{37.0, 2202.0}, {328.0, 76.0}}, Focused
+                          StaticText, 0x11a6ef340, {{37.0, 2204.0}, {321.0, 72.0}}, label: 'Separa los valores con un espacio, con punto y coma o con coma y espacio (1,25; 2,5; 5). Los decimales pueden llevar coma o punto. El asistente nunca te sugerirá un peso que no exista aquí.', value: Separa los valores..., Focused
+                        Other, 0x11a6ef480, {{37.0, 2294.0}, {328.0, 16.0}}, label: 'MANCUERNAS (KG)', Focused
+                          StaticText, 0x11a6ef5c0, {{37.0, 2295.0}, {126.0, 14.0}}, label: 'MANCUERNAS (KG)', value: MANCUERNAS (KG), Focused
+                        TextField, 0x11a6ef700, {{37.0, 2316.0}, {328.0, 48.0}}, label: 'MANCUERNAS (KG)', value: 2, 4, 6, 8, 10, 12..., Focused
+                        Other, 0x11a6ef840, {{37.0, 2380.0}, {328.0, 16.0}}, label: 'DISCOS POR LADO (KG)', Focused
+                          StaticText, 0x11a6ef980, {{37.0, 2381.0}, {154.0, 14.0}}, label: 'DISCOS POR LADO (KG)', value: DISCOS POR LADO (KG), Focused
+                        TextField, 0x11a6efac0, {{37.0, 2402.0}, {328.0, 48.0}}, label: 'DISCOS POR LADO (KG)', value: 1.25, 2.5, 5, 10, ..., Focused
+                        Other, 0x11a6efc00, {{37.0, 2466.0}, {158.0, 16.0}}, label: 'PESO DE LA BARRA (KG)', Focused
+                          StaticText, 0x11a6efd40, {{37.0, 2467.0}, {158.0, 14.0}}, label: 'PESO DE LA BARRA (KG)', value: PESO DE LA BARRA (..., Focused
+                        TextField, 0x11a6efe80, {{37.0, 2488.0}, {158.0, 48.0}}, label: 'PESO DE LA BARRA (KG)', value: 20, Focused
+                        Other, 0x11b02c000, {{207.0, 2466.0}, {158.0, 16.0}}, label: 'MICRO-DISCOS (KG)', Focused
+                          StaticText, 0x11b02c140, {{207.0, 2467.0}, {133.0, 14.0}}, label: 'MICRO-DISCOS (KG)', value: MICRO-DISCOS (KG), Focused
+                        TextField, 0x11b02c280, {{207.0, 2488.0}, {158.0, 48.0}}, label: 'MICRO-DISCOS (KG)', Focused
+                        Other, 0x11b02c3c0, {{37.0, 2548.0}, {158.0, 32.0}}, label: 'SALTO EN MÁQUINAS (KG)', Focused
+                          StaticText, 0x11b02c500, {{37.0, 2549.0}, {138.0, 30.0}}, label: 'SALTO EN MÁQUINAS (KG)', value: SALTO EN MÁQUINAS ..., Focused
+                        TextField, 0x11b02c640, {{37.0, 2586.0}, {158.0, 48.0}}, label: 'SALTO EN MÁQUINAS (KG)', value: 5, Focused
+                        Other, 0x11b02c780, {{207.0, 2564.0}, {158.0, 16.0}}, label: 'SALTO EN POLEAS (KG)', Focused
+                          StaticText, 0x11b02c8c0, {{207.0, 2565.0}, {152.0, 14.0}}, label: 'SALTO EN POLEAS (KG)', value: SALTO EN POLEAS (KG), Focused
+                        TextField, 0x11b02ca00, {{207.0, 2586.0}, {158.0, 48.0}}, label: 'SALTO EN POLEAS (KG)', value: 2.5, Focused
+                        Other, 0x11b02cb40, {{20.0, 2673.0}, {362.0, 17.0}}, label: 'SONIDO Y VIBRACIÓN', value: 2, Focused
+                          StaticText, 0x11b02cc80, {{20.0, 2673.0}, {159.0, 17.0}}, label: 'SONIDO Y VIBRACIÓN', value: SONIDO Y VIBRACIÓN, Focused
+                        Switch, 0x11b02cdc0, {{37.0, 2704.0}, {328.0, 52.0}}, label: 'Sonidos', value: 1, Focused
+                        Switch, 0x11b02cf00, {{37.0, 2757.0}, {328.0, 52.0}}, label: 'Vibración', value: 1, Focused
+                        Switch, 0x11b02d040, {{37.0, 2810.0}, {328.0, 52.0}}, label: 'Animaciones', value: 1, Focused
+                        Switch, 0x11b02d180, {{37.0, 2863.0}, {328.0, 52.0}}, label: 'DESCANSO · Sonidos', value: 1, Focused
+                        Switch, 0x11b02d2c0, {{37.0, 2916.0}, {328.0, 52.0}}, label: 'DESCANSO · Vibración', value: 1, Focused
+                        Other, 0x11b02d400, {{20.0, 2995.0}, {362.0, 17.0}}, label: 'DATOS', value: 2, Focused
+                          StaticText, 0x11b02d540, {{20.0, 2995.0}, {50.0, 17.0}}, label: 'DATOS', value: DATOS, Focused
+                        Other, 0x11b02d680, {{37.0, 3038.0}, {328.0, 19.0}}, Focused
+                          StaticText, 0x11b02d7c0, {{37.0, 3040.0}, {83.0, 15.0}}, label: 'Sincronización', value: Sincronización, Focused
+                        Switch, 0x11b02d900, {{37.0, 3067.0}, {328.0, 118.0}}, label: 'Incluir las fotos de progreso en la copia Se añaden al archivo de «Exportar copia de seguridad», que ocupará más. Las fotos siguen guardándose solo en este dispositivo.', value: 0, Focused
+                        Button, 0x11b02da40, {{37.0, 3195.0}, {328.0, 44.0}}, label: 'Exportar copia de seguridad', Focused
+                        Button, 0x11b02db80, {{37.0, 3249.0}, {328.0, 44.0}}, label: 'Exportar CSV', Focused
+                        Button, 0x11b02dcc0, {{37.0, 3303.0}, {328.0, 44.0}}, label: 'Importar copia de seguridad', Focused
+                        Other, 0x11b02de00, {{20.0, 3386.0}, {362.0, 17.0}}, label: 'ACERCA DE', value: 2, Focused
+                          StaticText, 0x11b02df40, {{20.0, 3386.0}, {84.0, 17.0}}, label: 'ACERCA DE', value: ACERCA DE, Focused
+                        Other, 0x11b02e080, {{37.0, 3429.0}, {328.0, 22.0}}, Focused
+                          StaticText, 0x11b02e1c0, {{37.0, 3430.0}, {124.0, 19.0}}, label: '643 KB de 9,6 GB', value: 643 KB de 9,6 GB, Focused
+                        Other, 0x11b02e300, {{37.0, 3461.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x11b02e440, {{37.0, 3461.0}, {241.0, 15.0}}, label: 'Almacenamiento persistente no concedido', value: Almacenamiento per..., Focused
+                        Button, 0x11b02e580, {{37.0, 3487.0}, {328.0, 44.0}}, label: 'Solicitar almacenamiento persistente', Focused
+                        Other, 0x11b02e6c0, {{37.0, 3541.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x11b02e800, {{37.0, 3541.0}, {119.0, 15.0}}, label: 'Aplicación instalada', value: Aplicación instalada, Focused
+                        Button, 0x11b02e940, {{37.0, 3567.0}, {328.0, 44.0}}, label: 'Diagnóstico', Focused
+                        Button, 0x11b02ea80, {{37.0, 3621.0}, {328.0, 44.0}}, label: 'Atribuciones', Focused
+                        Other, 0x11b02ebc0, {{37.0, 3675.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x11b02ed00, {{165.0, 3675.0}, {43.0, 15.0}}, label: 'Versión', value: Versión, Focused
+                          StaticText, 0x11b02ee40, {{210.0, 3675.0}, {27.0, 15.0}}, label: '1.0.0', value: 1.0.0, Focused
+                        Other, 0x11b02ef80, {{20.0, 3732.0}, {362.0, 16.0}}, label: 'ZONA PELIGROSA', value: 3, Focused
+                          StaticText, 0x11b02f0c0, {{20.0, 3733.0}, {115.0, 14.0}}, label: 'ZONA PELIGROSA', value: ZONA PELIGROSA, Focused
+                        StaticText, 0x11b02f200, {{59.0, 3775.0}, {294.0, 34.0}}, label: 'Se borrará todo: rutinas, historial, récords y ajustes. Exporta antes si quieres conservarlo.', value: Se borrará todo: r..., Focused
+                        Button, 0x11b02f340, {{37.0, 3823.0}, {328.0, 44.0}}, label: 'Borrar todos los datos', Focused
+                        Other, 0x11b02f480, {{0.0, 778.0}, {402.0, 97.0}}, label: 'Inicio, navigation', Focused
+                          Other, 0x11b02f5c0, {{0.0, 778.0}, {402.0, 77.0}}, Focused
+                            Other, 0x11b02f700, {{0.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x11b02f840, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', Focused
+                                StaticText, 0x11b02f980, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', value: Inicio, Focused
+                            Other, 0x11b02fac0, {{80.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x11b02fc00, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', Focused
+                                StaticText, 0x11b02fd40, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', value: Rutinas, Focused
+                            Other, 0x11b02fe80, {{160.0, 778.0}, {82.0, 77.0}}, Focused
+                              Link, 0x11a6e8000, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', Focused
+                                StaticText, 0x11a6e8140, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', value: Entreno, Focused
+                            Other, 0x11a6e8280, {{241.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x11a6e83c0, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', Focused
+                                StaticText, 0x11a6e8500, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', value: Progreso, Focused
+                            Other, 0x11a6e8640, {{321.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x11a6e8780, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', Focused
+                                StaticText, 0x11a6e88c0, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', value: Más, Focused
+                        Other, 0x11a6e8a00, {{0.0, 0.0}, {402.0, 74.0}}, label: 'application status', Focused
+              Other, 0x11a6e8b40, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 5 páginas', value: 0 %
+                Other, 0x11a6e8c80, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x11a6e8dc0, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11a6e8f00, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x11a6e9040, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 5 páginas', value: 0 %
+                Other, 0x11a6e9180, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x11a6e92c0, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11a6e9400, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x11a6e9540, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11a6e9680, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x11a6e97c0, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x117c70780, pid: 21621, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x11a6e9900, pid: 21621, label: 'Training OS'
+  }

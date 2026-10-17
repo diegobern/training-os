@@ -1,0 +1,64 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x113fc5040, pid: 37247, label: 'Training OS'
+Element subtree:
+ →Application, 0x113fc5040, pid: 37247, label: 'Training OS'
+    Window (Main), 0x113fc6bc0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x113fc48c0, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x113fc5e00, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x113fc4280, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x113fc43c0, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x113fc4f00, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x113fc70c0, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x113fc5cc0, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x113fc6440, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x113fc7200, {{0.0, 0.0}, {402.0, 874.0}}, label: 'Training OS', Focused
+                        Button, 0x113fc6800, {{8.0, 64.0}, {44.0, 44.0}}, label: 'Volver', Focused
+                        Other, 0x113fc4780, {{0.0, 62.0}, {402.0, 10.0}}, Focused
+                        Button, 0x113fc66c0, {{350.0, 64.0}, {44.0, 44.0}}, label: 'Calendario', Focused
+                        Other, 0x113fc5400, {{20.0, 110.0}, {362.0, 82.0}}, label: 'banner', Focused
+                          Other, 0x113fc6580, {{20.0, 116.0}, {362.0, 34.0}}, label: 'Historial', value: 1, Focused
+                            StaticText, 0x113fc7480, {{20.0, 116.0}, {108.0, 34.0}}, label: 'Historial', value: Historial, Focused
+                          Other, 0x113fc7980, {{20.0, 155.0}, {362.0, 21.0}}, Focused
+                            StaticText, 0x113fc4140, {{20.0, 156.0}, {55.0, 19.0}}, label: '1 sesión', value: 1 sesión, Focused
+                        Other, 0x113fc6e40, {{20.0, 190.0}, {161.0, 17.0}}, label: 'OCTUBRE DE 2026· 1', value: 2, Focused
+                          StaticText, 0x113fc4b40, {{20.0, 190.0}, {136.0, 17.0}}, label: 'OCTUBRE DE 2026', value: OCTUBRE DE 2026, Focused
+                          StaticText, 0x113fc6d00, {{163.0, 190.0}, {11.0, 17.0}}, label: '· ', value: · , Focused
+                          StaticText, 0x113fc5900, {{173.0, 190.0}, {8.0, 17.0}}, label: '1', value: 1, Focused
+                        Button, 0x113fc7700, {{20.0, 216.0}, {362.0, 74.0}}, label: '17 OCT Entrenamiento libre 01:53 · 29s · 1 serie · 480 kg', Focused
+                        Other, 0x113fc4640, {{0.0, 778.0}, {402.0, 97.0}}, label: 'Inicio, navigation', Focused
+                          Other, 0x113fc6940, {{0.0, 778.0}, {402.0, 77.0}}, Focused
+                            Other, 0x113fc4a00, {{0.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x113fc4500, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', Focused
+                                StaticText, 0x113fc7840, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', value: Inicio, Focused
+                            Other, 0x113fc6080, {{80.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x113fc4dc0, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', Focused
+                                StaticText, 0x113fc5b80, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', value: Rutinas, Focused
+                            Other, 0x113fc57c0, {{160.0, 778.0}, {82.0, 77.0}}, Focused
+                              Link, 0x113fc7340, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', Focused
+                                StaticText, 0x113fc4c80, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', value: Entreno, Focused
+                            Other, 0x113fc6300, {{241.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x113fc5a40, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', Focused
+                                StaticText, 0x113fc6a80, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', value: Progreso, Focused
+                            Other, 0x113fc61c0, {{321.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x113fc52c0, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', Focused
+                                StaticText, 0x113fc6f80, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', value: Más, Focused
+                        Other, 0x113fc5f40, {{0.0, 0.0}, {402.0, 74.0}}, label: 'application status', Focused
+              Other, 0x113fc7e80, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x113fc4000, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x11384e440, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11384fd40, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x11384e800, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x11384ef80, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x11384fc00, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11384e580, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x11384e1c0, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11384df40, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x11384fe80, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x113fc5040, pid: 37247, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x11384e300, pid: 37247, label: 'Training OS'
+  }

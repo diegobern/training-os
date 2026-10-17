@@ -1,0 +1,29 @@
+estado de la app: 3 (4 = en primer plano)
+
+Attributes: Application, 0x1064f1a40, pid: 70600, label: 'Training OS'
+Element subtree:
+ →Application, 0x1064f1a40, pid: 70600, label: 'Training OS'
+    Window (Main), 0x1064f0500, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x1064f0640, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x1064f1680, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x1064f17c0, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x1064f1900, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x1064f12c0, {{0.0, 0.0}, {402.0, 874.0}}
+              Other, 0x1064f1400, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x1064f1540, {{396.0, 65.0}, {3.0, 602.0}}
+              Other, 0x1064f0f00, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x1064f1040, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x1064f1180, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x1064f0b40, {{396.0, 65.0}, {3.0, 602.0}}
+              Other, 0x1064f0c80, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x1064f0dc0, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x1064f0780, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x1064f08c0, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x1064f0a00, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x1064f1a40, pid: 70600, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x1064f0280, pid: 70600, label: 'Training OS'
+  }

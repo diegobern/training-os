@@ -1,0 +1,16 @@
+pfctl: Use of -f option, could result in flushing of rules
+present in the main ruleset added by the system at startup.
+See /etc/pf.conf for further details.
+
+No ALTQ support in kernel
+ALTQ related functions disabled
+pf enabled
+pfctl -ef: código 0
+No ALTQ support in kernel
+ALTQ related functions disabled
+block return quick on lo0 proto tcp from any to any port = 8080
+block return quick on lo0 proto tcp from any to any port = 9099
+block return quick on lo0 proto tcp from any to any port = 9199
+No ALTQ support in kernel
+ALTQ related functions disabled
+pf disabled

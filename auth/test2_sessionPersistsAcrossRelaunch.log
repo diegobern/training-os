@@ -1,0 +1,115 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination id=E839A11B-51B4-4AD3-ACF4-A53B95B7C957 -derivedDataPath build -clonedSourcePackagesDirPath spm -resultBundlePath /Users/runner/work/_temp/xcresult/test2_sessionPersistsAcrossRelaunch.xcresult -parallel-testing-enabled NO "-only-testing:TrainingOSUITests/AuthFlowUITests/test2_sessionPersistsAcrossRelaunch" test-without-building
+
+Build settings from command line:
+    SDKROOT = iphonesimulator26.5
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  CapacitorBrowser: /Users/runner/work/training-os/training-os/node_modules/@capacitor/browser @ local
+  CapacitorKeyboard: /Users/runner/work/training-os/training-os/node_modules/@capacitor/keyboard @ local
+  CapacitorStatusBar: /Users/runner/work/training-os/training-os/node_modules/@capacitor/status-bar @ local
+  CapacitorApp: /Users/runner/work/training-os/training-os/node_modules/@capacitor/app @ local
+  IONFilesystemLib: https://github.com/ionic-team/ion-ios-filesystem.git @ 1.1.4
+  CapacitorShare: /Users/runner/work/training-os/training-os/node_modules/@capacitor/share @ local
+  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.5.2
+  CapApp-SPM: /Users/runner/work/training-os/training-os/ios/App/CapApp-SPM @ local
+  CapacitorFilesystem: /Users/runner/work/training-os/training-os/node_modules/@capacitor/filesystem @ local
+  CapacitorSplashScreen: /Users/runner/work/training-os/training-os/node_modules/@capacitor/splash-screen @ local
+
+Writing result bundle at path:
+	/Users/runner/work/_temp/xcresult/test2_sessionPersistsAcrossRelaunch.xcresult
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+{ platform:iOS Simulator, arch:x86_64, id:E839A11B-51B4-4AD3-ACF4-A53B95B7C957, OS:26.5, name:iPhone 17 Pro }
+2026-10-17 01:55:03.610462+0000 TrainingOSUITests-Runner[32799:91485] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+Test Suite 'Selected tests' started at 2026-10-17 01:55:05.033.
+Test Suite 'TrainingOSUITests.xctest' started at 2026-10-17 01:55:05.033.
+Test Suite 'AuthFlowUITests' started at 2026-10-17 01:55:05.033.
+Test Case '-[TrainingOSUITests.AuthFlowUITests test2_sessionPersistsAcrossRelaunch]' started.
+    t =     0.00s Start Test at 2026-10-17 01:55:05.034
+    t =     0.14s Set Up
+    t =     0.15s Pressing Home button
+objc[32799]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x1083cc310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x108454398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+    t =     1.69s Press Application 'com.apple.springboard'[0.50, 0.99] for 0.1 seconds, then drag to Application 'com.apple.springboard'[0.50, 0.35] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =     1.70s     Wait for com.apple.springboard to idle
+    t =     2.16s     Find the Application 'com.apple.springboard'
+    t =     2.26s     Check for interrupting elements affecting " " Application
+    t =     2.33s     Synthesize event
+    t =     2.34s         Find the Application 'com.apple.springboard'
+    t =     2.38s         Find the Application 'com.apple.springboard'
+    t =     2.42s         Find the Application 'com.apple.springboard'
+    t =     2.47s         Find the Application 'com.apple.springboard'
+    t =     2.51s         Find the Application 'com.apple.springboard'
+    t =     3.98s     Wait for com.apple.springboard to idle
+    t =     6.71s Open com.trainingos.app
+2026-10-17 01:55:12.810 xcodebuild[32022:89409] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-10-17 01:55:12.810 xcodebuild[32022:89409] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =     6.71s     Launch com.trainingos.app
+    t =    13.77s         Setting up automation session
+    t =    14.89s         Wait for com.trainingos.app to idle
+    t =    17.30s Waiting 60.0s for WebView (First Match) to exist
+    t =    18.73s Terminate com.trainingos.app:33478
+    t =    19.76s Pressing Home button
+    t =    21.52s Press Application 'com.apple.springboard'[0.50, 0.99] for 0.1 seconds, then drag to Application 'com.apple.springboard'[0.50, 0.35] with velocity of 500.00 pixels per second, and then hold for 0.0 seconds 
+    t =    21.52s     Wait for com.apple.springboard to idle
+    t =    21.98s     Find the Application 'com.apple.springboard'
+    t =    22.05s     Check for interrupting elements affecting " " Application
+    t =    22.11s     Synthesize event
+    t =    22.11s         Find the Application 'com.apple.springboard'
+    t =    22.15s         Find the Application 'com.apple.springboard'
+    t =    22.20s         Find the Application 'com.apple.springboard'
+    t =    22.24s         Find the Application 'com.apple.springboard'
+    t =    22.29s         Find the Application 'com.apple.springboard'
+    t =    23.76s     Wait for com.apple.springboard to idle
+    t =    26.45s Open com.trainingos.app
+    t =    26.45s     Launch com.trainingos.app
+2026-10-17 01:55:31.493 xcodebuild[32022:89409] [MT] IDELaunchParametersSnapshot: The operation couldn’t be completed. (DebuggerLLDB.DebuggerVersionStore.StoreError error 0.)
+2026-10-17 01:55:31.493 xcodebuild[32022:89409] [MT] IDELaunchParametersSnapshot: no debugger version
+    t =    27.49s         Setting up automation session
+    t =    28.42s         Wait for com.trainingos.app to idle
+    t =    35.38s Waiting 60.0s for WebView (First Match) to exist
+    t =    36.82s Added attachment named '2·1 Tras cerrar y volver a abrir la app'
+    t =    36.91s Waiting 5.0s for Link (First Match) to exist
+    t =    37.96s         Checking existence of `Link (First Match)`
+    t =    38.00s Checking existence of `Link (First Match)`
+    t =    38.04s Find the Link (First Match)
+    t =    38.12s Find the "Más" Link
+    t =    38.17s Find the "Más" Link
+    t =    38.21s Find the "Más" Link
+    t =    38.28s Tap "Más" Link
+    t =    38.28s     Wait for com.trainingos.app to idle
+    t =    38.28s     Find the "Más" Link
+    t =    38.33s     Check for interrupting elements affecting "Más" Link
+    t =    38.37s     Synthesize event
+    t =    38.66s     Wait for com.trainingos.app to idle
+    t =    39.23s Added attachment named '2·2 Más: sigue la cuenta A'
+    t =    39.23s Tear Down
+    t =    39.34s     Added attachment named 'Final: pantalla'
+    t =    39.34s     Requesting snapshot of accessibility hierarchy for app with pid 34312
+    t =    39.62s     Requesting snapshot of accessibility hierarchy for app with pid 34312
+    t =    39.68s     Added attachment named 'Final: árbol de la app'
+    t =    39.68s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =    39.94s     Requesting snapshot of accessibility hierarchy for app with pid 14814
+    t =    39.99s     Added attachment named 'Final: árbol de SpringBoard'
+Test Case '-[TrainingOSUITests.AuthFlowUITests test2_sessionPersistsAcrossRelaunch]' passed (40.695 seconds).
+Test Suite 'AuthFlowUITests' passed at 2026-10-17 01:55:45.730.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.695 (40.696) seconds
+Test Suite 'TrainingOSUITests.xctest' passed at 2026-10-17 01:55:45.730.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.695 (40.697) seconds
+Test Suite 'Selected tests' passed at 2026-10-17 01:55:45.731.
+	 Executed 1 test, with 0 failures (0 unexpected) in 40.695 (40.698) seconds
+2026-10-17 01:55:46.548 xcodebuild[32022:89409] [MT] IDETestOperationsObserverDebug: 50.364 elapsed -- Testing started completed.
+2026-10-17 01:55:46.548 xcodebuild[32022:89409] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-10-17 01:55:46.548 xcodebuild[32022:89409] [MT] IDETestOperationsObserverDebug: 50.364 sec, +50.364 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/runner/work/_temp/xcresult/test2_sessionPersistsAcrossRelaunch.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

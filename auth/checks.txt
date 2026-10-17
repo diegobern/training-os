@@ -1,0 +1,37 @@
+PASS el paquete web apunta al proyecto demo-training-os de los emuladores
+PASS emuladores de Auth (9099) y Firestore (8080) en marcha
+PASS build-for-testing
+PASS test1_signupOnboardTrainAndSync
+PASS la cuenta A existe en el emulador de Auth
+PASS A tiene perfil en Firestore (users/<uid>)
+PASS el usuario @ua389922749711 está reservado
+PASS A tiene 1 sesión(es) en Firestore tras entrenar
+PASS la sesión del test 1 está en Firestore finalizada y con su serie
+PASS test2_sessionPersistsAcrossRelaunch
+PASS test3_logoutAndLogin
+PASS test4_passwordResetRequest
+PASS se generó un PASSWORD_RESET para el email de A (1)
+PASS el registro no envió ningún VERIFY_EMAIL
+INFO A tiene 1 sesión(es) en Firestore antes del arranque sin conexión
+PASS pf corta 9099 y 8080 (curl 28 / 28)
+PASS test5_offlineColdStart
+PASS la red de Firebase vuelve (pf desactivado)
+PASS sin conexión no llegó nada a Firestore (1 sesiones)
+PASS test6_onlineResync
+INFO la sesión hecha sin conexión llegó en ~8 s; Firestore: 1 → 2 sesiones
+PASS la sesión hecha sin conexión llegó a Firestore exactamente una vez (1 → 2)
+PASS test7_accountSwitchNoLeak
+PASS la cuenta B existe en el emulador de Auth
+PASS B tiene perfil en Firestore
+PASS B no tiene ninguna sesión en Firestore (nada de A)
+INFO A tiene 3 sesión(es) en Firestore tras descartar su entrenamiento en curso
+PASS test8_deleteAccountWrongThenRight
+PASS la cuenta B ya no existe en Auth
+PASS el perfil de B ya no está en Firestore
+PASS el usuario @ub389922749711 queda libre
+PASS ninguna colección de B conserva documentos
+PASS users/<B> no tiene subcolecciones con documentos
+PASS la cuenta A sigue en Auth
+PASS el perfil de A sigue en Firestore
+PASS el usuario @ua389922749711 sigue reservado
+PASS A conserva sus 3 sesiones

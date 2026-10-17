@@ -1,0 +1,116 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "4FE086F7-7654-4275-8879-61ADF6A573AD.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_4CE57808-D58A-4B2C-9890-393CEE78F747.txt",
+        "timestamp" : 1792202938.141
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "6349621F-B47C-41E3-AE55-9262B8647C29.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_AA2A05CA-4B97-4EF3-A2CE-FD98B8171827.txt",
+        "timestamp" : 1792202937.086
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "F30E80D9-8860-458F-87C5-24577E90F14E.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_6359261D-C1B4-4D38-90B3-EFBE4219ACF4.png",
+        "timestamp" : 1792202936.925
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "DA8109AF-2EBC-4FA8-81B4-0C8E3BDDCBD2.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·9 Pantalla de bloqueo con B sin Live Activity de A_0_C34EE34B-506C-438C-AC13-CAAD05530385.png",
+        "timestamp" : 1792202927.491
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "924E0BF4-43E7-48D0-B7B7-33F43100E6D9.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·8 Inicio del sistema con B sin Live Activity de A_0_A4A8089F-580E-4AC6-8B53-6DAB55B9FFAF.png",
+        "timestamp" : 1792202920.466
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "8F221804-DE33-4BCF-B26D-52B6A3373AA7.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·7 Historial de B_0_303EBAB5-946E-42F1-B54C-1E2F9F086308.png",
+        "timestamp" : 1792202910.218
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "187A2C24-94C4-4E7E-918F-78788338642D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·6 Inicio de B_0_969BE5EF-A7A8-4A44-B995-218C5355287C.png",
+        "timestamp" : 1792202889.519
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "D31DB31F-D2DE-43FA-B8FC-2BCEEDC5D829.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·5 Registro de B formulario relleno_0_115C8268-2F0D-46E9-9852-E99FC1CC2462.png",
+        "timestamp" : 1792202854.413
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "841D1AAA-FDEA-4047-B52A-94C6398A951F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·4 A ha cerrado sesión_0_2B89F1EA-D3D7-4566-92E5-4DC695D240F7.png",
+        "timestamp" : 1792202800.327
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "BFA15ED9-F057-49E4-AA13-4FC5208AB953.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·3 Cerrar sesión con un entrenamiento en curso_0_92BC7F30-FAA7-49C5-8277-C7787AE83B53.png",
+        "timestamp" : 1792202797.894
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "2AFD2959-0465-4ED0-9C8F-B1FB86055C3D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·2 A Live Activity del entrenamiento en curso_0_E9D84B2C-D95B-4BF1-974D-156B488E74E1.png",
+        "timestamp" : 1792202773.451
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "E839A11B-51B4-4AD3-ACF4-A53B95B7C957",
+        "deviceName" : "iPhone 17 Pro",
+        "exportedFileName" : "00E7E4EE-CA26-41E7-A7B7-0D6524DD57D7.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "7·1 A entrenamiento en curso_0_802A5CCB-2FD7-4411-AE0D-1F23B897DA0E.png",
+        "timestamp" : 1792202768.87
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test7_accountSwitchNoLeak()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test7_accountSwitchNoLeak"
+  }
+]

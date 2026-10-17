@@ -1,0 +1,78 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x11509df40, pid: 34312, label: 'Training OS'
+Element subtree:
+ →Application, 0x11509df40, pid: 34312, label: 'Training OS'
+    Window (Main), 0x11509cf00, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11509cb40, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x11509fe80, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x11509f700, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x11509de00, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x11509e080, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x11509e1c0, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x11509dcc0, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x11509e300, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x11509e580, {{0.0, 0.0}, {402.0, 1080.0}}, label: 'Training OS', Focused
+                        Other, 0x11509f0c0, {{20.0, 0.0}, {362.0, 160.0}}, label: 'banner', Focused
+                          Other, 0x11509ebc0, {{20.0, 84.0}, {362.0, 34.0}}, label: 'Más', value: 1, Focused
+                            StaticText, 0x11509c640, {{20.0, 84.0}, {55.0, 34.0}}, label: 'Más', value: Más, Focused
+                          Other, 0x11509d040, {{20.0, 123.0}, {362.0, 21.0}}, Focused
+                            StaticText, 0x11509e440, {{20.0, 124.0}, {105.0, 19.0}}, label: 'Todo lo demás.', value: Todo lo demás., Focused
+                        Button, 0x11509d680, {{21.0, 161.0}, {360.0, 50.0}}, label: 'Alice · @ua389922749711', Focused
+                        Other, 0x11509f980, {{20.0, 234.0}, {127.0, 17.0}}, label: 'ENTRENAMIENTO', value: 2, Focused
+                          StaticText, 0x11509f5c0, {{20.0, 234.0}, {127.0, 17.0}}, label: 'ENTRENAMIENTO', value: ENTRENAMIENTO, Focused
+                        Button, 0x11509d180, {{21.0, 261.0}, {360.0, 50.0}}, label: 'Rutinas', Focused
+                        Button, 0x11509d540, {{21.0, 311.0}, {360.0, 51.0}}, label: 'Biblioteca de ejercicios', Focused
+                        Button, 0x11509f840, {{21.0, 362.0}, {360.0, 51.0}}, label: 'Historial', Focused
+                        Button, 0x11509d400, {{21.0, 413.0}, {360.0, 51.0}}, label: 'Calendario', Focused
+                        Other, 0x11509c280, {{20.0, 487.0}, {81.0, 17.0}}, label: 'PROGRESO', value: 2, Focused
+                          StaticText, 0x11509cdc0, {{20.0, 487.0}, {81.0, 17.0}}, label: 'PROGRESO', value: PROGRESO, Focused
+                        Button, 0x11509cc80, {{21.0, 514.0}, {360.0, 50.0}}, label: 'Estadísticas', Focused
+                        Button, 0x1046526c0, {{21.0, 564.0}, {360.0, 51.0}}, label: 'Récords personales', Focused
+                        Button, 0x104652f80, {{21.0, 615.0}, {360.0, 51.0}}, label: 'Hitos', Focused
+                        Button, 0x1046530c0, {{21.0, 666.0}, {360.0, 51.0}}, label: 'Cuerpo', Focused
+                        Other, 0x104653700, {{20.0, 740.0}, {50.0, 17.0}}, label: 'DATOS', value: 2, Focused
+                          StaticText, 0x104653340, {{20.0, 740.0}, {50.0, 17.0}}, label: 'DATOS', value: DATOS, Focused
+                        Button, 0x104653e80, {{21.0, 767.0}, {360.0, 50.0}}, label: 'Buscar', Focused
+                        Button, 0x104653980, {{21.0, 817.0}, {360.0, 51.0}}, label: 'Ajustes', Focused
+                        Button, 0x104653840, {{21.0, 868.0}, {360.0, 51.0}}, label: 'Atribuciones', Focused
+                        Other, 0x104653ac0, {{20.0, 952.0}, {362.0, 16.0}}, Focused
+                          StaticText, 0x1046535c0, {{144.0, 952.0}, {78.0, 15.0}}, label: 'TRAINING OS', value: TRAINING OS, Focused
+                          StaticText, 0x104653c00, {{221.0, 952.0}, {11.0, 15.0}}, label: '·', value:  · , Focused
+                          StaticText, 0x104653d40, {{231.0, 952.0}, {27.0, 15.0}}, label: '1.0.0', value: 1.0.0, Focused
+                        Other, 0x104653480, {{0.0, 778.0}, {402.0, 97.0}}, label: 'Inicio, navigation', Focused
+                          Other, 0x115045a40, {{0.0, 778.0}, {402.0, 77.0}}, Focused
+                            Other, 0x115044dc0, {{0.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x115047c00, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', Focused
+                                StaticText, 0x1150452c0, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', value: Inicio, Focused
+                            Other, 0x115046e40, {{80.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x115045cc0, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', Focused
+                                StaticText, 0x1150457c0, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', value: Rutinas, Focused
+                            Other, 0x115047840, {{160.0, 778.0}, {82.0, 77.0}}, Focused
+                              Link, 0x115044000, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', Focused
+                                StaticText, 0x115047e80, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', value: Entreno, Focused
+                            Other, 0x115045540, {{241.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x1150448c0, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', Focused
+                                StaticText, 0x115044780, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', value: Progreso, Focused
+                            Other, 0x115046bc0, {{321.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x115046a80, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', Focused
+                                StaticText, 0x115044c80, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', value: Más, Focused
+                        Other, 0x115047d40, {{0.0, 0.0}, {402.0, 74.0}}, label: 'application status', Focused
+              Other, 0x115045180, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x115047340, {{396.0, 65.0}, {3.0, 554.0}}
+              Other, 0x115044500, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x115044f00, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x115047ac0, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x115044140, {{396.0, 65.0}, {3.0, 554.0}}
+              Other, 0x115044280, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x115046f80, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x115046940, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x115044a00, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x115047200, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x11509df40, pid: 34312, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x1150470c0, pid: 34312, label: 'Training OS'
+  }
