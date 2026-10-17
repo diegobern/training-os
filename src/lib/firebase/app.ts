@@ -10,6 +10,7 @@ import {
   type FirebaseStatus,
 } from './config'
 import { log } from '../db/database'
+import { isNativeIOS } from '../native/platform'
 
 export interface FirebaseCore {
   app: FirebaseApp
@@ -120,9 +121,16 @@ export function getFirebase(): Promise<FirebaseServices> | null {
     // Firestore runs with an in-memory cache on purpose: Training OS already
     // owns an offline layer in IndexedDB and a write outbox, and two competing
     // queues would make "is my set saved?" impossible to answer honestly.
+    // En la app de iPhone (WKWebView) el canal de streaming de Firestore se
+    // quedaba abierto sin entregar nada: el SDK lo daba por sano, sin un solo
+    // aviso, y la bajada esperaba para siempre (ios-auth: más de 50 s sin
+    // respuesta con el servidor bien). WebKit retiene la respuesta en curso;
+    // con long polling cada respuesta cierra su petición y llega entera. La
+    // detección automática podía elegir el streaming. Web y Android siguen con
+    // ella. (Las dos opciones no se pueden poner juntas.)
     const db = firestoreMod.initializeFirestore(app, {
       localCache: firestoreMod.memoryLocalCache(),
-      experimentalAutoDetectLongPolling: true,
+      ...(isNativeIOS() ? { experimentalForceLongPolling: true } : { experimentalAutoDetectLongPolling: true }),
       ignoreUndefinedProperties: true,
     })
 
