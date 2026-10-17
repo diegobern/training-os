@@ -292,9 +292,33 @@ export async function deleteSynced(store: SyncedStore, id: string): Promise<void
   notify(store as StoreName)
 }
 
-/** Used by the pull path: writes what the server sent without echoing it back. */
+/** Writes what the server sent without echoing it back (photo paths and bytes). */
 export async function putFromServer<T extends { id: string }>(store: SyncedStore, value: T): Promise<void> {
   await rawPut(store, value)
+}
+
+/**
+ * La bajada: escribe lo que llegó del servidor SALVO que ese documento esté
+ * en el buzón. Lo pendiente es más nuevo aquí que allí, y pisarlo perdía el
+ * cambio en los dos sitios: la subida lee el documento local al subir, y
+ * subía la versión vieja que acababa de bajar. La bajada mira el buzón al
+ * empezar, pero espera a Firestore (segundos en el iPhone): una serie o un
+ * «finalizar» guardados en ese rato no estaban en esa foto. Por eso se vuelve
+ * a mirar aquí, en la MISMA transacción que la escritura, y `putSynced`
+ * escribe documento y buzón juntos: no hay hueco entre mirar y escribir.
+ *
+ * Devuelve si escribió.
+ */
+export async function putPulled<T extends { id: string }>(store: SyncedStore, value: T): Promise<boolean> {
+  const db = await getDB()
+  const tx = db.transaction([store as AnyStore, 'syncQueue'], 'readwrite')
+  let wrote = false
+  await inTx(tx, async () => {
+    if (await tx.objectStore('syncQueue').get(`${store}:${value.id}`)) return
+    await tx.objectStore(store as AnyStore).put(value as never)
+    wrote = true
+  })
+  return wrote
 }
 
 export async function deleteFromServer(store: SyncedStore, id: string): Promise<void> {

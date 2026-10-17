@@ -32,7 +32,7 @@ import {
   syncRunning,
   type PushBackend,
 } from '../src/lib/sync/engine'
-import { clearEntries, enqueue, pendingIds, putSynced, takeBatch, ticketOf } from '../src/lib/sync/queue'
+import { clearEntries, enqueue, pendingIds, putPulled, putSynced, takeBatch, ticketOf } from '../src/lib/sync/queue'
 import { BACKUP_FORMAT, importBackup, importErrorKey } from '../src/lib/backup'
 import { setAuthDeps, useAuth } from '../src/store/useAuth'
 import { authErrorKey } from '../src/lib/firebase/account'
@@ -412,6 +412,32 @@ Object.defineProperty(globalThis.navigator, 'onLine', { value: true, configurabl
   const quiet = fakeBackend(async () => undefined)
   await syncCycle('u-seq', { backend: quiet })
   eq((await pendingIds()).has('routines:r-push'), false, 'buzón: la siguiente subida la vacía')
+}
+
+/* ------------------------------ bajada: nunca encima de lo pendiente */
+{
+  // La bajada mira el buzón al empezar y espera a Firestore (segundos en el
+  // iPhone). Si mientras tanto se guarda una versión más nueva — la serie, o
+  // finalizar el entrenamiento — lo que llega del servidor es más viejo y no
+  // puede pisarla: si la pisa, la subida pendiente lee esa versión vieja y
+  // la sube, y el cambio se pierde en los dos sitios (ios-auth: un
+  // entrenamiento finalizado volvía «en curso» y sin series).
+  await cleanDevice()
+  const pendingAtStart = await pendingIds()
+  eq(pendingAtStart.has('sessions:s-race'), false, 'bajada: al empezar no había nada pendiente')
+  // Durante la bajada: la persona finaliza (documento y buzón, juntos).
+  await putSynced('sessions', { id: 's-race', status: 'completed', updatedAt: 3 })
+  // Llega la copia del servidor, de antes de finalizar.
+  eq(await putPulled('sessions', { id: 's-race', status: 'active', updatedAt: 2 }), false, 'bajada: no escribe encima de un documento pendiente')
+  const db = await getDB()
+  const local = (await db.get('sessions', 's-race')) as { status?: string } | undefined
+  eq(local?.status, 'completed', 'bajada: la versión local, más nueva, se queda')
+  eq((await pendingIds()).has('sessions:s-race'), true, 'bajada: y sigue en el buzón para subir')
+
+  // Sin nada pendiente, lo del servidor sí entra (es otro dispositivo).
+  eq(await putPulled('sessions', { id: 's-other', status: 'completed', updatedAt: 5 }), true, 'bajada: sin nada pendiente, escribe')
+  const other = (await db.get('sessions', 's-other')) as { status?: string } | undefined
+  eq(other?.status, 'completed', 'bajada: y queda lo del servidor')
 }
 
 /* ------------------------------------- documento y buzón, a la vez */

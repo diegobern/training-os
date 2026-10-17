@@ -48,6 +48,7 @@ import {
   pendingCount,
   pendingIds,
   putFromServer,
+  putPulled,
   setSyncState,
   takeBatch,
   setQueueListener,
@@ -479,8 +480,9 @@ async function pullCollection(
         continue
       }
       if (!alive()) return count
-      await putFromServer(store, value)
-      count++
+      // Lo que se haya guardado aquí mientras se esperaba a Firestore no
+      // estaba en `pendingLocally`: `putPulled` lo vuelve a mirar al escribir.
+      if (await putPulled(store, value)) count++
     }
 
     cursor = snap.docs[snap.docs.length - 1]
