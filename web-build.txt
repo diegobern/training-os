@@ -1,0 +1,15 @@
+[2mdist/[22m[2massets/[22m[36mLogoTotem3D-CNC88jOh.js              [39m[1m[33m564.34 kB[39m[22m[2m │ gzip: 144.42 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex.esm-DxBnTP49.js                [39m[1m[33m658.40 kB[39m[22m[2m │ gzip: 169.55 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 5.76s[39m
+
+[36mPWA v0.20.5[39m
+mode      [35mgenerateSW[39m
+precache  [32m54 entries[39m [2m(725.16 KiB)[22m
+files generated
+  [2mdist/sw.js[22m
+  [2mdist/workbox-835c8c05.js[22m

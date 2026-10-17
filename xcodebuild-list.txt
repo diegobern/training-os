@@ -1,0 +1,54 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -list -project ios/App/App.xcodeproj
+
+Resolve Package Graph
+
+Fetching from https://github.com/ionic-team/capacitor-swift-pm.git
+
+Fetching from https://github.com/ionic-team/ion-ios-filesystem.git
+
+Creating working copy of package ‘ion-ios-filesystem’
+
+Checking out 1.1.4 of package ‘ion-ios-filesystem’
+
+Creating working copy of package ‘capacitor-swift-pm’
+
+Checking out 8.5.2 of package ‘capacitor-swift-pm’
+
+
+Resolved source packages:
+  capacitor-swift-pm: https://github.com/ionic-team/capacitor-swift-pm.git @ 8.5.2
+  CapacitorShare: /Users/runner/work/training-os/training-os/node_modules/@capacitor/share @ local
+  CapacitorStatusBar: /Users/runner/work/training-os/training-os/node_modules/@capacitor/status-bar @ local
+  CapApp-SPM: /Users/runner/work/training-os/training-os/ios/App/CapApp-SPM @ local
+  CapacitorBrowser: /Users/runner/work/training-os/training-os/node_modules/@capacitor/browser @ local
+  IONFilesystemLib: https://github.com/ionic-team/ion-ios-filesystem.git @ 1.1.4
+  CapacitorSplashScreen: /Users/runner/work/training-os/training-os/node_modules/@capacitor/splash-screen @ local
+  CapacitorFilesystem: /Users/runner/work/training-os/training-os/node_modules/@capacitor/filesystem @ local
+  CapacitorKeyboard: /Users/runner/work/training-os/training-os/node_modules/@capacitor/keyboard @ local
+  CapacitorApp: /Users/runner/work/training-os/training-os/node_modules/@capacitor/app @ local
+
+Information about project "App":
+    Targets:
+        App
+        TrainingOSWidgets
+        TrainingOSUITests
+
+    Build Configurations:
+        Debug
+        Release
+
+    If no build configuration is specified and -scheme is not passed then "Release" is used.
+
+    Schemes:
+        App
+        CapacitorApp
+        CapacitorBrowser
+        CapacitorFilesystem
+        CapacitorKeyboard
+        CapacitorShare
+        CapacitorSplashScreen
+        CapacitorStatusBar
+        CapApp-SPM
+        TrainingOSWidgets
+

@@ -1,0 +1,128 @@
+
+> training-os@1.0.0 ios:verify
+> node scripts/ios/verify-project.mjs
+
+— project.pbxproj: sintaxis e integridad
+PASS  project.pbxproj se puede leer
+PASS  ningún identificador ni clave repetidos
+PASS  rootObject apunta al PBXProject
+PASS  todos los objetos tienen un identificador de 24 hexadecimales (97 objetos)
+PASS  formato de proyecto clásico, sin carpetas sincronizadas (objectVersion 60)
+PASS  cada identificador referenciado existe
+PASS  cada PBXBuildFile apunta a un fichero o a un paquete que existen
+PASS  cada PBXBuildFile está en exactamente una fase
+PASS  cada fichero y cada grupo cuelga de un único grupo
+PASS  cada fichero del proyecto existe en disco
+PASS  existen los ficheros que genera `npx cap sync ios` (web compilada y configuración)
+
+— targets
+PASS  tres targets: App, TrainingOSWidgets, TrainingOSUITests
+PASS  fases, productos y listas de configuración (Debug y Release) de cada target existen
+PASS  App es com.apple.product-type.application
+PASS  App produce App.app
+PASS  App: identificador com.trainingos.app
+PASS  TrainingOSWidgets es com.apple.product-type.app-extension
+PASS  TrainingOSWidgets produce TrainingOSWidgets.appex
+PASS  TrainingOSWidgets: identificador com.trainingos.app.LiveActivity
+PASS  TrainingOSUITests es com.apple.product-type.bundle.ui-testing
+PASS  TrainingOSUITests produce TrainingOSUITests.xctest
+PASS  TrainingOSUITests: identificador com.trainingos.app.UITests
+PASS  iOS 16.2 mínimo en el proyecto y en todos los targets
+PASS  sólo iPhone (TARGETED_DEVICE_FAMILY = 1) en todos los targets
+PASS  versión fijada sólo en el proyecto, igual para app y extensión: 1.0.0 (1) / 1.0.0 (1)
+PASS  MARKETING_VERSION coincide con package.json (1.0.0)
+PASS  sin restos de CocoaPods (-D COCOAPODS)
+PASS  región de desarrollo en (en)
+PASS  idiomas conocidos: en, es, Base
+PASS  sin entitlements ni App Group: la extensión no comparte datos con la app
+
+— extensión de la Live Activity
+PASS  App depende de TrainingOSWidgets (dependencia y proxy coherentes)
+PASS  App incrusta TrainingOSWidgets.appex en PlugIns (fase «Embed Foundation Extensions», dstSubfolderSpec 13)
+PASS  el .appex se copia con RemoveHeadersOnCopy
+PASS  la copia de la extensión va después de los recursos
+PASS  la extensión no enlaza CapApp-SPM (Capacitor no es seguro para extensiones)
+PASS  extensión: SKIP_INSTALL = YES
+PASS  extensión: APPLICATION_EXTENSION_API_ONLY = YES
+PASS  extensión: Info.plist propio (TrainingOSWidgets/Info.plist, sin generar)
+PASS  extensión: encuentra los Frameworks de la app (@executable_path/../../Frameworks)
+PASS  extensión: SWIFT_VERSION 5.0
+PASS  extensión: TargetAttributes
+
+— pruebas de interfaz
+PASS  TrainingOSUITests depende de App
+PASS  TrainingOSUITests prueba App (TEST_TARGET_NAME)
+PASS  TrainingOSUITests genera su Info.plist
+PASS  TargetAttributes: TestTargetID de las pruebas es App
+
+— ficheros de cada target
+PASS  cada fichero Swift lo compila su target y sólo el suyo (12 en disco)
+PASS  App compila 7 ficheros obligatorios y existen
+PASS  TrainingOSWidgets compila 4 ficheros obligatorios y existen
+PASS  TrainingOSUITests compila al menos un fichero de pruebas
+PASS  Shared/ entra en la app y en la extensión con la misma referencia de fichero
+PASS  PrivacyInfo.xcprivacy va en los recursos de la app
+PASS  InfoPlist.strings (en, es) va en los recursos de la app
+PASS  ningún Info.plist se copia como recurso (choca con el que genera Xcode)
+
+— esquema compartido
+PASS  existe el esquema compartido App.xcscheme
+PASS  App.xcscheme es XML bien formado
+PASS  cada BuildableReference del esquema apunta a un target real (4)
+PASS  BuildAction compila App con dependencias implícitas (y, con ellas, la extensión)
+PASS  TestAction ejecuta TrainingOSUITests
+PASS  LaunchAction lanza App en Debug
+PASS  ArchiveAction archiva en Release
+
+— Info.plist de la app
+PASS  App/Info.plist se puede leer
+PASS  NSSupportsLiveActivities = true
+PASS  declara el esquema de enlace trainingos://
+PASS  NSCameraUsageDescription presente
+PASS  CFBundleLocalizations: es, en
+PASS  sólo vertical
+PASS  sin NSAllowsArbitraryLoads: nada de HTTP en claro
+PASS  sin UIBackgroundModes: la app no se queda viva en segundo plano
+PASS  ITSAppUsesNonExemptEncryption = false
+PASS  UIRequiredDeviceCapabilities: arm64
+PASS  la versión sale de los ajustes del proyecto
+PASS  en.lproj/InfoPlist.strings está bien formado y traduce NSCameraUsageDescription
+PASS  es.lproj/InfoPlist.strings está bien formado y traduce NSCameraUsageDescription
+
+— Info.plist de la extensión
+PASS  TrainingOSWidgets/Info.plist se puede leer
+PASS  NSExtensionPointIdentifier = com.apple.widgetkit-extension
+PASS  sin clase principal ni storyboard: WidgetKit arranca por @main
+PASS  claves de bundle completas y versión igual que la app (no se genera el Info.plist)
+
+— contrato nativo (docs/NATIVE-CONTRACT.md)
+PASS  el plugin se llama igual en Swift y en TypeScript (WorkoutNotification / WorkoutNotification)
+PASS  WorkoutNotificationPlugin es CAPPlugin + CAPBridgedPlugin con su identifier
+PASS  pluginMethods declara los 9 métodos del contrato
+PASS  cada método declarado tiene su @objc func (_ call: CAPPluginCall)
+PASS  MainViewController registra WorkoutNotificationPlugin en capacitorDidLoad()
+PASS  SceneDelegate crea MainViewController() (no CAPBridgeViewController())
+PASS  existen los ficheros de la extensión y de Shared/
+PASS  la cuenta atrás la pinta el sistema: Text(timerInterval:countsDown:)
+PASS  la extensión declara @main y ActivityConfiguration(for: WorkoutActivityAttributes.self)
+PASS  nada de lo que compila la extensión importa Capacitor
+PASS  la extensión no usa LocalizedStringKey: Text(verbatim:) o variables String
+PASS  ActivityKit 16.2: request(attributes:content:) con ActivityContent y staleDate
+PASS  sin las API retiradas en 16.2 (contentState:, update(using:), end(using:))
+PASS  la actividad se actualiza (upsert) y se termina
+
+— capacitor.config.ts
+PASS  capacitor.config.ts declara com.trainingos.app
+PASS  capacitor.config.ts declara Training OS
+PASS  capacitor.config.ts apunta a dist
+PASS  no hay un server.url apuntando el WebView a un servidor remoto
+
+— secretos, icono y privacidad
+PASS  git no lleva (ni llevaría con `git add`) certificados, perfiles, claves .p8 ni GoogleService-Info.plist
+PASS  el icono es un PNG de 1024×1024 sin canal alfa (RGB, tipo de color 2)
+PASS  PrivacyInfo.xcprivacy se puede leer
+PASS  NSPrivacyTracking = false
+PASS  declara UserDefaults (CA92.1)
+PASS  declara FileTimestamp (C617.1)
+
+101 passed, 0 failed

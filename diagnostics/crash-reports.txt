@@ -1,0 +1,3 @@
+total 72
+-rw-------@ 1 runner  _analyticsusers  35845 Oct 17 02:05 searchd-2026-10-17-020555.ips
+drwxrwx---  2 runner  _analyticsusers     64 Oct 13 04:34 Retired

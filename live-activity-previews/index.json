@@ -1,0 +1,547 @@
+{
+  "generatedAt" : "2026-10-17T01:53:31Z",
+  "items" : [
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-no-rest.png",
+      "heightPixels" : 404,
+      "locale" : "es-ES",
+      "state" : "no-rest",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-no-rest.png",
+      "heightPixels" : 404,
+      "locale" : "es-ES",
+      "state" : "no-rest",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-no-rest.png",
+      "heightPixels" : 326,
+      "locale" : "es-ES",
+      "state" : "no-rest",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-no-rest.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "no-rest",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-no-rest.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "no-rest",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-rest-running.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-running",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-rest-running.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-running",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-rest-running.png",
+      "heightPixels" : 373,
+      "locale" : "es-ES",
+      "state" : "rest-running",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-rest-running.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-running",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-rest-running.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-running",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-rest-paused.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-paused",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-rest-paused.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-paused",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-rest-paused.png",
+      "heightPixels" : 373,
+      "locale" : "es-ES",
+      "state" : "rest-paused",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-rest-paused.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-paused",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-rest-paused.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-paused",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-rest-over.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-over",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-rest-over.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "rest-over",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-rest-over.png",
+      "heightPixels" : 373,
+      "locale" : "es-ES",
+      "state" : "rest-over",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-rest-over.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-over",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-rest-over.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "rest-over",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-between-exercises.png",
+      "heightPixels" : 404,
+      "locale" : "es-ES",
+      "state" : "between-exercises",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-between-exercises.png",
+      "heightPixels" : 404,
+      "locale" : "es-ES",
+      "state" : "between-exercises",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-between-exercises.png",
+      "heightPixels" : 326,
+      "locale" : "es-ES",
+      "state" : "between-exercises",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-between-exercises.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "between-exercises",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-between-exercises.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "between-exercises",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-es-ES-light-long-names.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "long-names",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-es-ES-dark-long-names.png",
+      "heightPixels" : 413,
+      "locale" : "es-ES",
+      "state" : "long-names",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-es-ES-dark-long-names.png",
+      "heightPixels" : 373,
+      "locale" : "es-ES",
+      "state" : "long-names",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-es-ES-dark-long-names.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "long-names",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-es-ES-dark-long-names.png",
+      "heightPixels" : 183,
+      "locale" : "es-ES",
+      "state" : "long-names",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-no-rest.png",
+      "heightPixels" : 404,
+      "locale" : "en-GB",
+      "state" : "no-rest",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-no-rest.png",
+      "heightPixels" : 404,
+      "locale" : "en-GB",
+      "state" : "no-rest",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-no-rest.png",
+      "heightPixels" : 326,
+      "locale" : "en-GB",
+      "state" : "no-rest",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-no-rest.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "no-rest",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-no-rest.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "no-rest",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-rest-running.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-running",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-rest-running.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-running",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-rest-running.png",
+      "heightPixels" : 373,
+      "locale" : "en-GB",
+      "state" : "rest-running",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-rest-running.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-running",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-rest-running.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-running",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-rest-paused.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-paused",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-rest-paused.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-paused",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-rest-paused.png",
+      "heightPixels" : 373,
+      "locale" : "en-GB",
+      "state" : "rest-paused",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-rest-paused.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-paused",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-rest-paused.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-paused",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-rest-over.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-over",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-rest-over.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "rest-over",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-rest-over.png",
+      "heightPixels" : 373,
+      "locale" : "en-GB",
+      "state" : "rest-over",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-rest-over.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-over",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-rest-over.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "rest-over",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-between-exercises.png",
+      "heightPixels" : 404,
+      "locale" : "en-GB",
+      "state" : "between-exercises",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-between-exercises.png",
+      "heightPixels" : 404,
+      "locale" : "en-GB",
+      "state" : "between-exercises",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-between-exercises.png",
+      "heightPixels" : 326,
+      "locale" : "en-GB",
+      "state" : "between-exercises",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-between-exercises.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "between-exercises",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-between-exercises.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "between-exercises",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    },
+    {
+      "colorScheme" : "light",
+      "file" : "lockScreen-en-GB-light-long-names.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "long-names",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "lockScreen-en-GB-dark-long-names.png",
+      "heightPixels" : 413,
+      "locale" : "en-GB",
+      "state" : "long-names",
+      "surface" : "lockScreen",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandExpanded-en-GB-dark-long-names.png",
+      "heightPixels" : 373,
+      "locale" : "en-GB",
+      "state" : "long-names",
+      "surface" : "islandExpanded",
+      "widthPixels" : 1080
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandCompact-en-GB-dark-long-names.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "long-names",
+      "surface" : "islandCompact",
+      "widthPixels" : 822
+    },
+    {
+      "colorScheme" : "dark",
+      "file" : "islandMinimal-en-GB-dark-long-names.png",
+      "heightPixels" : 183,
+      "locale" : "en-GB",
+      "state" : "long-names",
+      "surface" : "islandMinimal",
+      "widthPixels" : 183
+    }
+  ],
+  "proposedWidthPoints" : 360,
+  "scale" : 3
+}

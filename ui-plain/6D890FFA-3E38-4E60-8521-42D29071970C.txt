@@ -1,0 +1,62 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x1180b08c0, pid: 63002, label: 'Training OS'
+Element subtree:
+ →Application, 0x1180b08c0, pid: 63002, label: 'Training OS'
+    Window (Main), 0x1180b0000, {{0.0, 0.0}, {390.0, 844.0}}
+      Other, 0x1180b1040, {{0.0, 0.0}, {390.0, 844.0}}
+        Other, 0x1180b1b80, {{0.0, 0.0}, {390.0, 844.0}}
+          WebView, 0x1180b3980, {{0.0, 0.0}, {390.0, 844.0}}
+            WebView, 0x1180b1540, {{0.0, 0.0}, {390.0, 844.0}}
+              WebView, 0x1180b2a80, {{0.0, 0.0}, {390.0, 844.0}}
+                Other, 0x1180b1f40, {{0.0, 0.0}, {390.0, 844.0}}
+                  Other, 0x1180b3340, {{0.0, 0.0}, {390.0, 844.0}}
+                    Other, 0x1180b0a00, {{0.0, 0.0}, {390.0, 844.0}}
+                      Other, 0x1180b0280, {{0.0, 0.0}, {390.0, 844.0}}, label: 'Training OS', Focused
+                        Other, 0x1180b3d40, {{20.0, 0.0}, {350.0, 145.0}}, label: 'banner', Focused
+                          Other, 0x1180b0640, {{20.0, 69.0}, {350.0, 34.0}}, label: 'Entrenamiento', value: 1, Focused
+                            StaticText, 0x1180b0c80, {{20.0, 69.0}, {190.0, 34.0}}, label: 'Entrenamiento', value: Entrenamiento, Focused
+                          Other, 0x1180b1900, {{20.0, 108.0}, {350.0, 21.0}}, Focused
+                            StaticText, 0x1180b1680, {{20.0, 109.0}, {205.0, 19.0}}, label: 'Elige el día que vas a entrenar', value: Elige el día que v..., Focused
+                        Other, 0x1180b3480, {{113.0, 234.0}, {165.0, 24.0}}, label: 'No tienes rutina activa', value: 3, Focused
+                          StaticText, 0x118169180, {{113.0, 236.0}, {164.0, 20.0}}, label: 'No tienes rutina activa', value: No tienes rutina a..., Focused
+                        Other, 0x118168500, {{45.0, 264.0}, {300.0, 44.0}}, Focused
+                          StaticText, 0x118168640, {{70.0, 266.0}, {250.0, 40.0}}, label: 'Crea una rutina o entrena libre y añade ejercicios sobre la marcha.', value: Crea una rutina o ..., Focused
+                        Button, 0x11816a6c0, {{107.0, 328.0}, {176.0, 44.0}}, label: 'CREAR RUTINA', Focused
+                        Button, 0x11816b700, {{107.0, 380.0}, {176.0, 44.0}}, label: 'Entrenamiento libre', Focused
+                        Other, 0x118168140, {{0.0, 748.0}, {390.0, 97.0}}, label: 'Inicio, navigation', Focused
+                          Other, 0x1181692c0, {{0.0, 748.0}, {390.0, 77.0}}, Focused
+                            Other, 0x1181697c0, {{0.0, 756.0}, {78.0, 69.0}}, Focused
+                              Link, 0x11816b840, {{23.0, 795.0}, {32.0, 15.0}}, label: 'Inicio', Focused
+                                StaticText, 0x11816b200, {{23.0, 795.0}, {32.0, 15.0}}, label: 'Inicio', value: Inicio, Focused
+                            Other, 0x118169900, {{78.0, 756.0}, {78.0, 69.0}}, Focused
+                              Link, 0x11816bac0, {{96.0, 795.0}, {42.0, 15.0}}, label: 'Rutinas', Focused
+                                StaticText, 0x118168000, {{96.0, 795.0}, {42.0, 15.0}}, label: 'Rutinas', value: Rutinas, Focused
+                            Other, 0x11816be80, {{156.0, 748.0}, {78.0, 77.0}}, Focused
+                              Link, 0x11816b5c0, {{173.0, 799.0}, {44.0, 15.0}}, label: 'Entreno', Focused
+                                StaticText, 0x11816a580, {{173.0, 799.0}, {44.0, 15.0}}, label: 'Entreno', value: Entreno, Focused
+                            Other, 0x11816aa80, {{234.0, 756.0}, {78.0, 69.0}}, Focused
+                              Link, 0x11816a1c0, {{247.0, 795.0}, {52.0, 15.0}}, label: 'Progreso', Focused
+                                StaticText, 0x1181683c0, {{247.0, 795.0}, {52.0, 15.0}}, label: 'Progreso', value: Progreso, Focused
+                            Other, 0x11816a300, {{312.0, 756.0}, {78.0, 69.0}}, Focused
+                              Link, 0x11816af80, {{339.0, 795.0}, {24.0, 15.0}}, label: 'Más', Focused
+                                StaticText, 0x1181688c0, {{339.0, 795.0}, {24.0, 15.0}}, label: 'Más', value: Más, Focused
+                        Other, 0x118168dc0, {{0.0, 0.0}, {390.0, 59.0}}, label: 'application status', Focused
+              Other, 0x118169680, {{357.0, 47.3}, {30.0, 749.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x118168f00, {{384.0, 50.3}, {3.0, 743.3}}
+              Other, 0x118168b40, {{47.3, 811.0}, {295.3, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x118169f40, {{50.3, 838.0}, {289.3, 3.0}}
+              Other, 0x11816a940, {{357.0, 47.3}, {30.0, 749.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x11816abc0, {{384.0, 50.3}, {3.0, 743.3}}
+              Other, 0x118169540, {{47.3, 811.0}, {295.3, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11816b0c0, {{50.3, 838.0}, {289.3, 3.0}}
+    Window, 0x11816b480, {{0.0, 0.0}, {390.0, 844.0}}
+      Other, 0x118169040, {{0.0, 0.0}, {390.0, 844.0}}
+        Other, 0x11816ae40, {{0.0, 0.0}, {390.0, 844.0}}
+Path to element:
+ →Application, 0x1180b08c0, pid: 63002, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x118168a00, pid: 63002, label: 'Training OS'
+  }

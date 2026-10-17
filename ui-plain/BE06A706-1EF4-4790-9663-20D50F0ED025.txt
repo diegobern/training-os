@@ -1,0 +1,4 @@
+estado de la app: 1 (4 = en primer plano)
+
+Query chain:
+ →Find: Target Application 'com.trainingos.app'

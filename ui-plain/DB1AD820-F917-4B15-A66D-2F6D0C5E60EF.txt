@@ -1,0 +1,1 @@
+La Live Activity no aparece en la jerarquía de accesibilidad de la pantalla de bloqueo: revisar la captura «Live Activity 3».

@@ -1,0 +1,44 @@
+== App
+  "CFBundleLocalizations" => [
+    0 => "es"
+    1 => "en"
+  ]
+--
+      "CFBundleURLSchemes" => [
+        0 => "trainingos"
+      ]
+    }
+--
+  "ITSAppUsesNonExemptEncryption" => false
+  "LSRequiresIPhoneOS" => true
+  "MinimumOSVersion" => "16.2"
+  "NSCameraUsageDescription" => "Training OS uses the camera only when you choose to take a progress or profile photo."
+  "NSSupportsLiveActivities" => true
+  "UIApplicationSceneManifest" => {
+    "UIApplicationSupportsMultipleScenes" => false
+    "UISceneConfigurations" => {
+--
+  "UIDeviceFamily" => [
+    0 => 1
+  ]
+  "UILaunchStoryboardName" => "LaunchScreen"
+--
+  "UISupportedInterfaceOrientations" => [
+    0 => "UIInterfaceOrientationPortrait"
+  ]
+  "UIViewControllerBasedStatusBarAppearance" => true
+== Recursos
+Base.lproj
+en.lproj
+es.lproj
+PrivacyInfo.xcprivacy
+public
+== Extensiones
+TrainingOSWidgets.appex
+  "CFBundleIdentifier" => "com.trainingos.app.LiveActivity"
+  "CFBundleVersion" => "1"
+  "MinimumOSVersion" => "16.2"
+    "NSExtensionPointIdentifier" => "com.apple.widgetkit-extension"
+== Versiones
+  "CFBundleShortVersionString" => "1.0.0"
+  "CFBundleVersion" => "1"

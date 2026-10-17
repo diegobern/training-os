@@ -1,0 +1,114 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x1164461c0, pid: 39239, label: 'Training OS'
+Element subtree:
+ →Application, 0x1164461c0, pid: 39239, label: 'Training OS'
+    Window (Main), 0x116447840, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x116445a40, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x116444140, {{0.0, 0.0}, {402.0, 874.0}}
+          WebView, 0x116444280, {{0.0, 0.0}, {402.0, 874.0}}
+            WebView, 0x116444a00, {{0.0, 0.0}, {402.0, 874.0}}
+              WebView, 0x116445400, {{0.0, 0.0}, {402.0, 874.0}}
+                Other, 0x116446800, {{0.0, 0.0}, {402.0, 874.0}}
+                  Other, 0x116446bc0, {{0.0, 0.0}, {402.0, 874.0}}
+                    Other, 0x116447700, {{0.0, 0.0}, {402.0, 874.0}}
+                      Other, 0x116444780, {{0.0, 0.0}, {402.0, 1356.0}}, label: 'Training OS', Focused
+                        Other, 0x116446e40, {{0.0, 62.0}, {402.0, 10.0}}, Focused
+                        Button, 0x116444500, {{350.0, 64.0}, {44.0, 44.0}}, label: 'Buscar', Focused
+                        Other, 0x116444dc0, {{20.0, 110.0}, {362.0, 82.0}}, label: 'banner', Focused
+                          Other, 0x11641bac0, {{20.0, 116.0}, {362.0, 34.0}}, label: 'TRAINING OS', value: 1, Focused
+                            StaticText, 0x11641b340, {{20.0, 116.0}, {174.0, 34.0}}, label: 'TRAINING OS', value: TRAINING OS, Focused
+                          Other, 0x11641b200, {{20.0, 155.0}, {362.0, 21.0}}, Focused
+                            StaticText, 0x11641b840, {{20.0, 156.0}, {152.0, 19.0}}, label: 'sábado, 17 de octubre', value: sábado, 17 de octu..., Focused
+                        Other, 0x11641b980, {{20.0, 190.0}, {362.0, 17.0}}, Focused
+                          StaticText, 0x11641b700, {{20.0, 190.0}, {101.0, 17.0}}, label: 'BUENOS DÍAS', value: BUENOS DÍAS, Focused
+                        Other, 0x11641b0c0, {{86.0, 307.0}, {230.0, 24.0}}, label: 'Todavía no hay entrenamientos', value: 3, Focused
+                          StaticText, 0x11641bd40, {{86.0, 309.0}, {230.0, 20.0}}, label: 'Todavía no hay entrenamientos', value: Todavía no hay ent..., Focused
+                        Other, 0x11641af80, {{45.0, 337.0}, {312.0, 44.0}}, Focused
+                          StaticText, 0x11641b480, {{49.0, 339.0}, {304.0, 40.0}}, label: 'Crea tu primera rutina para empezar a registrar tu progreso.', value: Crea tu primera ru..., Focused
+                        Other, 0x11641b5c0, {{125.0, 401.0}, {152.0, 52.0}}, Focused
+                          Button, 0x11641be80, {{125.0, 401.0}, {152.0, 52.0}}, label: 'CREAR RUTINA', Focused
+                        Other, 0x11641bc00, {{35.0, 515.0}, {146.0, 16.0}}, Focused
+                          StaticText, 0x116502300, {{35.0, 516.0}, {92.0, 14.0}}, label: 'ESTA SEMANA', value: ESTA SEMANA, Focused
+                        Other, 0x116502440, {{35.0, 535.0}, {146.0, 29.0}}, Focused
+                          StaticText, 0x1165003c0, {{35.0, 535.0}, {15.0, 29.0}}, label: '2', value: 2, Focused
+                        Other, 0x116503d40, {{35.0, 568.0}, {146.0, 15.0}}, Focused
+                          StaticText, 0x116503200, {{35.0, 568.0}, {45.0, 15.0}}, label: '2 series', value: 2 series, Focused
+                        Other, 0x116501e00, {{221.0, 515.0}, {146.0, 16.0}}, Focused
+                          StaticText, 0x116502800, {{221.0, 516.0}, {46.0, 14.0}}, label: 'RACHA', value: RACHA, Focused
+                        Other, 0x1165012c0, {{221.0, 535.0}, {146.0, 29.0}}, Focused
+                          StaticText, 0x116500b40, {{221.0, 535.0}, {62.0, 29.0}}, label: '1 sem', value: 1 sem, Focused
+                        Other, 0x116500f00, {{35.0, 619.0}, {146.0, 16.0}}, Focused
+                          StaticText, 0x116501900, {{35.0, 620.0}, {131.0, 14.0}}, label: 'VOLUMEN SEMANAL', value: VOLUMEN SEMANAL, Focused
+                        Other, 0x116501f40, {{35.0, 639.0}, {146.0, 29.0}}, Focused
+                          StaticText, 0x116501b80, {{35.0, 639.0}, {53.0, 29.0}}, label: '534t', value: 534t, Focused
+                        Other, 0x116502bc0, {{221.0, 619.0}, {146.0, 16.0}}, Focused
+                          StaticText, 0x116502e40, {{221.0, 620.0}, {70.0, 14.0}}, label: 'DURACIÓN', value: DURACIÓN, Focused
+                        Other, 0x116502f80, {{221.0, 639.0}, {146.0, 29.0}}, Focused
+                          StaticText, 0x116500780, {{221.0, 639.0}, {55.0, 29.0}}, label: '3min', value: 3min, Focused
+                        Other, 0x1165017c0, {{221.0, 672.0}, {146.0, 15.0}}, Focused
+                          StaticText, 0x116503480, {{221.0, 672.0}, {44.0, 15.0}}, label: '96 reps', value: 96 reps, Focused
+                        Other, 0x116500a00, {{20.0, 714.0}, {187.0, 17.0}}, label: 'ÚLTIMO ENTRENAMIENTO', value: 2, Focused
+                          StaticText, 0x116503980, {{20.0, 714.0}, {187.0, 17.0}}, label: 'ÚLTIMO ENTRENAMIENTO', value: ÚLTIMO ENTRENAMIENTO, Focused
+                        Button, 0x116502080, {{20.0, 740.0}, {362.0, 100.0}}, label: 'Entrenamiento libre 17 oct · 2min 1 serie · 533t', Focused
+                        Other, 0x116503700, {{20.0, 864.0}, {157.0, 17.0}}, label: 'RÉCORDS RECIENTES', value: 2, Focused
+                          StaticText, 0x116503e80, {{20.0, 864.0}, {157.0, 17.0}}, label: 'RÉCORDS RECIENTES', value: RÉCORDS RECIENTES, Focused
+                        Other, 0x116502a80, {{315.0, 852.0}, {67.0, 36.0}}, Focused
+                          Button, 0x116502940, {{315.0, 852.0}, {67.0, 36.0}}, label: 'Ver todo', Focused
+                        Other, 0x116502580, {{65.0, 903.0}, {233.0, 20.0}}, Focused
+                          StaticText, 0x116501540, {{65.0, 904.0}, {218.0, 18.0}}, label: 'Press Inclinado con Mancuernas', value: Press Inclinado co..., Focused
+                        Other, 0x1165035c0, {{65.0, 923.0}, {233.0, 16.0}}, Focused
+                          StaticText, 0x116501400, {{65.0, 923.0}, {89.0, 15.0}}, label: 'Récord de peso', value: Récord de peso, Focused
+                          StaticText, 0x116500500, {{153.0, 923.0}, {11.0, 15.0}}, label: '·', value:  · , Focused
+                          StaticText, 0x116503ac0, {{163.0, 923.0}, {35.0, 15.0}}, label: '17 oct', value: 17 oct, Focused
+                        Other, 0x116501040, {{309.0, 911.0}, {59.0, 20.0}}, Focused
+                          StaticText, 0x116503c00, {{309.0, 912.0}, {58.0, 18.0}}, label: '6060 kg', value: 6060 kg, Focused
+                        Other, 0x1165030c0, {{65.0, 973.0}, {257.0, 20.0}}, Focused
+                          StaticText, 0x116500000, {{65.0, 974.0}, {218.0, 18.0}}, label: 'Press Inclinado con Mancuernas', value: Press Inclinado co..., Focused
+                        Other, 0x1165026c0, {{65.0, 993.0}, {257.0, 16.0}}, Focused
+                          StaticText, 0x1164cfe80, {{65.0, 993.0}, {109.0, 15.0}}, label: 'Récord de volumen', value: Récord de volumen, Focused
+                          StaticText, 0x1164cfc00, {{173.0, 993.0}, {12.0, 15.0}}, label: '·', value:  · , Focused
+                          StaticText, 0x1164cf700, {{184.0, 993.0}, {35.0, 15.0}}, label: '17 oct', value: 17 oct, Focused
+                        Other, 0x1164cfd40, {{333.0, 981.0}, {34.0, 20.0}}, Focused
+                          StaticText, 0x1164cfac0, {{333.0, 982.0}, {34.0, 18.0}}, label: '533t', value: 533t, Focused
+                        Other, 0x1164cf840, {{20.0, 1036.0}, {163.0, 17.0}}, label: 'EVOLUCIÓN RECIENTE', value: 2, Focused
+                          StaticText, 0x1164cf980, {{20.0, 1036.0}, {163.0, 17.0}}, label: 'EVOLUCIÓN RECIENTE', value: EVOLUCIÓN RECIENTE, Focused
+                        Other, 0x1164cf5c0, {{37.0, 1079.0}, {328.0, 16.0}}, Focused
+                          StaticText, 0x1164c4140, {{37.0, 1079.0}, {108.0, 15.0}}, label: 'Últimas 8 semanas', value: Últimas 8 semanas, Focused
+                        Image, 0x1164c4c80, {{37.0, 1107.0}, {328.0, 120.0}}, label: 'Volumen por semana', Focused
+                        Other, 0x1164c6800, {{0.0, 778.0}, {402.0, 97.0}}, label: 'Inicio, navigation', Focused
+                          Other, 0x1164c6d00, {{0.0, 778.0}, {402.0, 77.0}}, Focused
+                            Other, 0x1164c5540, {{0.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x1164c5400, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', Focused
+                                StaticText, 0x1164c4b40, {{25.0, 825.0}, {31.0, 15.0}}, label: 'Inicio', value: Inicio, Focused
+                            Other, 0x1164c6440, {{80.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x1164c61c0, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', Focused
+                                StaticText, 0x1164c4f00, {{99.0, 825.0}, {43.0, 15.0}}, label: 'Rutinas', value: Rutinas, Focused
+                            Other, 0x1164c66c0, {{160.0, 778.0}, {82.0, 77.0}}, Focused
+                              Link, 0x1164c5680, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', Focused
+                                StaticText, 0x1164c6e40, {{179.0, 829.0}, {44.0, 15.0}}, label: 'Entreno', value: Entreno, Focused
+                            Other, 0x1164c70c0, {{241.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x1164c6f80, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', Focused
+                                StaticText, 0x1164c6a80, {{256.0, 825.0}, {51.0, 15.0}}, label: 'Progreso', value: Progreso, Focused
+                            Other, 0x1164c48c0, {{321.0, 786.0}, {81.0, 69.0}}, Focused
+                              Link, 0x1164c52c0, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', Focused
+                                StaticText, 0x1164c4dc0, {{350.0, 825.0}, {24.0, 15.0}}, label: 'Más', value: Más, Focused
+                        Other, 0x1164c4000, {{0.0, 0.0}, {402.0, 74.0}}, label: 'application status', Focused
+              Other, 0x1164c6940, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x1164c4a00, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x1164c6bc0, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x1164c6300, {{65.0, 868.0}, {272.0, 3.0}}
+              Other, 0x1164c5180, {{369.0, 62.0}, {30.0, 750.0}}, label: 'Barra de desplazamiento vertical, 2 páginas', value: 0 %
+                Other, 0x1164c4280, {{396.0, 65.0}, {3.0, 744.0}}
+              Other, 0x1164c6580, {{62.0, 841.0}, {278.0, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x11643c000, {{65.0, 868.0}, {272.0, 3.0}}
+    Window, 0x11643c140, {{0.0, 0.0}, {402.0, 874.0}}
+      Other, 0x11643c280, {{0.0, 0.0}, {402.0, 874.0}}
+        Other, 0x11643c3c0, {{0.0, 0.0}, {402.0, 874.0}}
+Path to element:
+ →Application, 0x1164461c0, pid: 39239, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x11643c500, pid: 39239, label: 'Training OS'
+  }

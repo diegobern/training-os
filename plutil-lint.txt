@@ -1,0 +1,4 @@
+ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist: OK
+ios/App/App/PrivacyInfo.xcprivacy: OK
+ios/App/App/Info.plist: OK
+ios/App/TrainingOSWidgets/Info.plist: OK

@@ -1,0 +1,5 @@
+PASS  nombres ES — translationStatus dice el estado real del nombre y de las instrucciones
+PASS  nombres ES — los nombres revisados por una persona no se sustituyen
+PASS  nombres ES — el catálogo publicado es exactamente lo que genera scripts/catalog/names-es.json
+
+118 passed, 0 failed

@@ -1,0 +1,593 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "0C58EACE-7DFC-4711-9BE1-29C80992BDF1.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_B1594E9A-C8DF-44F9-B6A2-7D5475D2F82C.txt",
+        "timestamp" : 1792203236.744
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "80892B72-004D-428A-BDA0-899B7DBD5F82.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_E53E5738-511F-42AC-9A40-C7E103859EDB.txt",
+        "timestamp" : 1792203234.782
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "8956E6A5-1E89-4292-A4CB-C960013E8CA3.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_4F8CA8F8-7DA9-4AF7-8F7F-E12930A0D619.png",
+        "timestamp" : 1792203234.776
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test1_signupOnboardTrainAndSync()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test1_signupOnboardTrainAndSync"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "3287385C-8B7E-4744-A6F2-4AA166811F07.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_452E5461-0CA9-4AFF-B3A1-CA6BDD08E973.txt",
+        "timestamp" : 1792203238.335
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "B2094999-B262-4D58-9722-3499104880BF.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_DEF92061-DDF2-4EFF-945B-0F88A6F28DA1.txt",
+        "timestamp" : 1792203237.445
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "D4623AA8-A22C-4825-B1FE-55BDA4AAB18B.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_77C95A9F-9C46-4132-90C6-AC6639BDECCA.png",
+        "timestamp" : 1792203237.44
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test2_sessionPersistsAcrossRelaunch()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test2_sessionPersistsAcrossRelaunch"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "944A6FB5-7BB4-42C8-844A-BCD8F66C6858.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_F8E9344D-68D6-47A1-868B-15BE337AE11A.txt",
+        "timestamp" : 1792203239.622
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "3CC9BF96-C35D-4F21-8529-AD387CC8D067.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_3151101A-8CCB-4605-B3DE-53E7CF264F06.txt",
+        "timestamp" : 1792203239.089
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "783D3856-0D60-4311-9564-D91D1B6E4CB8.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_D45964E2-96B0-4445-A379-54E1901FBE81.png",
+        "timestamp" : 1792203239.084
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test3_logoutAndLogin()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test3_logoutAndLogin"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "9F55BD11-77BF-41DB-9598-580C330707A8.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_5DF7579D-D751-479F-8B72-D3DE7FD7FCCD.txt",
+        "timestamp" : 1792203240.61
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "A25C82FC-4821-4D60-954D-F41CDF57E485.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_1C1E348D-C4A9-4777-8B7A-C450B6ED0DFF.txt",
+        "timestamp" : 1792203240.058
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "CBF9912C-352B-417F-8FDE-27A4AAD97E7F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_41D0BE26-4916-41CE-B55C-70DFA46EC83D.png",
+        "timestamp" : 1792203240.052
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test4_passwordResetRequest()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test4_passwordResetRequest"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "3AC41098-1B74-459A-AAA3-FE6EBE6A0D9D.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_C48ED70B-7EA8-4272-AB6F-F2C768A7D0F8.txt",
+        "timestamp" : 1792203242.729
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "CFDDE903-8AFB-4F5B-B00E-F5141572552A.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_548045C4-D3A1-467F-BC59-AF16A3133F91.txt",
+        "timestamp" : 1792203242.285
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "B8578D1A-F9D8-4E2C-840E-D3F4A304E540.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_76A84CAA-88F9-4180-81CA-9B93EDB68E00.png",
+        "timestamp" : 1792203242.279
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test5_offlineColdStart()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test5_offlineColdStart"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "247AC137-CE5A-48E8-B27E-996C1A0E6D30.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_A03BE4D4-5373-4744-B6F6-B9913CD752F6.txt",
+        "timestamp" : 1792203243.69
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "D6FBA8DE-F1EC-4AFA-B8B4-2D7CD3F2A436.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_81B8B336-5A23-49EB-88E1-8D7381CB0303.txt",
+        "timestamp" : 1792203243.227
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "F5B94E26-FEDD-4EC5-B959-A1C9D5404E2E.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_38D28F3E-6789-4178-A6C3-93FB20F4CA51.png",
+        "timestamp" : 1792203243.225
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test6_onlineResync()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test6_onlineResync"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "AFCD2306-56EA-4EF6-8E9E-5A2756511183.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_A7945F1D-CAB8-46CF-AF03-682034156590.txt",
+        "timestamp" : 1792203244.854
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "6117F00B-7EEA-4E94-B0FF-4C62BFCD6B5E.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_3AA0C2D3-A9CF-4C61-8EFA-E4B379E28F18.txt",
+        "timestamp" : 1792203244.216
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "FF01E602-CA17-43D1-B6A0-5B157EE2F8FA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_800CE945-D7A5-4FFA-A88A-51B278338B5C.png",
+        "timestamp" : 1792203244.211
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test7_accountSwitchNoLeak()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test7_accountSwitchNoLeak"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "F59E3A80-0F15-4D71-886A-EBD1BCE7C44F.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_A71E53E7-FA03-4484-9360-B3FFAE880EA9.txt",
+        "timestamp" : 1792203246.67
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "BE06A706-1EF4-4790-9663-20D50F0ED025.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_E363B96E-021D-43A6-9DAC-23B74FA43718.txt",
+        "timestamp" : 1792203246.237
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "D746D750-14EC-4EA7-A20A-1913A20F98B1.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_1BD72A7F-4DF0-4CF4-AEA7-A870A0577435.png",
+        "timestamp" : 1792203246.235
+      }
+    ],
+    "testIdentifier" : "AuthFlowUITests/test8_deleteAccountWrongThenRight()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/AuthFlowUITests/test8_deleteAccountWrongThenRight"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "CD64559B-3FAA-44F6-B71F-6080200CCFB7.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_DD928383-65D8-49D5-8568-0D951E1E859A.txt",
+        "timestamp" : 1792203277.504
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "21897B05-C031-4369-80A4-39EB26E54B54.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_3BEF4C64-A0CA-4035-B623-D9478B057241.txt",
+        "timestamp" : 1792203277.146
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "BE7AF78D-C8B0-4F6E-BB58-102779AED27F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_8A018ABB-6150-43E3-8C5E-8A4409251459.png",
+        "timestamp" : 1792203276.351
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "57E2EC74-F764-495E-850D-2848E9801D18.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Arranque primera pantalla_0_7CAE7631-D9A6-4BF1-ABE4-90F7B31A8438.png",
+        "timestamp" : 1792203276.156
+      }
+    ],
+    "testIdentifier" : "TrainingOSUITests/testBootShowsUI()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/TrainingOSUITests/testBootShowsUI"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "801A7AA7-8C88-4FA8-ADCD-B005C6F2FF56.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_FA790A2D-8527-440E-B958-1FCE597DCCFB.txt",
+        "timestamp" : 1792203383.483
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "314F78C6-DC7C-45BE-A62B-E7267B02E7FA.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_A605C513-3FC1-4B62-A227-BF506293403F.txt",
+        "timestamp" : 1792203383.15
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "F93938C1-5AA1-41D3-AC42-243EBCAE3456.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_6558FD0A-7BD0-4945-AB63-863EEDF6C2D1.png",
+        "timestamp" : 1792203382.597
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "0915F9F0-478A-466D-BEAD-534908A50E40.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Enlace 3 ruta ajena ignorada_0_28EF2146-9B7D-4918-92C6-440AC01966E9.png",
+        "timestamp" : 1792203371.521
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "110E0915-5EAB-4C80-9D33-FC9A82DB2D16.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Enlace 2 id desconocido, al inicio_0_989DB250-6E6F-4297-A81F-81FBAD4E9B83.png",
+        "timestamp" : 1792203362.714
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "C1D53F7A-4508-4ADF-B8AD-88364B989778.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Enlace 1 lleva a la sesión activa_0_B01D4296-F53F-4303-A9C1-832E032F13D7.png",
+        "timestamp" : 1792203350.522
+      }
+    ],
+    "testIdentifier" : "TrainingOSUITests/testDeepLink()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/TrainingOSUITests/testDeepLink"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "E0D04B07-E820-4F56-B399-F5910FBC5157.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_E88E7E55-E250-434B-821F-2AE1ADB1ACF5.txt",
+        "timestamp" : 1792203503.446
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "FE0A08AA-EBFA-4320-AE75-6FE3E369195C.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_D6301B33-C211-43C8-A043-F057B5DEC145.txt",
+        "timestamp" : 1792203502.606
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "06EEE05B-651F-4587-BE93-E8E5B3EC16AD.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_F9F114DE-3CFA-4CA7-BA2C-CCC39BA04B8B.png",
+        "timestamp" : 1792203502.523
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "A2795BB0-1A09-4F0E-8195-D1A710CDEF8D.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Finalizar 4 pantalla de bloqueo sin Live Activity_0_3F818896-732C-4E8C-B4CE-B0BEB94F6112.png",
+        "timestamp" : 1792203493.578
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "8C5C0DE2-76D3-4600-913E-AA0AECA5E43F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Finalizar 3 inicio sin Live Activity_0_A71E7768-9DEE-41BE-841E-D6F25952FF4A.png",
+        "timestamp" : 1792203489.403
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "52A9EA35-A392-4FE5-B1E9-8B00144D88FE.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Finalizar 2 entrenamiento guardado_0_E0EB9A78-8177-49CD-BCAB-59FD95B63EE5.png",
+        "timestamp" : 1792203481.583
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "05ABF2BA-4EDE-4669-8AAE-F98298284602.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Finalizar 1 entrenamiento en curso en la Dynamic Island_0_EB285869-FD47-4ED9-9E80-550BC4C94568.png",
+        "timestamp" : 1792203470.812
+      }
+    ],
+    "testIdentifier" : "TrainingOSUITests/testFinishEndsLiveActivity()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/TrainingOSUITests/testFinishEndsLiveActivity"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "EC613165-0A55-452C-ADEB-710B6BBEFB9E.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_FB2E60A9-F92E-4179-9B60-601F1ADD2F8E.txt",
+        "timestamp" : 1792203619.217
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "6D890FFA-3E38-4E60-8521-42D29071970C.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_99DDB6EC-E6DC-4E7A-B7BA-276AE629FF71.txt",
+        "timestamp" : 1792203619.018
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "54218FDB-8CB3-4EA6-95EF-314485E3EC06.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_2E84B7C4-368A-4816-9606-AD60D24ED0C0.png",
+        "timestamp" : 1792203618.608
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "DC8538B2-FB73-46B1-9F6C-355D2124A4D0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Descanso 5 de vuelta en la app_0_426D7C52-9FB4-444A-B29B-9095BD309D18.png",
+        "timestamp" : 1792203613.471
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "A2D27660-C3A1-4A22-926E-E211E3DA0C86.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Descanso 4 aviso «Descanso terminado»_0_B0869F68-8F5D-4675-AF15-A0154AB051CC.png",
+        "timestamp" : 1792203612.221
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "EF85100C-A68C-44CB-A1E9-E8D9DF5AA2C8.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Descanso 3 cuenta atrás en la pantalla de bloqueo_0_1C246E9E-AF82-45FD-B944-EF4C8EF521AE.png",
+        "timestamp" : 1792203600.741
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "876013DE-2E45-4351-83BC-0E6AB3CB4513.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Descanso 2 cuenta atrás en la Dynamic Island_0_B31560AA-E2D0-4080-A070-8CDFB66E975B.png",
+        "timestamp" : 1792203597.29
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "F93A7C82-FC87-47D9-8FC4-6BE5BB5456F0.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Descanso 1 cuenta atrás en la app_0_05FE57E5-5330-41D9-9D72-33C60718278C.png",
+        "timestamp" : 1792203588.311
+      }
+    ],
+    "testIdentifier" : "TrainingOSUITests/testRestCountdownAndAlert()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/TrainingOSUITests/testRestCountdownAndAlert"
+  },
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "E0C8DF28-221E-4F94-AFCB-D4AAA3D974F6.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de SpringBoard_0_4F9A1936-8FB4-4838-A5C6-3B00571294CD.txt",
+        "timestamp" : 1792203714.782
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "7866DB9A-53BA-42BA-98D9-E3DC6236B499.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final árbol de la app_0_444A7325-F56B-4ADF-9881-4668BA61680A.txt",
+        "timestamp" : 1792203714.405
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "B6D2DD99-3F53-43AB-BDC7-267D20DEEB57.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Final pantalla_0_433FD0A4-6FD9-4CC4-BB4E-9BF2BF5E6BB9.png",
+        "timestamp" : 1792203712.878
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "3BF08B36-3579-4215-9F9D-4F148C38C844.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Live Activity 4 de vuelta en la app_0_828348AD-CC83-4821-8DC9-A714EFADB000.png",
+        "timestamp" : 1792203698.453
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "DB1AD820-F917-4B15-A66D-2F6D0C5E60EF.txt",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Nota_0_899F7A5B-77C5-4D3B-8877-273B02C9581F.txt",
+        "timestamp" : 1792203688.169
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "3CAB370D-1850-498C-A209-36905F55D5CA.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Live Activity 3 pantalla de bloqueo_0_9F5729BE-7A3D-4515-887E-CB86F54E61AF.png",
+        "timestamp" : 1792203682.994
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "F83EC26B-CDBF-4790-985F-ABACF8341FD7.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Live Activity 2 Dynamic Island (iPhone Pro)_0_5218EE13-9145-4B82-BB29-428710609280.png",
+        "timestamp" : 1792203679.573
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "B645778B-2C95-4189-A74E-C79B9A17E245",
+        "deviceName" : "iPhone 17e",
+        "exportedFileName" : "2F70BD14-21E6-4E60-AE73-FB4313C9EEAC.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Live Activity 1 sesión en curso en la app_0_3A898651-1496-4837-A6DE-2F5E36ABC85E.png",
+        "timestamp" : 1792203675.323
+      }
+    ],
+    "testIdentifier" : "TrainingOSUITests/testWorkoutStartsLiveActivity()",
+    "testIdentifierURL" : "test://com.apple.xcode/App/TrainingOSUITests/TrainingOSUITests/testWorkoutStartsLiveActivity"
+  }
+]

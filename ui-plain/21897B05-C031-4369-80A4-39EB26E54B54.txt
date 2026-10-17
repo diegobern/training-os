@@ -1,0 +1,71 @@
+estado de la app: 4 (4 = en primer plano)
+
+Attributes: Application, 0x116a69cc0, pid: 57040, label: 'Training OS'
+Element subtree:
+ →Application, 0x116a69cc0, pid: 57040, label: 'Training OS'
+    Window (Main), 0x116a69f40, {{0.0, 0.0}, {390.0, 844.0}}
+      Other, 0x116a6a080, {{0.0, 0.0}, {390.0, 844.0}}
+        Other, 0x116a6b340, {{0.0, 0.0}, {390.0, 844.0}}
+          WebView, 0x116a6b0c0, {{0.0, 0.0}, {390.0, 844.0}}
+            WebView, 0x116a6b5c0, {{0.0, 0.0}, {390.0, 844.0}}
+              WebView, 0x116a6ad00, {{0.0, 0.0}, {390.0, 844.0}}
+                Other, 0x116a6b480, {{0.0, 0.0}, {390.0, 844.0}}
+                  Other, 0x116a6aa80, {{0.0, 0.0}, {390.0, 844.0}}
+                    Other, 0x116a6af80, {{0.0, 0.0}, {390.0, 844.0}}
+                      Other, 0x116a6be80, {{0.0, 0.0}, {390.0, 844.0}}, label: 'Training OS', Focused
+                        StaticText, 0x116a6b200, {{64.0, 73.0}, {70.0, 15.0}}, label: 'Paso 1 de 7', value: Paso 1 de 7, Focused
+                        Other, 0x116a6a940, {{20.0, 59.0}, {350.0, 10.0}}, Focused
+                        Other, 0x116a6b700, {{20.0, 107.0}, {350.0, 4.0}}, value: 1.00, Focused
+                        Other, 0x116a6a440, {{20.0, 133.0}, {350.0, 34.0}}, label: 'Sobre ti', value: 1, Focused
+                          StaticText, 0x116a6a300, {{20.0, 133.0}, {99.0, 34.0}}, label: 'Sobre ti', value: Sobre ti, Focused
+                        Other, 0x116a6a1c0, {{20.0, 174.0}, {350.0, 21.0}}, Focused
+                          StaticText, 0x116a6a580, {{20.0, 175.0}, {316.0, 19.0}}, label: 'Lo justo para que los números tengan sentido.', value: Lo justo para que ..., Focused
+                        Other, 0x116a6b840, {{20.0, 231.0}, {350.0, 22.0}}, label: 'Unidades', value: 2, Focused
+                          StaticText, 0x116a6bc00, {{20.0, 231.0}, {75.0, 22.0}}, label: 'Unidades', value: Unidades, Focused
+                        Other, 0x116a6b980, {{20.0, 265.0}, {350.0, 50.0}}, Focused
+                          Other, 0x116a6bac0, {{20.0, 265.0}, {350.0, 50.0}}, Focused
+                            Button, 0x116a6a6c0, {{25.0, 270.0}, {170.0, 40.0}}, label: 'KG', Focused, Selected
+                            Button, 0x116a6a800, {{195.0, 270.0}, {170.0, 40.0}}, label: 'LB', Focused
+                        Other, 0x116a6ae40, {{20.0, 323.0}, {350.0, 16.0}}, Focused
+                          StaticText, 0x116a6bd40, {{20.0, 323.0}, {268.0, 15.0}}, label: 'Decide cómo se muestra todo peso y distancia.', value: Decide cómo se mue..., Focused
+                        Other, 0x116a6abc0, {{20.0, 363.0}, {169.0, 16.0}}, label: 'ALTURA', Focused
+                          StaticText, 0x116a6fac0, {{20.0, 364.0}, {52.0, 14.0}}, label: 'ALTURA', value: ALTURA, Focused
+                        TextField, 0x116a6df40, {{20.0, 385.0}, {169.0, 48.0}}, label: 'ALTURA', placeholderValue: 'cm', value: cm, Focused
+                        Other, 0x116a6f5c0, {{201.0, 363.0}, {169.0, 16.0}}, label: 'PESO CORPORAL', Focused
+                          StaticText, 0x116a6ed00, {{201.0, 364.0}, {110.0, 14.0}}, label: 'PESO CORPORAL', value: PESO CORPORAL, Focused
+                        TextField, 0x116a6c8c0, {{201.0, 385.0}, {169.0, 48.0}}, label: 'PESO CORPORAL', placeholderValue: 'kg', value: kg, Focused
+                        Other, 0x116a6f700, {{20.0, 457.0}, {350.0, 32.0}}, Focused
+                          StaticText, 0x116a6fd40, {{26.0, 459.0}, {60.0, 13.0}}, label: 'OPCIONAL', value: OPCIONAL, Focused
+                          StaticText, 0x116a6f840, {{20.0, 457.0}, {335.0, 31.0}}, label: 'Inicia tu gráfico de peso y carga los ejercicios de peso corporal.', value: Inicia tu gráfico ..., Focused
+                        Other, 0x116a6f980, {{20.0, 513.0}, {350.0, 22.0}}, label: 'Edad', value: 2, Focused
+                          StaticText, 0x116a6fc00, {{20.0, 513.0}, {40.0, 22.0}}, label: 'Edad', value: Edad, Focused
+                        Switch, 0x116a6e440, {{20.0, 547.0}, {118.0, 44.0}}, label: 'Menos de 20', value: 0, Focused
+                        Switch, 0x116a6e080, {{146.0, 547.0}, {76.0, 44.0}}, label: '20-29', value: 0, Focused
+                        Switch, 0x116a6de00, {{229.0, 547.0}, {76.0, 44.0}}, label: '30-39', value: 0, Focused
+                        Switch, 0x116a6dcc0, {{20.0, 599.0}, {76.0, 44.0}}, label: '40-49', value: 0, Focused
+                        Switch, 0x116a6db80, {{103.0, 599.0}, {76.0, 44.0}}, label: '50-59', value: 0, Focused
+                        Switch, 0x116a6d7c0, {{186.0, 599.0}, {95.0, 44.0}}, label: '60 o más', value: 0, Focused
+                        Other, 0x116a6da40, {{20.0, 651.0}, {350.0, 32.0}}, Focused
+                          StaticText, 0x116a6cc80, {{26.0, 653.0}, {60.0, 13.0}}, label: 'OPCIONAL', value: OPCIONAL, Focused
+                          StaticText, 0x116a6d2c0, {{20.0, 651.0}, {300.0, 31.0}}, label: 'Solo suaviza el volumen semanal en los extremos.', value: Solo suaviza el vo..., Focused
+                        Other, 0x116a6cb40, {{20.0, 737.0}, {350.0, 61.0}}, Focused
+                          Button, 0x116a6c780, {{20.0, 737.0}, {350.0, 61.0}}, label: 'Siguiente', Focused
+                        Other, 0x116a6c640, {{0.0, 0.0}, {390.0, 59.0}}, label: 'application status', Focused
+              Other, 0x116a6c140, {{357.0, 47.3}, {30.0, 749.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x116a6e580, {{384.0, 792.0}, {3.0, 7.0}}
+              Other, 0x116a6fe80, {{47.3, 811.0}, {295.3, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x116a6d900, {{338.3, 838.0}, {7.0, 3.0}}
+              Other, 0x116a6f0c0, {{357.0, 47.3}, {30.0, 749.3}}, label: 'Barra de desplazamiento vertical, 1 página', value: 0 %
+                Other, 0x116a6f200, {{384.0, 792.0}, {3.0, 7.0}}
+              Other, 0x116a6c500, {{47.3, 811.0}, {295.3, 30.0}}, label: 'Barra de desplazamiento horizontal, 1 página', value: 0 %
+                Other, 0x116a6e940, {{338.3, 838.0}, {7.0, 3.0}}
+    Window, 0x116a6ef80, {{0.0, 0.0}, {390.0, 844.0}}
+      Other, 0x116a6ee40, {{0.0, 0.0}, {390.0, 844.0}}
+        Other, 0x116a6e800, {{0.0, 0.0}, {390.0, 844.0}}
+Path to element:
+ →Application, 0x116a69cc0, pid: 57040, label: 'Training OS'
+Query chain:
+ →Find: Target Application 'com.trainingos.app'
+  Output: {
+    Application, 0x116a6c3c0, pid: 57040, label: 'Training OS'
+  }

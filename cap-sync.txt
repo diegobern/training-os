@@ -1,0 +1,16 @@
+✔ Copying web assets from dist to ios/App/App/public in 445.29ms
+✔ Creating capacitor.config.json in ios/App/App in 660.83μs
+✔ copy ios in 476.79ms
+✔ Updating iOS plugins in 4.18ms
+[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift
+[info] Writing Package.swift
+[info] Found 7 Capacitor plugins for ios:
+       @capacitor/app@8.1.1
+       @capacitor/browser@8.0.4
+       @capacitor/filesystem@8.1.3
+       @capacitor/keyboard@8.0.5
+       @capacitor/share@8.0.2
+       @capacitor/splash-screen@8.0.2
+       @capacitor/status-bar@8.0.3
+✔ update ios in 66.70ms
+[info] Sync finished in 0.571s
