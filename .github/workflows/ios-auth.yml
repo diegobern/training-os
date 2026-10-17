@@ -127,7 +127,9 @@ jobs:
             data=$(xcrun simctl get_app_container "$SIM_UDID" com.trainingos.app data 2>/dev/null) || return 0
             local file="$data/Library/Caches/tos-console.log"
             [ -f "$file" ] || return 0
-            cut -c1-400 "$file" > "$EVIDENCE/$1-console.txt"
+            # Fuera lo que el propio XCTest escribe dentro de la app (líneas
+            # [Default] y sus volcados): casi todo el fichero, y no es la app.
+            grep -E '^(⚡️|====)|^20[0-9][0-9]-' "$file" | grep -v '\] \[Default\] ' | cut -c1-400 > "$EVIDENCE/$1-console.txt"
             : > "$file"
           }
 
