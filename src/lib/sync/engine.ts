@@ -743,7 +743,12 @@ export async function startSync(uid: string, opts: { restore?: boolean } = {}): 
   if (opts.restore) {
     await pull(uid, { restoring: true, alive: () => gen === generation })
   }
-  await syncNow()
+  // Sin esperarlo: los datos de esta cuenta ya están en el dispositivo (o los
+  // acaba de traer la restauración de arriba). Esperar el primer ciclo dejaba
+  // «Comprobando sesión…» en pantalla lo que tardara la red — con lecturas
+  // lentas, decenas de segundos — antes de enseñar lo que ya había. Es lo
+  // mismo que hace ya el arranque sin conexión.
+  void syncNow()
 
   if (timer !== null) window.clearInterval(timer)
   timer = window.setInterval(() => void syncNow(), 60_000)
