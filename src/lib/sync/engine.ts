@@ -235,6 +235,16 @@ const BATCH_SIZE = 100
  */
 export const COMMIT_TIMEOUT_MS = 25_000
 
+/**
+ * Lo mismo para cada lectura de la bajada. Una lectura que no responde
+ * nunca — el canal de Firestore abierto y sin entregar nada, sin error — dejaba
+ * el ciclo «en marcha» para siempre, y con él las subidas: en ios-auth, la
+ * serie y el «finalizar» de un entrenamiento no subieron hasta el arranque
+ * siguiente. Pasado este tiempo la bajada falla, el ciclo termina y el
+ * siguiente lo vuelve a intentar.
+ */
+export const PULL_TIMEOUT_MS = 25_000
+
 /** Un lote de escrituras, tal como lo necesita `push`. En la app es un `WriteBatch` de Firestore. */
 export interface PushBatch {
   set(path: string, data: Record<string, unknown>): void
@@ -457,8 +467,10 @@ async function pullCollection(
       ...(cursor ? [startAfter(cursor)] : []),
       limit(pageSize),
     ]
-    const snap: QuerySnapshot<DocumentData> = await getDocs(
-      query(collection(fs, userCollection(uid, store)), ...parts),
+    const snap: QuerySnapshot<DocumentData> = await withTimeout(
+      getDocs(query(collection(fs, userCollection(uid, store)), ...parts)),
+      PULL_TIMEOUT_MS,
+      'PULL_TIMEOUT',
     )
     // Lo que llega después de parar la sincronización ya no es de nadie aquí.
     if (!alive()) return count
@@ -503,8 +515,10 @@ async function pullTombstones(fs: Firestore, uid: string, alive: () => boolean):
     ...(last ? [where(SYNC_FIELD, '>', new Date(last))] : []),
     orderBy(SYNC_FIELD),
   ]
-  const snap: QuerySnapshot<DocumentData> = await getDocs(
-    query(collection(fs, tombstoneCollection(uid)), ...parts),
+  const snap: QuerySnapshot<DocumentData> = await withTimeout(
+    getDocs(query(collection(fs, tombstoneCollection(uid)), ...parts)),
+    PULL_TIMEOUT_MS,
+    'PULL_TIMEOUT',
   )
   if (!alive()) return 0
   let newest = last
@@ -625,6 +639,8 @@ let cycle: Promise<void> | null = null
 let cycleGeneration = -1
 /** Cuál de los ciclos lanzados es `cycle`: sólo ése lo deja libre al terminar. */
 let cycleSerial = 0
+/** El ciclo que se hará al terminar `cycle`, si se pidió otro mientras corría. */
+let followUp: Promise<void> | null = null
 /**
  * Generación de la sincronización: sube con cada `startSync` y cada
  * `stopSync`. Un ciclo recuerda la suya y, si cambia, deja de escribir.
@@ -641,9 +657,9 @@ export function syncRunning(): boolean {
 }
 
 /**
- * Un ciclo para la cuenta activa. Si ya hay uno en marcha devuelve ese, así
- * que quien espera a `syncNow()` espera de verdad a que termine, en vez de
- * volver al instante sin haber subido nada.
+ * Un ciclo para la cuenta activa. Si ya hay uno en marcha, otro detrás de él
+ * (ver `syncCycle`): quien espera a `syncNow()` espera de verdad a que lo
+ * suyo suba, en vez de volver al instante sin haber subido nada.
  */
 export function syncNow(): Promise<void> {
   if (!activeUid) return Promise.resolve()
@@ -656,7 +672,24 @@ export function syncNow(): Promise<void> {
  * siempre por `syncNow`.
  */
 export function syncCycle(uid: string, opts: SyncOptions = {}): Promise<void> {
-  if (cycle && cycleGeneration === generation) return cycle
+  if (cycle && cycleGeneration === generation) {
+    /*
+     * Lo que se pide mientras un ciclo sube o baja es algo que ese ciclo no
+     * ha visto (un cambio guardado después de que leyera el buzón): hace falta
+     * otro al terminar. Antes se devolvía el ciclo en marcha y nada más, y el
+     * cambio esperaba al siguiente aviso — hasta 60 s, o para siempre si la
+     * bajada se colgaba (ios-auth: el «finalizar» no subió). Las peticiones de
+     * mientras tanto se juntan en un único ciclo más.
+     */
+    if (!followUp) {
+      const gen = generation
+      followUp = cycle.then(() => {
+        followUp = null
+        return gen === generation ? syncCycle(uid, opts) : undefined
+      })
+    }
+    return followUp
+  }
   // Un ciclo de una sincronización ya parada (otra generación) sigue
   // terminando: éste espera a que acabe y no se mezclan.
   const previous = cycle

@@ -488,6 +488,38 @@ Object.defineProperty(globalThis.navigator, 'onLine', { value: true, configurabl
   eq((await pendingIds()).has('routines:r-hang'), false, 'commit colgado: y la sube')
 }
 
+/* ------------------- una petición durante un ciclo trae otro ciclo detrás */
+{
+  // Finalizar el entrenamiento mientras un ciclo baja: ese ciclo ya leyó el
+  // buzón y no lo sube. Antes, pedir otro devolvía el mismo ciclo y el cambio
+  // esperaba al siguiente aviso (ios-auth: no subió hasta el arranque siguiente).
+  await cleanDevice()
+  await putSynced('routines', { id: 'r-first', name: 'Primera', updatedAt: 1 })
+  let release: () => void = () => undefined
+  const gate = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  const slow = fakeBackend(async () => {
+    if (slow.commits === 1) await gate
+  })
+  const first = syncCycle('u-follow', { backend: slow })
+  // Que el primer ciclo llegue al `commit` antes de guardar lo nuevo.
+  await within(new Promise<void>((resolve) => {
+    const poll = () => (slow.commits === 1 ? resolve() : setTimeout(poll, 5))
+    poll()
+  }), 3_000)
+  await putSynced('routines', { id: 'r-later', name: 'Después', updatedAt: 2 })
+  const second = syncCycle('u-follow', { backend: slow })
+  const third = syncCycle('u-follow', { backend: slow })
+  eq(second === third, true, 'ciclo de más: las peticiones de mientras tanto se juntan en uno')
+  release()
+  await within(Promise.all([first, second]), 3_000)
+  eq(slow.commits, 2, 'ciclo de más: al acabar el primero, se hace otro')
+  eq(slow.writes.some((path) => path.endsWith('/r-later')), true, 'ciclo de más: y sube lo guardado durante el primero')
+  eq((await pendingIds()).size, 0, 'ciclo de más: el buzón queda vacío')
+  eq(syncRunning(), false, 'ciclo de más: y no queda ninguno en marcha')
+}
+
 /* ------------------------------------------------ eliminar la cuenta */
 {
   await cleanDevice()
